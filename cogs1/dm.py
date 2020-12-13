@@ -61,6 +61,7 @@ class dm(commands.Cog):
             # emb = discord.Embed(title=mssg, color=color_main)
             # emb.add_field(name="Message:", value=mssg, inline=False)
             await member.send(f"{member.name}: {mssg}")
+            
             await ctx.send("Message has been sent!")
             await asyncio.sleep(2)
             dmchannel = await ctx.author.create_dm()
