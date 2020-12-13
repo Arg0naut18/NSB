@@ -58,9 +58,9 @@ class dm(commands.Cog):
         color_main = color[random.randint(0, len(color)-1)]
         try:
             member = await self.bot.fetch_user(memberid)
-            emb = discord.Embed(title=mssg, color=color_main)
+            # emb = discord.Embed(title=mssg, color=color_main)
             # emb.add_field(name="Message:", value=mssg, inline=False)
-            await member.send(embed=emb)
+            await member.send(f"{member.name}: {mssg}")
             await ctx.send("Message has been sent!")
             await asyncio.sleep(2)
             dmchannel = await ctx.author.create_dm()
