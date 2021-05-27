@@ -1,6 +1,6 @@
 # NotSoBasic Bot
 
-<img src="http://imgur.com/gallery/4QgqNiB" width=300 height=500 alt=NSB>
+<img src="https://imgur.com/ocbBPsj" width=300 height=500 alt=NSB>
 
 ## Purpose
 
