@@ -1,9 +1,7 @@
 import discord
 from discord.ext import commands
 import random
-
-color = [15158332, 3066993, 10181046, 3447003, 1752220, 15844367]
-
+import datetime
 
 class help(commands.Cog):
 
@@ -11,17 +9,34 @@ class help(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def help(self, ctx):
-        msg = "·sol (solve equations upto 3 variables)\n`sci sol x+y-3 x-y-1`\n\n·differentiate\n`sci derivate x^2+2x+1`\n\n·integrate\n`sci integrate x^2+2x+1`\n\n·atom\n`sci atom Uranium`\n\n·wiki\n`sci wiki Uranium`\n\nType `sci dc` to join our official discord server if you have any suggestions or need further help.\nThank You!"
-        color_main = color[random.randint(0, 5)]
-        embed = discord.Embed(
-            title="__**Scicord command list:**__", description=msg, color=color_main)
-        await ctx.send(embed=embed)
-
-    @commands.command(aliases=['discord'])
-    async def dc(self, ctx):
-        await ctx.send(f"{ctx.author.mention} Thanks for your concern! Please join our discord server.\nhttps://discord.gg/yDjSeEj")
-
+    async def helpindm(self, ctx, category=None):
+        if category is None:
+            emb = discord.Embed(
+                title="__**Ɖɨʋɨռɛ COMMANDS:**__", color=random.randint(0x000000, 0xFFFFFF))
+            emb.add_field(name=":tools: Moderation",
+                          value="`nsb help moderation`", inline=True)
+            emb.add_field(name=":joy: Memes",
+                          value="`nsb help memes`", inline=True)
+            emb.add_field(name=":slight_smile: Trivial",
+                          value="`nsb help trivial`", inline=True)
+            emb.add_field(name=":arrow_forward: Youtube",
+                          value="`nsb help youtube`", inline=True)
+            emb.add_field(name=":musical_keyboard: Music",
+                          value="`nsb help music`", inline=True)
+            emb.add_field(name=":notebook_with_decorative_cover: Educational",
+                          value="`nsb help edu`", inline=True)
+            emb.add_field(name=":hugging: Emotes",
+                          value="`nsb help emotes`", inline=True)
+            emb.add_field(name=":man_zombie: Lifeafter",
+                          value="`nsb help la`", inline=True)
+            emb.add_field(name=":love_letter: Direct Message",
+                          value="`nsb help dm`", inline=True)
+            emb.set_thumbnail(url=self.bot.user.avatar_url)
+            emb.set_footer(
+                text=f"Invoked by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
+            emb.timestamp = datetime.datetime.now()
+            await ctx.message.add_reaction("☑️")
+            await ctx.author.send(embed=emb)
 
 def setup(bot):
     bot.add_cog(help(bot))

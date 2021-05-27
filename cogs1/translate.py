@@ -18,7 +18,7 @@ class trans(commands.Cog):
         embed = discord.Embed(title=" ", color=color_main)
         embed.add_field(name="Translation", value=translation.text, inline=False)
         embed.add_field(name="Source Lang.", value=LANGUAGES[translation.src].title(), inline=False)
-        await ctx.send(embed=embed)
+        await ctx.reply(embed=embed)
 
 def setup(bot):
     bot.add_cog(trans(bot))

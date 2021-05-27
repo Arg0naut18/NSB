@@ -24,7 +24,8 @@ class dm(commands.Cog):
         color_main = color[random.randint(0, len(color)-1)]
         channel = msg.channel
         botn = await self.bot.fetch_user("763700343137239070")
-        owner = await self.bot.fetch_user("436844058217021441")
+        owners = ["436844058217021441"]
+        owner = await self.bot.fetch_user(owners[0])
         if isinstance(channel, discord.channel.DMChannel):
             if msg.author != botn and msg.author != owner:
                 await self.bot.process_commands(msg)
@@ -34,7 +35,9 @@ class dm(commands.Cog):
                 emb.add_field(name="Member ID:", value=msg.author.id, inline=False)
                 emb.set_footer(text=f"Message by {msg.author}",icon_url=msg.author.avatar_url)
                 try:
-                    await owner.send(embed=emb)
+                    for memid in owners:
+                        owner = await self.bot.fetch_user(memid)
+                        await owner.send(embed=emb)
                 except:
                     pass
 
@@ -48,20 +51,22 @@ class dm(commands.Cog):
                 text=f"Message by {ctx.author}", icon_url=ctx.author.avatar_url)
             await member.send(embed=emb)
             await ctx.send("Message has been sent!")
+        except:
+            await ctx.send("Failed to send mssg!")
+        try:
             await asyncio.sleep(2)
             await ctx.channel.purge(limit=2)
         except:
-            await ctx.send("Failed to send mssg!")
+            pass
 
     @commands.command()
-    async def reply(self, ctx, memberid, *, mssg):
+    async def reply(self, ctx, memberid: discord.Member, *, mssg):
         color_main = color[random.randint(0, len(color)-1)]
         try:
             member = await self.bot.fetch_user(memberid)
-            # emb = discord.Embed(title=mssg, color=color_main)
+            emb = discord.Embed(title=mssg, color=color_main)
             # emb.add_field(name="Message:", value=mssg, inline=False)
-            await member.send(f"{member.name}: {mssg}")
-            
+            await member.send(embed=emb)
             await ctx.send("Message has been sent!")
             await asyncio.sleep(2)
             dmchannel = await ctx.author.create_dm()

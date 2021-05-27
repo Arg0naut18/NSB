@@ -1,4 +1,0 @@
-numpy
-matplotlib
-periodic
-sympy

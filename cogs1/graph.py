@@ -40,6 +40,7 @@ class graph(commands.Cog):
     async def plot(self, ctx, expr):
         x1 = np.arange(-10, 10, 1)
         x = symbols('x')
+        y=symbols('y')
         if "^" in expr:
             expr = expr.replace("^", "**")
         expr = solveset(expr, x)

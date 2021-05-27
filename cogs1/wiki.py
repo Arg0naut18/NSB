@@ -26,15 +26,14 @@ class wiki(commands.Cog):
 
         color_main = color[random.randint(0,5)]
         if member is None:
-            await ctx.send(f"{ctx.author.mention}")
             embed = discord.Embed(title=res.title, description = result, color=color_main, url = res.url)
             # embed.set_thumbnail(page_obj.images)
-            await ctx.send(embed=embed)
+            await ctx.reply(embed=embed)
         else:
             await ctx.send(f"{member.mention}")
             embed = discord.Embed(title=query, description = result, color=color_main)
             # embed.set_thumbnail(page_obj.images)
-            await ctx.send(embed=embed)
+            await ctx.reply(embed=embed)
 
 def setup(bot):
     bot.add_cog(wiki(bot))
