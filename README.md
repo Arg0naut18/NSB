@@ -14,7 +14,7 @@
 - Mentioning the bot
 - You can set custom prefix by using ```setprefix``` command
 
-<img src="https://i.imgur.com/IoYNPp5.gif" width=800 height = 500>
+<img src="https://i.imgur.com/IoYNPp5.gif" width=700 height = 400>
 
 ## Built With
 
