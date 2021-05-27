@@ -210,7 +210,7 @@ async def help(ctx, category = None):
 @bot.command(aliases=["l"])
 async def load(ctx, extension):
     try:
-        bot.load_extension(f"divinecogs.{extension}")
+        bot.load_extension(f"cogs1.{extension}")
         respo = await ctx.reply(f"{extension} loaded!")
         await asyncio.sleep(5)
         await respo.delete()
@@ -232,7 +232,7 @@ async def load(ctx, extension):
 @bot.command(aliases=["u"])
 async def unload(ctx, extension):
     try:
-        bot.unload_extension(f"divinecogs.{extension}")
+        bot.unload_extension(f"cogs1.{extension}")
         respo = await ctx.reply(f"{extension} unloaded!")
         await asyncio.sleep(5)
         await respo.delete()
@@ -254,8 +254,8 @@ async def unload(ctx, extension):
 @bot.command(aliases=["r"])
 async def reload(ctx, extension):
     try:
-        bot.unload_extension(f"divinecogs.{extension}")
-        bot.load_extension(f"divinecogs.{extension}")
+        bot.unload_extension(f"cogs1.{extension}")
+        bot.load_extension(f"cogs1.{extension}")
         respo = await ctx.reply(f"{extension} re-loaded!")
         await asyncio.sleep(5)
         await respo.delete()
@@ -277,10 +277,10 @@ async def reload(ctx, extension):
 @bot.command(aliases=["ra"])
 async def reloadall(ctx):
     try:
-        for file in os.listdir('./divinecogs'):
+        for file in os.listdir('./cogs1'):
             if file.endswith(".py"):
-                bot.unload_extension(f"divinecogs.{file[:-3]}")
-                bot.load_extension(f"divinecogs.{file[:-3]}")
+                bot.unload_extension(f"cogs1.{file[:-3]}")
+                bot.load_extension(f"cogs1.{file[:-3]}")
                 respo = await ctx.reply(f"All Divine cogs reloaded!")
                 await asyncio.sleep(5)
                 await respo.delete()
@@ -289,7 +289,7 @@ async def reloadall(ctx):
        	        except:
        		        pass
     except Exception as e:
-        respo = await ctx.reply(f"Error re-loading divinecogs.")
+        respo = await ctx.reply(f"Error re-loading cogs1.")
         await asyncio.sleep(5)
         await respo.delete()
         try:
@@ -298,8 +298,8 @@ async def reloadall(ctx):
             pass
         print(e)
 
-for file in os.listdir('./divinecogs'):
+for file in os.listdir('./cogs1'):
     if file.endswith(".py"):
-        bot.load_extension(f"divinecogs.{file[:-3]}")
+        bot.load_extension(f"cogs1.{file[:-3]}")
 
 bot.run(token)
