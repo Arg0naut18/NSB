@@ -14,7 +14,7 @@
 - Mentioning the bot
 - You can set custom prefix by using ```setprefix``` command
 
-![NSBgif](https://i.imgur.com/IoYNPp5.gif)
+<img src="https://i.imgur.com/IoYNPp5.gif" width=800 height = 700>
 
 ## Built With
 
