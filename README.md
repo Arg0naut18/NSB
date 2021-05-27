@@ -1,6 +1,6 @@
 # NotSoBasic Bot
 
-![nsb](https://imgur.com/gallery/4QgqNiB)
+<img src="http://imgur.com/gallery/4QgqNiB" width=300 height=500>
 
 ## Purpose
 
