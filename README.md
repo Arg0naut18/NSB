@@ -1,7 +1,7 @@
 # NotSoBasic Bot
 
 <!-- <img src="http://imgur.com/gallery/4QgqNiB" width=300 height=500 alt=NSB> -->
-![Imgur](https://imgur.com/ocbBPsj)
+![NSB](https://i.imgur.com/ocbBPsj.png)
 
 ## Purpose
 
