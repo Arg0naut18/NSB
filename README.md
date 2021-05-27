@@ -1,6 +1,6 @@
 # NotSoBasic Bot
 
-![nsb](https://user-images.githubusercontent.com/66621951/116650323-94203e00-a99e-11eb-80a0-de5beee9687c.png)
+![nsb](https://imgur.com/gallery/4QgqNiB)
 
 ## Purpose
 
