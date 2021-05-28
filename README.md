@@ -69,3 +69,7 @@
 - Giveaway
 - reactrole
 - translate
+
+## Dev
+
+![Discord Card](https://discord.c99.nl/widget/theme-2/436844058217021441.png)
