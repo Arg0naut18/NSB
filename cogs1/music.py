@@ -90,7 +90,7 @@ class music(commands.Cog):
     @commands.command()
     async def queue(self, ctx):
         player = m.get_player(guild_id=ctx.guild.id)
-        msg = '\n\n'.join([f"-> `{song.name}`" for song in player.current_queue()])
+        msg = '\n\n'.join([f"-> ```yaml{song.name}```" for song in player.current_queue()])
         q = discord.Embed(title="Queue", description=msg, color=random.randint(0x000000, 0xFFFFFF))
         await ctx.send(embed=q)
 
@@ -98,7 +98,7 @@ class music(commands.Cog):
     async def np(self, ctx):
         player = m.get_player(guild_id=ctx.guild.id)
         song = player.now_playing()
-        emb = discord.Embed(title="Now Playing!", description=f"{song.name}", color=random.randint(0x000000, 0xFFFFFF))
+        emb = discord.Embed(title="Now Playing!", description=f"[{song.name}](song.url)", color=random.randint(0x000000, 0xFFFFFF))
         await ctx.send(embed=emb)
 
     @commands.command()
@@ -107,7 +107,7 @@ class music(commands.Cog):
         data = await player.skip(force=True)
         await ctx.message.add_reaction("⏩")
         song = player.now_playing()
-        emb = discord.Embed(title="Now Playing!", description=f"{song.name}", color=random.randint(0x000000, 0xFFFFFF))
+        emb = discord.Embed(title="Now Playing!", description=f"[{song.name}](song.url)", color=random.randint(0x000000, 0xFFFFFF))
         await ctx.send(embed=emb)
             
 
