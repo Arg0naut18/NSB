@@ -1,133 +1,127 @@
 import discord
-from discord import FFmpegPCMAudio
 from discord.ext import commands
 import random
-import os
-from pyyoutube import Api
-import json
-import urllib
-import pafy
-import re
+import DiscordUtils
 from youtube_title_parse import get_artist_title
-from PyLyrics import *
-import lyricsgenius as lg
 
-j_file = open("secrets.txt")
-vari = json.load(j_file)
-j_file.close()
-ytKey = vari["ytKey"]
-gid = vari["geniusid"]
-gsecret = vari["geniussecret"]
-gtoken = vari["geniustoken"]
-api = Api(api_key=ytKey)
-queue = []
+m = DiscordUtils.Music()
 
 class music(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['p'])
-    async def play(self, ctx, *, song_name=None):
-        playing = False
-        try:
-            vc = ctx.author.voice.channel
-            if song_name is None:
-                paused = ctx.voice_client.is_paused()
-                if paused == True:
-                    await ctx.message.add_reaction("⏯️")
-                    ctx.voice_client.resume()
-            elif playing == False:
-                req = song_name
-                FFMPEG_OPTS = {
-                    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
-                query_string = urllib.parse.urlencode(
-                    {'search_query': song_name})
-                htm_content = urllib.request.urlopen(
-                    'http://www.youtube.com/results?' + query_string)
-                search_results = re.findall(r'/watch\?v=(.{11})',
-                                            htm_content.read().decode())
-                url = 'http://www.youtube.com/watch?v=' + search_results[0]
-                vidfile = pafy.new(url)
-                try:
-                    artist, title = get_artist_title(f"{vidfile.title}")
-                except:
-                    pass
-                audiofiles = vidfile.audiostreams
-                audiofile = audiofiles[1]
-                name = audiofile.title
-                try:
-                    paused = ctx.voice_client.is_paused()
-                    state = ctx.voice_client.is_playing()
-                    if state == True and paused == False:
-                        queue.append(audiofile.title)
-                except:
-                    pass
-                async with ctx.typing():
-                    emb = discord.Embed(title="Now playing:",
-                                        # description=f"Song: [{title}]({url})\nArtist: **{artist}**",
-                                        color=random.randint(0x000000, 0xFFFFFF))
-                    try:
-                        emb.add_field(
-                            name="Title", value=f"[{title}]({url})", inline=False)
-                    except:
-                        emb.add_field(
-                            name="Title", value=f"[{vidfile.title}]({url})", inline=False)
-                    try:
-                        emb.add_field(
-                            name="Artist", value=f"{artist}", inline=False)
-                    except:
-                        pass
-                    playing = await ctx.send(embed=emb)
-                try:
-                    await vc.connect()
-                except:
-                    pass
-            else:
-                await ctx.send("`Current song didn't finish yet!`")
-        except Exception as e:
-            await ctx.send("`U need to be connected in a vc!`")
-            print(e)
-            return
-        else:
-            playing = True
-            ctx.voice_client.play(FFmpegPCMAudio(
-                audiofile.url, **FFMPEG_OPTS))
+    @commands.command()
+    async def join(self, ctx):
+        await ctx.author.voice.channel.connect()
+        await ctx.guild.change_voice_state(channel=ctx.author.voice.channel, self_deaf=True)
 
-    @commands.command(aliases=['dc'])
+    @commands.command(aliases=['dc', 'disconnect'])
     async def leave(self, ctx):
-        if ctx.author.voice.channel:
+        await ctx.message.add_reaction("👋")
+        await ctx.voice_client.disconnect()
+
+    @commands.command(aliases=['p'])
+    async def play(self, ctx, *, url):
+        try:
+            await ctx.author.voice.channel.connect()
+            await ctx.guild.change_voice_state(channel=ctx.author.voice.channel, self_deaf=True)
+        except:
+            pass
+        player = m.get_player(guild_id=ctx.guild.id)
+        if not player:
+            player = m.create_player(ctx, ffmpeg_error_betterfix=True)
+        if not ctx.voice_client.is_playing():
+            await player.queue(url, search=True)
+            song = await player.play()
             try:
-                await ctx.message.add_reaction("👋")
-                await ctx.voice_client.disconnect()
+                artist, title = get_artist_title(f"{song.name}")
+            except:
+                title = song.name
+            emb = discord.Embed(title="Now Playing!",color=random.randint(0x000000, 0xFFFFFF))
+            emb.add_field(name="Title", value=f"`[{title}]({song.url})`", inline=False)
+            try:
+                emb.add_field(name="Artist", value=f"`{artist}`", inline=False)
             except:
                 pass
+            await ctx.send(embed=emb)
+
+        else:
+            song = await player.queue(url, search=True)
+            try:
+                artist, title = get_artist_title(f"{song.name}")
+            except:
+                title = song.name
+            emb = discord.Embed(title="Queued!",color=random.randint(0x000000, 0xFFFFFF))
+            emb.add_field(name="Title", value=f"`[{title}]({song.url})`", inline=False)
+            try:
+                emb.add_field(name="Artist", value=f"`{artist}`", inline=False)
+            except:
+                pass
+            await ctx.send(embed=emb)
 
     @commands.command()
     async def pause(self, ctx):
-        stat = ctx.voice_client.is_playing()
-        paused = ctx.voice_client.is_paused()
-        if paused != True:
-            await ctx.message.add_reaction("⏸️")
-            ctx.voice_client.pause()
-        else:
-            if stat == True:
-                await ctx.send("`Song is already paused!`")
-            else:
-                await ctx.send("`No song is playing!`")
+        player = m.get_player(guild_id=ctx.guild.id)
+        await player.pause()
+        await ctx.message.add_reaction("⏸️")
+
+    @commands.command()
+    async def resume(self, ctx):
+        player = m.get_player(guild_id=ctx.guild.id)
+        await player.resume()
+        await ctx.message.add_reaction("👍")
 
     @commands.command()
     async def stop(self, ctx):
-        stat = ctx.voice_client.is_playing()
-        paused = ctx.voice_client.is_paused()
-        if paused != True:
-            await ctx.message.add_reaction("🛑")
-            ctx.voice_client.stop()
+        player = m.get_player(guild_id=ctx.guild.id)
+        await player.stop()
+        await ctx.message.add_reaction("🛑")
+
+    @commands.command()
+    async def loop(self, ctx):
+        player = m.get_player(guild_id=ctx.guild.id)
+        song = await player.toggle_song_loop()
+        if song.is_looping:
+            await ctx.send(f"Enabled loop for `{song.name}`")
         else:
-            if stat == True:
-                await ctx.send("`Song is already paused!`")
-            else:
-                await ctx.send("`No song is playing!`")
+            await ctx.send(f"Disabled loop for `{song.name}`")
+
+    @commands.command()
+    async def queue(self, ctx):
+        player = m.get_player(guild_id=ctx.guild.id)
+        msg = '\n\n'.join([f"-> `{song.name}`" for song in player.current_queue()])
+        q = discord.Embed(title="Queue", description=msg, color=random.randint(0x000000, 0xFFFFFF))
+        await ctx.send(embed=q)
+
+    @commands.command()
+    async def np(self, ctx):
+        player = m.get_player(guild_id=ctx.guild.id)
+        song = player.now_playing()
+        emb = discord.Embed(title="Now Playing!", description=f"{song.name}", color=random.randint(0x000000, 0xFFFFFF))
+        await ctx.send(embed=emb)
+
+    @commands.command()
+    async def skip(self, ctx):
+        player = m.get_player(guild_id=ctx.guild.id)
+        data = await player.skip(force=True)
+        await ctx.message.add_reaction("⏩")
+        song = player.now_playing()
+        emb = discord.Embed(title="Now Playing!", description=f"{song.name}", color=random.randint(0x000000, 0xFFFFFF))
+        await ctx.send(embed=emb)
+            
+
+    @commands.command()
+    async def volume(self, ctx, vol):
+        player = m.get_player(guild_id=ctx.guild.id)
+        song, volume = await player.change_volume(float(vol) / 100) # volume should be a float between 0 to 1
+        await ctx.send(f"Changed volume for {song.name} to {volume*100}%")
+
+    @commands.command()
+    async def remove(self, ctx, index):
+        player = m.get_player(guild_id=ctx.guild.id)
+        song = await player.remove_from_queue(int(index))
+        await ctx.send(f"Removed `{song.name}` from queue")
 
 def setup(bot):
     bot.add_cog(music(bot))
