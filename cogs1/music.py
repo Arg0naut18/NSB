@@ -90,7 +90,7 @@ class music(commands.Cog):
     @commands.command()
     async def queue(self, ctx):
         player = m.get_player(guild_id=ctx.guild.id)
-        msg = ''.join([f"```yaml\n->{song.name}```" for song in player.current_queue()])
+        msg = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name}```" for song in player.current_queue()])
         q = discord.Embed(title="Queue", description=msg, color=random.randint(0x000000, 0xFFFFFF))
         await ctx.send(embed=q)
 
@@ -118,7 +118,7 @@ class music(commands.Cog):
         await ctx.send(f"Changed volume for {song.name} to {volume*100}%")
 
     @commands.command()
-    async def remove(self, ctx, index):
+    async def remove(self, ctx, *, index):
         player = m.get_player(guild_id=ctx.guild.id)
         song = await player.remove_from_queue(int(index)-1)
         await ctx.send(f"Removed `{song.name}` from queue")
