@@ -30,7 +30,7 @@ class prof(commands.Cog):
         joined = member.joined_at
         joined = joined.replace(tzinfo=timezone('UTC')).astimezone(timezone('Asia/Kolkata'))
         perm_list = [perm[0] for perm in member.guild_permissions if perm[1]]
-        perms = ", ".join([str(x) for x in perm_list])
+        perms = ", ".join([str(x) for x in sorted(perm_list)])
         embed = discord.Embed(color=color_main, description=member.mention)
         embed.set_thumbnail(url=member.avatar_url)
         embed.set_author(name=f"{member.name}", icon_url=member.avatar_url)
@@ -44,7 +44,14 @@ class prof(commands.Cog):
                     customstats = s
         except:
             stats = "Can't say!"
-        embed.add_field(name="Status", value=f"{stats}", inline=True)
+        if stats == "online":
+            embed.add_field(name="Status", value=f":green_circle: {stats}", inline=True)
+        if stats == "dnd":
+            embed.add_field(name="Status", value=f":red_circle: {stats}", inline=True)
+        if stats == "idle":
+            embed.add_field(name="Status", value=f":orange_circle: {stats}", inline=True)
+        if stats == "Can't say!":
+            embed.add_field(name="Status", value=f"{stats}", inline=True)
         if(customstats is not None):
             embed.add_field(name=" Custom Status", value=f"{customstats}", inline=False)
         embed.add_field(name="Created at", value=creation.strftime(
