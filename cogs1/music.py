@@ -32,10 +32,8 @@ class music(commands.Cog):
         if not player:
             player = m.create_player(ctx, ffmpeg_error_betterfix=True)
         if ctx.voice_client.is_paused() and url==None:
-            try:
-                await player.resume()
-            except Exception as e:
-                raise(e)
+            await player.resume()
+            await ctx.message.add_reaction("👍")
         if not ctx.voice_client.is_playing():
             await player.queue(url, search=True)
             song = await player.play()
