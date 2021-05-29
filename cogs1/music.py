@@ -22,7 +22,7 @@ class music(commands.Cog):
         await ctx.voice_client.disconnect()
 
     @commands.command(aliases=['p'])
-    async def play(self, ctx, *, url):
+    async def play(self, ctx, *, url=None):
         try:
             await ctx.author.voice.channel.connect()
             await ctx.guild.change_voice_state(channel=ctx.author.voice.channel, self_deaf=True)
@@ -31,6 +31,11 @@ class music(commands.Cog):
         player = m.get_player(guild_id=ctx.guild.id)
         if not player:
             player = m.create_player(ctx, ffmpeg_error_betterfix=True)
+        if ctx.voice_client.is_paused() and url==None:
+            try:
+                await player.resume()
+            except Exception as e:
+                raise(e)
         if not ctx.voice_client.is_playing():
             await player.queue(url, search=True)
             song = await player.play()
@@ -38,6 +43,7 @@ class music(commands.Cog):
                 artist, title = get_artist_title(f"{song.name}")
             except:
                 title = song.name
+                artist = song.channel
             emb = discord.Embed(title="Now Playing!",color=random.randint(0x000000, 0xFFFFFF))
             emb.add_field(name="Title", value=f"`[{title}]({song.url})`", inline=False)
             try:
@@ -120,7 +126,11 @@ class music(commands.Cog):
     @commands.command()
     async def remove(self, ctx, index):
         player = m.get_player(guild_id=ctx.guild.id)
-        song = await player.remove_from_queue(int(index)-1)
+        if index=="last":
+            ind = len(player.current_queue())
+            song = await player.remove_from_queue(int(ind-1))
+        else:
+            song = await player.remove_from_queue(int(index)-1)
         await ctx.send(f"Removed `{song.name}` from queue")
 
 def setup(bot):
