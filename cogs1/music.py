@@ -45,7 +45,7 @@ class music(commands.Cog):
                 title = song.name
                 artist = song.channel
             emb = discord.Embed(title="Now Playing!",color=random.randint(0x000000, 0xFFFFFF))
-            emb.add_field(name="Title", value=f"`[{title}]({song.url})`", inline=False)
+            emb.add_field(name="Title", value=f"[{title}]({song.url})", inline=False)
             try:
                 emb.add_field(name="Artist", value=f"`{artist}`", inline=False)
             except:
@@ -59,7 +59,7 @@ class music(commands.Cog):
             except:
                 title = song.name
             emb = discord.Embed(title="Queued!",color=random.randint(0x000000, 0xFFFFFF))
-            emb.add_field(name="Title", value=f"`[{title}]({song.url})`", inline=False)
+            emb.add_field(name="Title", value=f"[{title}]({song.url})", inline=False)
             try:
                 emb.add_field(name="Artist", value=f"`{artist}`", inline=False)
             except:
