@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 import random
-import math
 import DiscordUtils
 from youtube_title_parse import get_artist_title
 
@@ -43,8 +42,14 @@ class music(commands.Cog):
             except:
                 title = song.name
                 artist = song.channel
+            if song.duration % 60 > 10:
+                dura = f"{song.duration//60}:{song.duration%60}"
+            else:
+                secs = '0' + str(song.duration%60)
+                dura = f"{song.duration//60}:{secs}"
             emb = discord.Embed(title="Now Playing!",color=random.randint(0x000000, 0xFFFFFF))
-            emb.add_field(name="Title", value=f"[{title}]({song.url})", inline=False)
+            emb.add_field(name="Title", value=f"[{title}]({song.url})", inline=True)
+            emb.add_field(name="Duration", value=f"`{dura}`", inline=True)
             try:
                 emb.add_field(name="Artist", value=f"`{artist}`", inline=False)
             except:
@@ -57,8 +62,14 @@ class music(commands.Cog):
                 artist, title = get_artist_title(f"{song.name}")
             except:
                 title = song.name
+            if song.duration % 60 > 10:
+                dura = f"{song.duration//60}:{song.duration%60}"
+            else:
+                secs = '0' + str(song.duration%60)
+                dura = f"{song.duration//60}:{secs}"
             emb = discord.Embed(title="Queued!",color=random.randint(0x000000, 0xFFFFFF))
-            emb.add_field(name="Title", value=f"[{title}]({song.url})", inline=False)
+            emb.add_field(name="Title", value=f"[{title}]({song.url})", inline=True)
+            emb.add_field(name="Duration", value=f"`{dura}`", inline=True)
             try:
                 emb.add_field(name="Artist", value=f"`{artist}`", inline=False)
             except:
@@ -98,10 +109,10 @@ class music(commands.Cog):
         duralist = []
         for song in player.current_queue():
             if song.duration % 60 > 10:
-                dura = f"{math.floor(song.duration/60)}:{song.duration%60}"
+                dura = f"{song.duration//60}:{song.duration%60}"
             else:
                 secs = '0' + str(song.duration%60)
-                dura = f"{math.floor(song.duration/60)}:{secs}"
+                dura = f"{song.duration//60}:{secs}"
             duralist.append(dura)
         msg = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()])
         q = discord.Embed(title="Queue", description=msg, color=random.randint(0x000000, 0xFFFFFF))
@@ -112,10 +123,10 @@ class music(commands.Cog):
         player = m.get_player(guild_id=ctx.guild.id)
         song = player.now_playing()
         if song.duration % 60 > 10:
-            dura = f"{math.floor(song.duration/60)}:{song.duration%60}"
+            dura = f"{song.duration//60}:{song.duration%60}"
         else:
             secs = '0' + str(song.duration%60)
-            dura = f"{math.floor(song.duration/60)}:{secs}"
+            dura = f"{song.duration//60}:{secs}"
         emb = discord.Embed(title="Now Playing!", description=f"[{song.name}]({song.url})"+f" - ({dura})", color=random.randint(0x000000, 0xFFFFFF))
         await ctx.send(embed=emb)
 
