@@ -3,6 +3,7 @@ from discord.ext import commands
 import random
 import DiscordUtils
 from youtube_title_parse import get_artist_title
+import asyncio
 
 m = DiscordUtils.Music()
 
@@ -32,8 +33,11 @@ class music(commands.Cog):
         if not player:
             player = m.create_player(ctx, ffmpeg_error_betterfix=True)
         if ctx.voice_client.is_paused() and url==None:
-            await player.resume()
-            await ctx.message.add_reaction("👍")
+            try:
+                await player.resume()
+                await ctx.message.add_reaction("👍")
+            except:
+                pass
         if not ctx.voice_client.is_playing():
             await player.queue(url, search=True)
             song = await player.play()
@@ -76,6 +80,13 @@ class music(commands.Cog):
                 pass
             await ctx.send(embed=emb)
 
+    @play.error
+    async def songcouldntbeplayed(self, ctx, error):
+        if isinstance(error, commands.CommandInvokeError):
+            msg = await ctx.send(f"`If the song didn't play, it's either cause you played a non-youtube url or a youtube playlist. These formats are not supported yet. Sorry for the inconvenience.`")
+            await asyncio.sleep(10)
+            await msg.delete()
+
     @commands.command()
     async def pause(self, ctx):
         player = m.get_player(guild_id=ctx.guild.id)
@@ -115,7 +126,10 @@ class music(commands.Cog):
                 dura = f"{song.duration//60}:{secs}"
             duralist.append(dura)
         msg = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()])
-        q = discord.Embed(title="Queue", description=msg, color=random.randint(0x000000, 0xFFFFFF))
+        if msg != '':
+            q = discord.Embed(title="Queue", description=msg, color=random.randint(0x000000, 0xFFFFFF))
+        else:
+            q = discord.Embed(title="Queue", description="The queue is empty! Add some songs.", color=random.randint(0x000000, 0xFFFFFF))
         await ctx.send(embed=q)
 
     @commands.command()
@@ -139,6 +153,10 @@ class music(commands.Cog):
         emb = discord.Embed(title="Now Playing!", description=f"[{song.name}]({song.url})", color=random.randint(0x000000, 0xFFFFFF))
         await ctx.send(embed=emb)
             
+    @skip.error()
+    async def noSkipleft(self, ctx, error):
+        if isinstance(error, commands.CommandInvokeError):
+            await ctx.send(f"`Queue is empty! Add more songs.`")
 
     @commands.command()
     async def volume(self, ctx, vol):

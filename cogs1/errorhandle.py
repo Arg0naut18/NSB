@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import random
 import asyncio
+import sys
 
 
 class errors(commands.Cog):
@@ -11,6 +12,8 @@ class errors(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
+        if hasattr(ctx.command, 'on_error'):
+            return
         if isinstance(error, commands.MissingPermissions):
             respo = await ctx.reply("You do not have the permission to execute this command.")
             await asyncio.sleep(10)
