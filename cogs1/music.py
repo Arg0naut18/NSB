@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import random
+import math
 import DiscordUtils
 from youtube_title_parse import get_artist_title
 
@@ -91,10 +92,18 @@ class music(commands.Cog):
         else:
             await ctx.send(f"Disabled loop for `{song.name}`")
 
-    @commands.command()
+    @commands.command(aliases=['q'])
     async def queue(self, ctx):
         player = m.get_player(guild_id=ctx.guild.id)
-        msg = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name}```" for song in player.current_queue()])
+        duralist = []
+        for song in player.current_queue():
+            if song.duration % 60 > 10:
+                dura = f"{math.floor(song.duration/60)}:{song.duration%60}"
+            else:
+                secs = '0' + str(song.duration%60)
+                dura = f"{math.floor(song.duration/60)}:{secs}"
+            duralist.append(dura)
+        msg = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()])
         q = discord.Embed(title="Queue", description=msg, color=random.randint(0x000000, 0xFFFFFF))
         await ctx.send(embed=q)
 
@@ -102,7 +111,12 @@ class music(commands.Cog):
     async def np(self, ctx):
         player = m.get_player(guild_id=ctx.guild.id)
         song = player.now_playing()
-        emb = discord.Embed(title="Now Playing!", description=f"[{song.name}](song.url)", color=random.randint(0x000000, 0xFFFFFF))
+        if song.duration % 60 > 10:
+            dura = f"{math.floor(song.duration/60)}:{song.duration%60}"
+        else:
+            secs = '0' + str(song.duration%60)
+            dura = f"{math.floor(song.duration/60)}:{secs}"
+        emb = discord.Embed(title="Now Playing!", description=f"[{song.name}]({song.url})"+f" - ({dura})", color=random.randint(0x000000, 0xFFFFFF))
         await ctx.send(embed=emb)
 
     @commands.command()
@@ -111,7 +125,7 @@ class music(commands.Cog):
         data = await player.skip(force=True)
         await ctx.message.add_reaction("⏩")
         song = player.now_playing()
-        emb = discord.Embed(title="Now Playing!", description=f"[{song.name}](song.url)", color=random.randint(0x000000, 0xFFFFFF))
+        emb = discord.Embed(title="Now Playing!", description=f"[{song.name}]({song.url})", color=random.randint(0x000000, 0xFFFFFF))
         await ctx.send(embed=emb)
             
 
