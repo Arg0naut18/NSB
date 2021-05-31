@@ -1,3 +1,5 @@
+[![discord](https://img.shields.io/discord/743741348578066442.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/WuZ5kNc)
+
 # NotSoBasic Bot
 
 <!-- <img src="http://imgur.com/gallery/4QgqNiB" width=300 height=500 alt=NSB> -->
