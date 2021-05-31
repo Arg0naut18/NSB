@@ -4,6 +4,8 @@ import random
 import DiscordUtils
 from youtube_title_parse import get_artist_title
 import asyncio
+import requests
+import json
 
 m = DiscordUtils.Music()
 
@@ -173,6 +175,33 @@ class music(commands.Cog):
         else:
             song = await player.remove_from_queue(int(index)-1)
         await ctx.send(f"Removed `{song.name}` from queue")
+
+    # @commands.command()
+    # async def lyrics(self,ctx, *, songname=None):
+    #     if songname is None:
+    #         player = m.get_player(guild_id=ctx.guild.id)
+    #         song = player.now_playing()
+    #         artistname, titlename = get_artist_title(f"{song.name}")
+    #     else:
+    #         artistname, titlename = get_artist_title(f"{songname}")
+    #     artist = ''
+    #     title = ''
+    #     for char in artistname:
+    #         if char.isalpha():
+    #             artist += char
+    #     for char in titlename:
+    #         if char.isalpha():
+    #             title += char
+    #     r = requests.get('https://api.lyrics.ovh/v1/{}/{}'.format(artist, title))
+    #     if r.status_code == 200:
+    #         l_response = json.loads(r.content)
+    #         try:
+    #             async with ctx.typing():
+    #                 lyric = l_response["lyrics"]
+    #                 lyr = discord.Embed(title=f"{title}".title(), description=lyric.replace("\n\n", "\n"), color=random.randint(0x000000, 0xFFFFFF))
+    #                 await ctx.send(embed=lyr)
+    #         except:
+    #             await ctx.send(f'`Lyrics not found.`')
 
 def setup(bot):
     bot.add_cog(music(bot))
