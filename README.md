@@ -1,4 +1,4 @@
-[![Discord](https://img.shields.io/discord/743741348578066442?color=7389D8&label=support&logo=discord&logoColor=ffffff)](https://discord.gg/WuZ5kNc)
+[![Discord](https://img.shields.io/discord/743741348578066442?color=7389D8&label=support&logo=discord&logoColor=ffffff&labelColor=6A7EC2)](https://discord.gg/WuZ5kNc)
 
 # NotSoBasic Bot
 
