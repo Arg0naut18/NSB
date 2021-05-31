@@ -2,13 +2,14 @@
 
 # NotSoBasic Bot
 
-<!-- <img src="http://imgur.com/gallery/4QgqNiB" width=300 height=500 alt=NSB> -->
-![NSB](https://i.imgur.com/ocbBPsj.png)
 
 ## Purpose
 
 - A multi-purpose discord bot for fun and other stuffs.
 - Thriving to be one of the best discord bots.
+
+<!-- <img src="http://imgur.com/gallery/4QgqNiB" width=300 height=500 alt=NSB> -->
+![NSB](https://i.imgur.com/ocbBPsj.png)
 
 ## Prefix
 
