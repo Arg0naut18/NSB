@@ -16,11 +16,18 @@ class music(commands.Cog):
 
     @commands.command()
     async def join(self, ctx):
-        await ctx.author.voice.channel.connect()
+        try:
+            await ctx.author.voice.channel.connect()
+        except:
+            await ctx.send("You need to be connected to the vc!")
         await ctx.guild.change_voice_state(channel=ctx.author.voice.channel, self_deaf=True)
 
     @commands.command(aliases=['dc', 'disconnect'])
     async def leave(self, ctx):
+        try:
+            vc = ctx.author.voice.channel
+        except:
+            return
         await ctx.message.add_reaction("👋")
         await ctx.voice_client.disconnect()
 
@@ -30,7 +37,7 @@ class music(commands.Cog):
             await ctx.author.voice.channel.connect()
             await ctx.guild.change_voice_state(channel=ctx.author.voice.channel, self_deaf=True)
         except:
-            pass
+            await ctx.send("`You need to be connected to a vc!`")
         player = m.get_player(guild_id=ctx.guild.id)
         if not player:
             player = m.create_player(ctx, ffmpeg_error_betterfix=True)
@@ -82,33 +89,42 @@ class music(commands.Cog):
                 pass
             await ctx.send(embed=emb)
 
-    @play.error
-    async def songcouldntbeplayed(self, ctx, error):
-        if isinstance(error, commands.CommandInvokeError):
-            msg = await ctx.send(f"`If the song didn't play, it's either cause you played a non-youtube url or a youtube playlist. These formats are not supported yet. Sorry for the inconvenience.\nAnd if you used this to resume a song, I'd recommend to use resume command instead of this to avoid getting this message.`")
-            await asyncio.sleep(10)
-            await msg.delete()
-
     @commands.command()
     async def pause(self, ctx):
+        try:
+            vc = ctx.author.voice.channel
+        except:
+            return
         player = m.get_player(guild_id=ctx.guild.id)
         await player.pause()
         await ctx.message.add_reaction("⏸️")
 
     @commands.command()
     async def resume(self, ctx):
+        try:
+            vc = ctx.author.voice.channel
+        except:
+            return
         player = m.get_player(guild_id=ctx.guild.id)
-        await player.resume()
+        song = await player.resume()
         await ctx.message.add_reaction("👍")
 
     @commands.command()
     async def stop(self, ctx):
+        try:
+            vc = ctx.author.voice.channel
+        except:
+            return
         player = m.get_player(guild_id=ctx.guild.id)
         await player.stop()
         await ctx.message.add_reaction("🛑")
 
     @commands.command()
     async def loop(self, ctx):
+        try:
+            vc = ctx.author.voice.channel
+        except:
+            return
         player = m.get_player(guild_id=ctx.guild.id)
         song = await player.toggle_song_loop()
         if song.is_looping:
@@ -116,7 +132,7 @@ class music(commands.Cog):
         else:
             await ctx.send(f"Disabled loop for `{song.name}`")
 
-    @commands.command(aliases=['q'])
+    @commands.command(aliases = ['q'])
     async def queue(self, ctx):
         player = m.get_player(guild_id=ctx.guild.id)
         duralist = []
@@ -148,26 +164,36 @@ class music(commands.Cog):
 
     @commands.command()
     async def skip(self, ctx):
+        try:
+            vc = ctx.author.voice.channel
+        except:
+            return
         player = m.get_player(guild_id=ctx.guild.id)
         data = await player.skip(force=True)
         await ctx.message.add_reaction("⏩")
         song = player.now_playing()
         emb = discord.Embed(title="Now Playing!", description=f"[{song.name}]({song.url})", color=random.randint(0x000000, 0xFFFFFF))
         await ctx.send(embed=emb)
-            
-    @skip.error()
-    async def noSkipleft(self, ctx, error):
-        if isinstance(error, commands.CommandInvokeError):
-            await ctx.send(f"`Queue is empty! Add more songs.`")
+           # await ctx.send(f"Skipped from `{data[0].name}` to `{data[1].name}`")
+        #else:
+           # await ctx.send(f"Skipped `{data[0].name}`")
 
     @commands.command()
     async def volume(self, ctx, vol):
+        try:
+            vc = ctx.author.voice.channel
+        except:
+            return
         player = m.get_player(guild_id=ctx.guild.id)
         song, volume = await player.change_volume(float(vol) / 100) # volume should be a float between 0 to 1
         await ctx.send(f"Changed volume for {song.name} to {volume*100}%")
 
     @commands.command()
     async def remove(self, ctx, index):
+        try:
+            vc = ctx.author.voice.channel
+        except:
+            return
         player = m.get_player(guild_id=ctx.guild.id)
         if index=="last":
             ind = len(player.current_queue())
@@ -175,6 +201,25 @@ class music(commands.Cog):
         else:
             song = await player.remove_from_queue(int(index)-1)
         await ctx.send(f"Removed `{song.name}` from queue")
+    
+    @skip.error
+    async def noSkipleft(self, ctx, error):
+        if isinstance(error, commands.CommandInvokeError):
+            msg = await ctx.send(f"`Queue is empty! Add more songs.`")
+            await asyncio.sleep(5)
+            await msg.delete()
+    
+    @play.error
+    async def songcouldntbeplayed(self, ctx, error):
+        if isinstance(error, commands.CommandInvokeError):
+            msg = await ctx.send(f"`If the song didn't play, it's either cause you played a non-youtube url or a youtube playlist. These formats are not supported yet. Sorry for the inconvenience.\nAnd if you used this to resume a song, I'd recommend to use resume command instead of this to avoid getting this message.`")
+            print(error)
+            await asyncio.sleep(10)
+            await msg.delete()
+    
+def setup(bot):
+    bot.add_cog(music(bot))
+
 
     # @commands.command()
     # async def lyrics(self,ctx, *, songname=None):
@@ -202,6 +247,3 @@ class music(commands.Cog):
     #                 await ctx.send(embed=lyr)
     #         except:
     #             await ctx.send(f'`Lyrics not found.`')
-
-def setup(bot):
-    bot.add_cog(music(bot))
