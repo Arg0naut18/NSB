@@ -60,7 +60,7 @@ class music(commands.Cog):
             else:
                 secs = '0' + str(song.duration%60)
                 dura = f"{song.duration//60}:{secs}"
-            emb = discord.Embed(title="Now Playing!",color=random.randint(0x000000, 0xFFFFFF))
+            emb = discord.Embed(title="Now Playing!",color=0x00FF00)
             emb.add_field(name="Title", value=f"[{title}]({song.url})", inline=True)
             emb.add_field(name="Duration", value=f"`{dura}`", inline=True)
             try:
@@ -80,7 +80,7 @@ class music(commands.Cog):
             else:
                 secs = '0' + str(song.duration%60)
                 dura = f"{song.duration//60}:{secs}"
-            emb = discord.Embed(title="Queued!",color=random.randint(0x000000, 0xFFFFFF))
+            emb = discord.Embed(title="Queued!",color=0x00FF00)
             emb.add_field(name="Title", value=f"[{title}]({song.url})", inline=True)
             emb.add_field(name="Duration", value=f"`{dura}`", inline=True)
             try:
@@ -145,9 +145,9 @@ class music(commands.Cog):
             duralist.append(dura)
         msg = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()])
         if msg != '':
-            q = discord.Embed(title="Queue", description=msg, color=random.randint(0x000000, 0xFFFFFF))
+            q = discord.Embed(title="Queue", description=msg, color=0x00FF00)
         else:
-            q = discord.Embed(title="Queue", description="The queue is empty! Add some songs.", color=random.randint(0x000000, 0xFFFFFF))
+            q = discord.Embed(title="Queue", description="The queue is empty! Add some songs.", color=0x00FF00)
         await ctx.send(embed=q)
 
     @commands.command()
@@ -159,7 +159,7 @@ class music(commands.Cog):
         else:
             secs = '0' + str(song.duration%60)
             dura = f"{song.duration//60}:{secs}"
-        emb = discord.Embed(title="Now Playing!", description=f"[{song.name}]({song.url})"+f" - ({dura})", color=random.randint(0x000000, 0xFFFFFF))
+        emb = discord.Embed(title="Now Playing!", description=f"[{song.name}]({song.url})"+f" - ({dura})", color=0x00FF00)
         await ctx.send(embed=emb)
 
     @commands.command()
@@ -172,7 +172,7 @@ class music(commands.Cog):
         data = await player.skip(force=True)
         await ctx.message.add_reaction("⏩")
         song = player.now_playing()
-        emb = discord.Embed(title="Now Playing!", description=f"[{song.name}]({song.url})", color=random.randint(0x000000, 0xFFFFFF))
+        emb = discord.Embed(title="Now Playing!", description=f"[{song.name}]({song.url})", color=0x00FF00)
         await ctx.send(embed=emb)
            # await ctx.send(f"Skipped from `{data[0].name}` to `{data[1].name}`")
         #else:
@@ -243,7 +243,7 @@ def setup(bot):
     #         try:
     #             async with ctx.typing():
     #                 lyric = l_response["lyrics"]
-    #                 lyr = discord.Embed(title=f"{title}".title(), description=lyric.replace("\n\n", "\n"), color=random.randint(0x000000, 0xFFFFFF))
+    #                 lyr = discord.Embed(title=f"{title}".title(), description=lyric.replace("\n\n", "\n"), color=0x00FF00)
     #                 await ctx.send(embed=lyr)
     #         except:
     #             await ctx.send(f'`Lyrics not found.`')
