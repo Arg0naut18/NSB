@@ -19,7 +19,7 @@ class music(commands.Cog):
         try:
             await ctx.author.voice.channel.connect()
         except:
-            await ctx.send("You need to be connected to the vc!")
+            await ctx.send("`You need to be connected to the vc!`")
         await ctx.guild.change_voice_state(channel=ctx.author.voice.channel, self_deaf=True)
 
     @commands.command(aliases=['dc', 'disconnect'])
@@ -34,10 +34,15 @@ class music(commands.Cog):
     @commands.command(aliases=['p'])
     async def play(self, ctx, *, url=None):
         try:
-            await ctx.author.voice.channel.connect()
+            vc = ctx.author.voice.channel
+        except:
+            await ctx.send("`You need to be connected to the vc!`")
+            return
+        try:
+            await vc.connect()
             await ctx.guild.change_voice_state(channel=ctx.author.voice.channel, self_deaf=True)
         except:
-            await ctx.send("`You need to be connected to a vc!`")
+            pass
         player = m.get_player(guild_id=ctx.guild.id)
         if not player:
             player = m.create_player(ctx, ffmpeg_error_betterfix=True)
@@ -94,6 +99,7 @@ class music(commands.Cog):
         try:
             vc = ctx.author.voice.channel
         except:
+            await ctx.send("`You need to be connected to the vc!`")
             return
         player = m.get_player(guild_id=ctx.guild.id)
         await player.pause()
@@ -104,6 +110,7 @@ class music(commands.Cog):
         try:
             vc = ctx.author.voice.channel
         except:
+            await ctx.send("`You need to be connected to the vc!`")
             return
         player = m.get_player(guild_id=ctx.guild.id)
         song = await player.resume()
@@ -114,6 +121,7 @@ class music(commands.Cog):
         try:
             vc = ctx.author.voice.channel
         except:
+            await ctx.send("`You need to be connected to the vc!`")
             return
         player = m.get_player(guild_id=ctx.guild.id)
         await player.stop()
@@ -124,6 +132,7 @@ class music(commands.Cog):
         try:
             vc = ctx.author.voice.channel
         except:
+            await ctx.send("`You need to be connected to the vc!`")
             return
         player = m.get_player(guild_id=ctx.guild.id)
         song = await player.toggle_song_loop()
@@ -167,6 +176,7 @@ class music(commands.Cog):
         try:
             vc = ctx.author.voice.channel
         except:
+            await ctx.send("`You need to be connected to the vc!`")
             return
         player = m.get_player(guild_id=ctx.guild.id)
         data = await player.skip(force=True)
@@ -183,6 +193,7 @@ class music(commands.Cog):
         try:
             vc = ctx.author.voice.channel
         except:
+            await ctx.send("`You need to be connected to the vc!`")
             return
         player = m.get_player(guild_id=ctx.guild.id)
         song, volume = await player.change_volume(float(vol) / 100) # volume should be a float between 0 to 1
@@ -193,6 +204,7 @@ class music(commands.Cog):
         try:
             vc = ctx.author.voice.channel
         except:
+            await ctx.send("`You need to be connected to the vc!`")
             return
         player = m.get_player(guild_id=ctx.guild.id)
         if index=="last":
