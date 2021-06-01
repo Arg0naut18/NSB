@@ -48,7 +48,7 @@ class music(commands.Cog):
             except:
                 title = song.name
                 artist = song.channel
-            if song.duration % 60 > 10:
+            if song.duration % 60 >= 10:
                 dura = f"{song.duration//60}:{song.duration%60}"
             else:
                 secs = '0' + str(song.duration%60)
@@ -68,7 +68,7 @@ class music(commands.Cog):
                 artist, title = get_artist_title(f"{song.name}")
             except:
                 title = song.name
-            if song.duration % 60 > 10:
+            if song.duration % 60 >= 10:
                 dura = f"{song.duration//60}:{song.duration%60}"
             else:
                 secs = '0' + str(song.duration%60)
@@ -85,7 +85,7 @@ class music(commands.Cog):
     @play.error
     async def songcouldntbeplayed(self, ctx, error):
         if isinstance(error, commands.CommandInvokeError):
-            msg = await ctx.send(f"`If the song didn't play, it's either cause you played a non-youtube url or a youtube playlist. These formats are not supported yet. Sorry for the inconvenience.`")
+            msg = await ctx.send(f"`If the song didn't play, it's either cause you played a non-youtube url or a youtube playlist. These formats are not supported yet. Sorry for the inconvenience.\nAnd if you used this to resume a song, I'd recommend to use resume command instead of this to avoid getting this message.`")
             await asyncio.sleep(10)
             await msg.delete()
 
@@ -121,7 +121,7 @@ class music(commands.Cog):
         player = m.get_player(guild_id=ctx.guild.id)
         duralist = []
         for song in player.current_queue():
-            if song.duration % 60 > 10:
+            if song.duration % 60 >= 10:
                 dura = f"{song.duration//60}:{song.duration%60}"
             else:
                 secs = '0' + str(song.duration%60)
@@ -138,7 +138,7 @@ class music(commands.Cog):
     async def np(self, ctx):
         player = m.get_player(guild_id=ctx.guild.id)
         song = player.now_playing()
-        if song.duration % 60 > 10:
+        if song.duration % 60 >= 10:
             dura = f"{song.duration//60}:{song.duration%60}"
         else:
             secs = '0' + str(song.duration%60)
