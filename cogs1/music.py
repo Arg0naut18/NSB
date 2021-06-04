@@ -6,8 +6,17 @@ from youtube_title_parse import get_artist_title
 import asyncio
 import requests
 import json
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
 
 m = DiscordUtils.Music()
+
+j_file = open("divinesecrets.txt")
+vari = json.load(j_file)
+j_file.close()
+cid = vari['spotipyid']
+ctoken = vari['spotipytoken']
+client_cred = SpotifyClientCredentials(client_id=cid, client_secret=ctoken)
 
 class music(commands.Cog):
 
@@ -43,6 +52,16 @@ class music(commands.Cog):
             await ctx.guild.change_voice_state(channel=ctx.author.voice.channel, self_deaf=True)
         except:
             pass
+        if 'open.spotify' in url:
+            
+            urn, idextra = url.split('track/')
+            id, extra = idextra.split('?')
+            newurn = f'spotify:track:{id}'
+            sp = spotipy.Spotify(client_credentials_manager=client_cred)
+            song = sp.track(newurn)
+            name = song['name']
+            artist = song['album']['artists'][0]['name']
+            url = f"{name} {artist}"
         player = m.get_player(guild_id=ctx.guild.id)
         if not player:
             player = m.create_player(ctx, ffmpeg_error_betterfix=True)
