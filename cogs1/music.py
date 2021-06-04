@@ -92,7 +92,7 @@ class music(commands.Cog):
                 emb.add_field(name="Artist", value=f"`{artist}`", inline=False)
             except:
                 pass
-            emb.add_field(name="Index", value=f"{len(player.current_queue())}", inline=True)
+            emb.set_footer(text=f"Song added at index position {len(player.current_queue())}")
             await ctx.send(embed=emb)
 
     @commands.command()
