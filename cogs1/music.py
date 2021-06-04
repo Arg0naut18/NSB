@@ -145,16 +145,24 @@ class music(commands.Cog):
     async def queue(self, ctx):
         player = m.get_player(guild_id=ctx.guild.id)
         duralist = []
+        total_duration = 0
         for song in player.current_queue():
+            total_duration += song.duration
             if song.duration % 60 >= 10:
                 dura = f"{song.duration//60}:{song.duration%60}"
             else:
                 secs = '0' + str(song.duration%60)
                 dura = f"{song.duration//60}:{secs}"
             duralist.append(dura)
+        if total_duration % 60 >= 10:
+            durafoot = f"{total_duration//60}:{total_duration%60}"
+        else:
+            secs = '0' + str(total_duration%60)
+            durafoot = f"{total_duration//60}:{secs}"
         msg = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()])
         if msg != '':
             q = discord.Embed(title="Queue", description=msg, color=0x00FF00)
+            q.set_footer(text=f"{len(player.current_queue())} songs -> ({durafoot}) duration")
         else:
             q = discord.Embed(title="Queue", description="The queue is empty! Add some songs.", color=0x00FF00)
         await ctx.send(embed=q)
