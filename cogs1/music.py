@@ -53,7 +53,6 @@ class music(commands.Cog):
         except:
             pass
         if 'open.spotify' in url:
-            
             urn, idextra = url.split('track/')
             id, extra = idextra.split('?')
             newurn = f'spotify:track:{id}'
