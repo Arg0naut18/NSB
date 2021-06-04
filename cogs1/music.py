@@ -92,6 +92,7 @@ class music(commands.Cog):
                 emb.add_field(name="Artist", value=f"`{artist}`", inline=False)
             except:
                 pass
+            emb.add_field(name="Index", value=f"{len(player.current_queue())}", inline=True)
             await ctx.send(embed=emb)
 
     @commands.command()
