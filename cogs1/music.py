@@ -8,6 +8,7 @@ import requests
 import json
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
+from pytube import Playlist
 
 m = DiscordUtils.Music()
 
@@ -52,6 +53,9 @@ class music(commands.Cog):
             await ctx.guild.change_voice_state(channel=ctx.author.voice.channel, self_deaf=True)
         except:
             pass
+        player = m.get_player(guild_id=ctx.guild.id)
+        if not player:
+            player = m.create_player(ctx, ffmpeg_error_betterfix=True)
         if 'open.spotify' in url:
             urn, idextra = url.split('track/')
             id, extra = idextra.split('?')
@@ -61,9 +65,14 @@ class music(commands.Cog):
             name = song['name']
             artist = song['album']['artists'][0]['name']
             url = f"{name} {artist}"
-        player = m.get_player(guild_id=ctx.guild.id)
-        if not player:
-            player = m.create_player(ctx, ffmpeg_error_betterfix=True)
+        if 'youtube.com/playlist?' in url:
+            play_list = Playlist(url)
+            for video in play_list.videos:
+                name = video.title
+                artist = video.author
+                newtitle = f"{name} {artist}"
+                await player.queue(newtitle, search=True)
+            await ctx.send(f"Added `{len(play_list.videos)}` songs to the queue!")
         if ctx.voice_client.is_paused() and url==None:
             try:
                 player = m.get_player(guild_id=ctx.guild.id)
