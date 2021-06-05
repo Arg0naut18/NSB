@@ -66,11 +66,12 @@ class music(commands.Cog):
             player = m.create_player(ctx, ffmpeg_error_betterfix=True)
         if ctx.voice_client.is_paused() and url==None:
             try:
+                player = m.get_player(guild_id=ctx.guild.id)
                 await player.resume()
                 await ctx.message.add_reaction("👍")
             except:
                 pass
-        if not ctx.voice_client.is_playing():
+        if not ctx.voice_client.is_playing() and not ctx.voice_client.is_paused():
             await player.queue(url, search=True)
             song = await player.play()
             try:
