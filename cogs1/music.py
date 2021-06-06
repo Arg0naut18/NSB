@@ -65,7 +65,7 @@ class music(commands.Cog):
             song = sp.track(newurn)
             name = song['name']
             artist = song['album']['artists'][0]['name']
-            url = f"{name} {artist}"
+            url = f"{name} lyrics {artist}"
         if 'youtube.com/playlist?' in url:
             play_list = Playlist(url)
             for video in play_list.videos:
@@ -83,7 +83,7 @@ class music(commands.Cog):
             for i in range(len(album['tracks']['items'])):
                 name = album['tracks']['items'][i]['name']
                 artist = album['artists'][0]['name']
-                url = f"{name} {artist}"
+                url = f"{name} lyrics {artist}"
                 await player.queue(url, search=True)
             await ctx.send(f"Added `{len(album['tracks']['items'])}` songs to the queue!")
         if 'spotify.com/playlist' in url:
@@ -95,7 +95,7 @@ class music(commands.Cog):
             for i in range(len(playlist['tracks']['items'])):
                 name = playlist['tracks']['items'][i]['track']['name']
                 artist = playlist['tracks']['items'][i]['track']['artists'][0]['name']
-                url = f"{name} {artist}"
+                url = f"{name} lyrics {artist}"
                 await player.queue(url, search=True)
             await ctx.send(f"Added `{len(playlist['tracks']['items'])}` songs to the queue!")
         if ctx.voice_client.is_paused() and url==None:
