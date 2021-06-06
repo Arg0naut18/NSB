@@ -56,11 +56,12 @@ class music(commands.Cog):
         player = m.get_player(guild_id=ctx.guild.id)
         if not player:
             player = m.create_player(ctx, ffmpeg_error_betterfix=True)
+        sp = spotipy.Spotify(client_credentials_manager=client_cred)
         if 'spotify.com/track' in url:
+            # sp = spotipy.Spotify(client_credentials_manager=client_cred)
             urn, idextra = url.split('track/')
             id, extra = idextra.split('?')
             newurn = f'spotify:track:{id}'
-            sp = spotipy.Spotify(client_credentials_manager=client_cred)
             song = sp.track(newurn)
             name = song['name']
             artist = song['album']['artists'][0]['name']
@@ -73,32 +74,30 @@ class music(commands.Cog):
                 newtitle = f"{name} {artist}"
                 await player.queue(newtitle, search=True)
             await ctx.send(f"Added `{len(play_list.videos)}` songs to the queue!")
+        if 'spotify.com/album' in url:
+            urn, idextra = url.split('album/')
+            id, extra = idextra.split('?')
+            newurn = f'spotify:album:{id}'
+            # sp = spotipy.Spotify(client_credentials_manager=client_cred)
+            album = sp.album(newurn)
+            for i in range(len(album['tracks']['items'])):
+                name = album['tracks']['items'][i]['name']
+                artist = album['artists'][0]['name']
+                url = f"{name} {artist}"
+                await player.queue(url, search=True)
+            await ctx.send(f"Added `{len(album['tracks']['items'])}` songs to the queue!")
         if 'spotify.com/playlist' in url:
             urn, idextra = url.split('playlist/')
             id, extra = idextra.split('?')
-            sp = spotipy.Spotify(client_credentials_manager=client_cred)
-            pl_id = f'spotify:playlist:{id}'
-            offset = 0
-            numsongs = []
-            while True:
-                response = sp.playlist_items(pl_id,
-                                            offset=offset,
-                                            fields='items.track.id,total',
-                                            additional_types=['track'])
-                
-                if len(response['items']) == 0:
-                    break
-                numsongs.append(len(response['items']))
-                for track in response['items']:
-                    id = track['track']['id']
-                    newurn = f'spotify:track:{id}'
-                    song = sp.track(newurn)
-                    name = song['name']
-                    artist = song['album']['artists'][0]['name']
-                    url = f"{name} {artist}"
-                    await player.queue(url, search=True)
-                offset = offset + len(response['items'])
-            await ctx.send(f"Added `{numsongs[0]}` songs to the queue!")
+            newurn = f'spotify:playlist:{id}'
+            # sp = spotipy.Spotify(client_credentials_manager=client_cred)
+            playlist = sp.playlist(newurn)
+            for i in range(len(playlist['tracks']['items'])):
+                name = playlist['tracks']['items'][i]['track']['name']
+                artist = playlist['tracks']['items'][i]['track']['artists'][0]['name']
+                url = f"{name} {artist}"
+                await player.queue(url, search=True)
+            await ctx.send(f"Added `{len(playlist['tracks']['items'])}` songs to the queue!")
         if ctx.voice_client.is_paused() and url==None:
             try:
                 player = m.get_player(guild_id=ctx.guild.id)
