@@ -212,7 +212,16 @@ class music(commands.Cog):
             durafoot = f"{total_duration//60}:{total_duration%60}"
         else:
             secs = '0' + str(total_duration%60)
-            durafoot = f"{total_duration//60}:{secs}"
+            if total_duration >= 3600:
+                hours=total_duration//3600
+                mins = (total_duration//60) - 60
+                if mins<10:
+                    minu = '0'+str(mins)
+                    durafoot = f"{hours}:{minu}:{secs}"
+                else:
+                    durafoot = f"{hours}:{mins}:{secs}"
+            else:
+                durafoot = f"{total_duration//60}:{secs}"
         msg = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()])
         if msg != '':
             q = discord.Embed(title="Queue", description=msg, color=0x00FF00)
