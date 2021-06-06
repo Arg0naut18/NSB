@@ -200,44 +200,106 @@ class music(commands.Cog):
         player = m.get_player(guild_id=ctx.guild.id)
         duralist = []
         total_duration = 0
-        for song in player.current_queue():
-            total_duration += song.duration
-            if song.duration % 60 >= 10:
-                dura = f"{song.duration//60}:{song.duration%60}"
-            else:
-                secs = '0' + str(song.duration%60)
-                dura = f"{song.duration//60}:{secs}"
-            duralist.append(dura)
-        if total_duration % 60 >= 10:
-            if total_duration >= 3600:
-                hours=total_duration//3600
-                mins = (total_duration//60) - 60
-                if mins<10:
-                    minu = '0'+str(mins)
-                    durafoot = f"{hours}:{minu}:{secs}"
+        if(len(player.current_queue))<0:
+            emptymessg = discord.Embed(title="Queue", description="Queue is empty! Add some songs.", color=0x00FF00)
+            await ctx.send(embed=emptymessg)
+        else:    
+            for song in player.current_queue():
+                total_duration += song.duration
+                if song.duration % 60 >= 10:
+                    dura = f"{song.duration//60}:{song.duration%60}"
                 else:
-                    durafoot = f"{hours}:{mins}:{secs}"
-            else:
-                durafoot = f"{total_duration//60}:{secs}"
-        else:
-            secs = '0' + str(total_duration%60)
-            if total_duration >= 3600:
-                hours=total_duration//3600
-                mins = (total_duration//60) - 60
-                if mins<10:
-                    minu = '0'+str(mins)
-                    durafoot = f"{hours}:{minu}:{secs}"
+                    secs = '0' + str(song.duration%60)
+                    dura = f"{song.duration//60}:{secs}"
+                duralist.append(dura)
+            if total_duration % 60 >= 10:
+                if total_duration >= 3600:
+                    hours=total_duration//3600
+                    mins = (total_duration//60) - 60
+                    if mins<10:
+                        minu = '0'+str(mins)
+                        durafoot = f"{hours}:{minu}:{secs}"
+                    else:
+                        durafoot = f"{hours}:{mins}:{secs}"
                 else:
-                    durafoot = f"{hours}:{mins}:{secs}"
+                    durafoot = f"{total_duration//60}:{secs}"
             else:
-                durafoot = f"{total_duration//60}:{secs}"
-        msg = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()])
-        if msg != '':
-            q = discord.Embed(title="Queue", description=msg, color=0x00FF00)
-            q.set_footer(text=f"{len(player.current_queue())} songs -> ({durafoot}) duration")
-        else:
-            q = discord.Embed(title="Queue", description="The queue is empty! Add some songs.", color=0x00FF00)
-        await ctx.send(embed=q)
+                secs = '0' + str(total_duration%60)
+                if total_duration >= 3600:
+                    hours=total_duration//3600
+                    mins = (total_duration//60) - 60
+                    if mins<10:
+                        minu = '0'+str(mins)
+                        durafoot = f"{hours}:{minu}:{secs}"
+                    else:
+                        durafoot = f"{hours}:{mins}:{secs}"
+                else:
+                    durafoot = f"{total_duration//60}:{secs}"
+            noofsongs = len(player.current_queue())
+            if noofsongs<15:
+                msg1 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()])
+            else:    
+                msg1 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[:15]])
+                n = noofsongs//15
+                paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx)
+                if n==2:
+                    msg2 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[15:]])
+                    msg3=''
+                if n==3:
+                    msg2 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[15:30]])
+                    msg3 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[30:]])
+                    msg4=''
+                if n==4:
+                    msg2 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[15:30]])
+                    msg3 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[30:45]])
+                    msg4 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[45:]])
+                q1 = discord.Embed(title="Queue", description=msg1, color=0x00FF00)
+                q1.set_footer(text=f"{len(player.current_queue())} songs -> ({durafoot}) duration")
+                if msg2!='':
+                    q2 = discord.Embed(title="Queue", description=msg2, color=0x00FF00)
+                    embeds = [q1,q2]
+                    #q2.set_footer(text=f"{len(player.current_queue())} songs -> ({durafoot}) duration")
+                else:
+                    await ctx.send(embed=q1)
+                if msg3!='':
+                    q3 = discord.Embed(title="Queue", description=msg3, color=0x00FF00)
+                    embeds = [q1,q2,q3]
+                    paginator.add_reaction('⏮️', "first")
+                    paginator.add_reaction('⏪', "back")
+                    paginator.add_reaction('⏩', "next")
+                    paginator.add_reaction('⏭️', "last")
+                    #q3.set_footer(text=f"{len(player.current_queue())} songs -> ({durafoot}) duration")
+                else:
+                    paginator.add_reaction('⏪', "back")
+                    paginator.add_reaction('⏩', "next")
+                if msg4!='':
+                    q4 = discord.Embed(title="Queue", description=msg4, color=0x00FF00)
+                    #q4.set_footer(text=f"{len(player.current_queue())} songs -> ({durafoot}) duration")
+                    embeds = [q1,q2,q3,q4]
+                    paginator.add_reaction('⏮️', "first")
+                    paginator.add_reaction('⏪', "back")
+                    paginator.add_reaction('⏩', "next")
+                    paginator.add_reaction('⏭️', "last")
+                else:
+                    pass
+                await paginator.run(embeds)
+                await ctx.send(embed=q1)
+        # try:
+        #     msg2 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[15:]])
+        # except:
+        #     pass
+        # if msg1 == '':
+        #     q = discord.Embed(title="Queue", description="The queue is empty! Add some songs.", color=0x00FF00)
+        # else:
+        #     q = discord.Embed(title="Queue", description=msg1, color=0x00FF00)
+        #     if msg2!='':
+        #         q2 = discord.Embed(title="Queue", description=msg2, color=0x00FF00)
+        #         paginator.add_reaction('⏪', "back")
+        #         paginator.add_reaction('⏩', "next")
+        #         embeds = [q, q2]
+        #         await paginator.run(embeds)
+        #     q.set_footer(text=f"{len(player.current_queue())} songs -> ({durafoot}) duration")
+        #     await ctx.send(embed=q)
 
     @commands.command()
     async def np(self, ctx):
