@@ -200,7 +200,7 @@ class music(commands.Cog):
         player = m.get_player(guild_id=ctx.guild.id)
         duralist = []
         total_duration = 0
-        if(len(player.current_queue))<0:
+        if(len(player.current_queue()))<1:
             emptymessg = discord.Embed(title="Queue", description="Queue is empty! Add some songs.", color=0x00FF00)
             await ctx.send(embed=emptymessg)
         else:    
