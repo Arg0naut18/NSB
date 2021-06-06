@@ -209,7 +209,16 @@ class music(commands.Cog):
                 dura = f"{song.duration//60}:{secs}"
             duralist.append(dura)
         if total_duration % 60 >= 10:
-            durafoot = f"{total_duration//60}:{total_duration%60}"
+            if total_duration >= 3600:
+                hours=total_duration//3600
+                mins = (total_duration//60) - 60
+                if mins<10:
+                    minu = '0'+str(mins)
+                    durafoot = f"{hours}:{minu}:{secs}"
+                else:
+                    durafoot = f"{hours}:{mins}:{secs}"
+            else:
+                durafoot = f"{total_duration//60}:{secs}"
         else:
             secs = '0' + str(total_duration%60)
             if total_duration >= 3600:
