@@ -79,6 +79,7 @@ class music(commands.Cog):
             sp = spotipy.Spotify(client_credentials_manager=client_cred)
             pl_id = f'spotify:playlist:{id}'
             offset = 0
+            numsongs = []
             while True:
                 response = sp.playlist_items(pl_id,
                                             offset=offset,
@@ -87,6 +88,7 @@ class music(commands.Cog):
                 
                 if len(response['items']) == 0:
                     break
+                numsongs.append(len(response['items']))
                 for track in response['items']:
                     id = track['track']['id']
                     newurn = f'spotify:track:{id}'
@@ -96,7 +98,7 @@ class music(commands.Cog):
                     url = f"{name} {artist}"
                     await player.queue(url, search=True)
                 offset = offset + len(response['items'])
-            await ctx.send(f"Added `{len(response['items'])}` songs to the queue!")
+            await ctx.send(f"Added `{numsongs[0]}` songs to the queue!")
         if ctx.voice_client.is_paused() and url==None:
             try:
                 player = m.get_player(guild_id=ctx.guild.id)
