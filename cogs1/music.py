@@ -286,9 +286,9 @@ class music(commands.Cog):
     @play.error
     async def songcouldntbeplayed(self, ctx, error):
         if isinstance(error, commands.CommandInvokeError):
-            msg = await ctx.send(f"`If the song didn't play, it's either cause you played a non-youtube url or a youtube playlist. These formats are not supported yet. Sorry for the inconvenience.\nAnd if you used this to resume a song, I'd recommend to use resume command instead of this to avoid getting this message.`")
+            msg = await ctx.send(f"Check your arguments. Currently only youtube and spotify urls are supported. Sorry for the inconvenience.\nUse **resume** command instead of this to resume paused song.\nIf you think you didn't do any of these errors, disconnect the bot and use **r music** command to refresh the music commands.")
             print(error)
-            await asyncio.sleep(10)
+            await asyncio.sleep(15)
             await msg.delete()
     
 def setup(bot):
