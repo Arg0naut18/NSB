@@ -17,6 +17,7 @@ vari = json.load(j_file)
 j_file.close()
 cid = vari['spotipyid']
 ctoken = vari['spotipytoken']
+apikey = vari['musixmatchkey']
 client_cred = SpotifyClientCredentials(client_id=cid, client_secret=ctoken)
 
 class music(commands.Cog):
@@ -242,7 +243,7 @@ class music(commands.Cog):
                     else:
                         durafoot = f"{hours}:{mins}:{secs}"
                 else:
-                    durafoot = f"{total_duration//60}:{total_duration%60}"
+                    durafoot = f"{total_duration//60}:{secs}"
         except Exception as error:
             pass
         paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx)
@@ -385,6 +386,50 @@ class music(commands.Cog):
         else:
             song = await player.remove_from_queue(int(index)-1)
         await ctx.send(f"Removed `{song.name}` from queue")
+
+    @commands.command()
+    async def lyrics(self,ctx, *, songname=None):
+        api = "&apikey="+apikey
+        lyrics_matcher = "matcher.lyrics.get"
+        base_url = "https://api.musixmatch.com/ws/1.1/"
+        format_url = "?format=json&callback=callback"
+        track_search_parameter = "&q_track="
+        artist_search_parameter = "&q_artist="
+        if songname is None:
+            player = m.get_player(guild_id=ctx.guild.id)
+            song = player.now_playing()
+            artistname, titlename = get_artist_title(f"{song.name}")
+        elif 'by' in songname:
+            titlename, artistname = songname.split('by')
+        else:
+            artistname, titlename = get_artist_title(f"{songname}")
+        artist = ''
+        title = ''
+        for char in artistname:
+            if char.isalpha() or char==' ':
+                artist += char
+        for char in titlename:
+            if char.isalpha() or char==' ':
+                title += char
+        try:
+            api_call = base_url + lyrics_matcher + format_url + artist_search_parameter + artist + track_search_parameter + title + api
+            request = requests.get(api_call)
+            data = request.json()
+            data = data['message']['body']
+            lyrics = data['lyrics']['lyrics_body']
+        except:
+            api_call = base_url + lyrics_matcher + format_url + track_search_parameter + title + api
+            request = requests.get(api_call)
+            data = request.json()
+            data = data['message']['body']
+            lyrics = data['lyrics']['lyrics_body']
+        try:
+            async with ctx.typing():
+                lyric = lyrics
+                lyr = discord.Embed(title=f"{title}".title(), description=lyric, color=0x00FF00)
+                await ctx.send(embed=lyr)
+        except:
+            await ctx.send(f'`Lyrics not found.`')
     
     @skip.error
     async def noSkipleft(self, ctx, error):
@@ -405,34 +450,16 @@ class music(commands.Cog):
     async def emptyqueue(self, ctx, error):
         if isinstance(error, commands.CommandInvokeError):
             print(error)
+
+    @lyrics.error
+    async def nolyricsfound(self, ctx, error):
+        if isinstance(error, commands.CommandInvoke):
+            msg = await ctx.send("`Lyrics not found!`")
+            print(error)
+            await asyncio.sleep(7)
+            await msg.delete()
+            return
     
 def setup(bot):
     bot.add_cog(music(bot))
 
-
-    # @commands.command()
-    # async def lyrics(self,ctx, *, songname=None):
-    #     if songname is None:
-    #         player = m.get_player(guild_id=ctx.guild.id)
-    #         song = player.now_playing()
-    #         artistname, titlename = get_artist_title(f"{song.name}")
-    #     else:
-    #         artistname, titlename = get_artist_title(f"{songname}")
-    #     artist = ''
-    #     title = ''
-    #     for char in artistname:
-    #         if char.isalpha():
-    #             artist += char
-    #     for char in titlename:
-    #         if char.isalpha():
-    #             title += char
-    #     r = requests.get('https://api.lyrics.ovh/v1/{}/{}'.format(artist, title))
-    #     if r.status_code == 200:
-    #         l_response = json.loads(r.content)
-    #         try:
-    #             async with ctx.typing():
-    #                 lyric = l_response["lyrics"]
-    #                 lyr = discord.Embed(title=f"{title}".title(), description=lyric.replace("\n\n", "\n"), color=0x00FF00)
-    #                 await ctx.send(embed=lyr)
-    #         except:
-    #             await ctx.send(f'`Lyrics not found.`')
