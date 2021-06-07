@@ -36,9 +36,19 @@ class music(commands.Cog):
     async def leave(self, ctx):
         try:
             vc = ctx.author.voice.channel
+            player = m.get_player(guild_id=ctx.guild.id)
         except:
+            msg = await ctx.send("`You must be in the vc for this command to work!`")
+            await asyncio.sleep(5)
+            await msg.delete()
+            return
+        if player is None:
+            msg = await ctx.send("`The bot must be in the vc for this command to work!`")
+            await asyncio.sleep(5)
+            await msg.delete()
             return
         await ctx.message.add_reaction("👋")
+        await player.stop()
         await ctx.voice_client.disconnect()
 
     @commands.command(aliases=['p'])
