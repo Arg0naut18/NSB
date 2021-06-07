@@ -26,7 +26,10 @@ class atom(commands.Cog):
             embed.add_field(name="Element", value=f'`{elem.name.title()}`', inline=True)
             embed.add_field(name="Atomic no.", value=f'`{elem.atomic_number}`', inline=True)
             embed.add_field(name="Atomic mass", value=f'`{elem.mass}`', inline=True)
-            embed.add_field(name="Group", value=f'`{elem.group.symbol} or {elem.group.name}`', inline=True)
+            try:
+                embed.add_field(name="Group", value=f'`{elem.group.symbol} or {elem.group.name}`', inline=True)
+            except:
+                pass
             embed.add_field(name="Electronic Configuration", value=f'`{elem.ec}`', inline=False)
             embed.add_field(name="Wikipedia Link", value=f'{res.url}', inline = False)
             await ctx.send(embed=embed)
