@@ -213,6 +213,7 @@ class music(commands.Cog):
                 if total_duration >= 3600:
                     hours=total_duration//3600
                     mins = (total_duration//60) - 60
+                    secs = total_duration%60
                     if mins<10:
                         minu = '0'+str(mins)
                         durafoot = f"{hours}:{minu}:{secs}"
@@ -232,7 +233,7 @@ class music(commands.Cog):
                         durafoot = f"{hours}:{mins}:{secs}"
                 else:
                     durafoot = f"{total_duration//60}:{total_duration%60}"
-        except:
+        except Exception as error:
             pass
         paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx)
         msg1=''
@@ -245,7 +246,7 @@ class music(commands.Cog):
             await ctx.send(embed=emptymessg)
         else:
             msg1 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[1:15]])
-            mainmsg = f"Now Playing:\n{player.now_playing().name}\nQueue:\n{msg1}"
+            mainmsg = f"**Now Playing**:\n```yaml\n1) {player.now_playing().name} -> ({duralist[player.current_queue().index(player.current_queue())[0]]}\n```\n**Queue**:\n{msg1}"
         msg2 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[15:30]])
         msg3 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[30:45]])
         msg4 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[45:60]])
