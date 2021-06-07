@@ -200,10 +200,7 @@ class music(commands.Cog):
         player = m.get_player(guild_id=ctx.guild.id)
         duralist = []
         total_duration = 0
-        if(len(player.current_queue()))<1:
-            emptymessg = discord.Embed(title="Queue", description="Queue is empty! Add some songs.", color=0x00FF00)
-            await ctx.send(embed=emptymessg)
-        else:    
+        try:   
             for song in player.current_queue():
                 total_duration += song.duration
                 if song.duration % 60 >= 10:
@@ -235,58 +232,77 @@ class music(commands.Cog):
                         durafoot = f"{hours}:{mins}:{secs}"
                 else:
                     durafoot = f"{total_duration//60}:{total_duration%60}"
-            noofsongs = len(player.current_queue())
-            if noofsongs<15:
-                msg1 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()])
-                q1 = discord.Embed(title="Queue", description=msg1, color=0x00FF00)
-                await ctx.send(embed=q1)
+        except:
+            pass
+        paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx)
+        msg1=''
+        try:
+            msg1 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[:15]])
+        except:
+            pass
+        if msg1 == '':
+            emptymessg = discord.Embed(title="Queue", description="Queue is empty! Add some songs.", color=0x00FF00)
+            await ctx.send(embed=emptymessg)
+        else:
+            msg1 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[1:15]])
+            mainmsg = f"Now Playing:\n{player.now_playing().name}\nQueue:\n{msg1}"
+        msg2 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[15:30]])
+        msg3 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[30:45]])
+        msg4 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[45:60]])
+        q1 = discord.Embed(title="Queue", description=mainmsg, color=0x00FF00)
+        q1.set_footer(text=f"{len(player.current_queue())} songs -> ({durafoot}) duration")
+        if msg2!='':
+            q2 = discord.Embed(title="Queue", description=msg2, color=0x00FF00)
+            embeds = [q1,q2]
+            q2.set_footer(text=f"{len(player.current_queue())} songs -> ({durafoot}) duration")
+        else:
+            await ctx.send(embed=q1)
+            return
+        if msg3!='':
+            q3 = discord.Embed(title="Queue", description=msg3, color=0x00FF00)
+            embeds = [q1,q2,q3]
+            paginator.add_reaction('⏮️', "first")
+            paginator.add_reaction('⏪', "back")
+            paginator.add_reaction('⏩', "next")
+            paginator.add_reaction('⏭️', "last")
+            q3.set_footer(text=f"{len(player.current_queue())} songs -> ({durafoot}) duration")
+        else:
+            paginator.add_reaction('⏪', "back")
+            paginator.add_reaction('⏩', "next")
+        if msg4!='':
+            q4 = discord.Embed(title="Queue", description=msg4, color=0x00FF00)
+            if len(player.current_queue())>60:
+                q4.set_footer(text=f"{len(player.current_queue())} songs -> ({durafoot}) duration, more {len(player.current_queue())-60} songs r there.")
             else:    
-                msg1 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[:15]])
-                n = noofsongs//15
-                paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx)
-                if n==1:
-                    msg2 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[15:]])
-                    msg3=''
-                    msg4=''
-                if n==2:
-                    msg2 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[15:30]])
-                    msg3 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[30:]])
-                    msg4=''
-                if n==3:
-                    msg2 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[15:30]])
-                    msg3 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[30:45]])
-                    msg4 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[45:]])
-                q1 = discord.Embed(title="Queue", description=msg1, color=0x00FF00)
-                q1.set_footer(text=f"{len(player.current_queue())} songs -> ({durafoot}) duration")
-                if msg2!='':
-                    q2 = discord.Embed(title="Queue", description=msg2, color=0x00FF00)
-                    embeds = [q1,q2]
-                    #q2.set_footer(text=f"{len(player.current_queue())} songs -> ({durafoot}) duration")
-                else:
-                    await ctx.send(embed=q1)
-                if msg3!='':
-                    q3 = discord.Embed(title="Queue", description=msg3, color=0x00FF00)
-                    embeds = [q1,q2,q3]
-                    paginator.add_reaction('⏮️', "first")
-                    paginator.add_reaction('⏪', "back")
-                    paginator.add_reaction('⏩', "next")
-                    paginator.add_reaction('⏭️', "last")
-                    #q3.set_footer(text=f"{len(player.current_queue())} songs -> ({durafoot}) duration")
-                else:
-                    paginator.add_reaction('⏪', "back")
-                    paginator.add_reaction('⏩', "next")
-                if msg4!='':
-                    q4 = discord.Embed(title="Queue", description=msg4, color=0x00FF00)
-                    #q4.set_footer(text=f"{len(player.current_queue())} songs -> ({durafoot}) duration")
-                    embeds = [q1,q2,q3,q4]
-                    paginator.add_reaction('⏮️', "first")
-                    paginator.add_reaction('⏪', "back")
-                    paginator.add_reaction('⏩', "next")
-                    paginator.add_reaction('⏭️', "last")
-                else:
-                    pass
-                if n>=1:
-                    await paginator.run(embeds)
+                q4.set_footer(text=f"{len(player.current_queue())} songs -> ({durafoot}) duration")
+            embeds = [q1,q2,q3,q4]
+            paginator.add_reaction('⏮️', "first")
+            paginator.add_reaction('⏪', "back")
+            paginator.add_reaction('⏩', "next")
+            paginator.add_reaction('⏭️', "last")
+        else:
+            pass
+        await paginator.run(embeds)
+            # noofsongs = len(player.current_queue())
+            # if noofsongs<15:
+            #     msg1 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()])
+            #     q1 = discord.Embed(title="Queue", description=msg1, color=0x00FF00)
+            #     await ctx.send(embed=q1)
+            # else:    
+                # msg1 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[:15]])
+                # n = noofsongs//15
+                # if n==1:
+                #     msg2 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[15:]])
+                #     msg3=''
+                #     msg4=''
+                # if n==2:
+                #     msg2 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[15:30]])
+                #     msg3 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[30:]])
+                #     msg4=''
+                # if n==3:
+                #     msg2 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[15:30]])
+                #     msg3 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[30:45]])
+                #     msg4 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[45:]])
         # try:
         #     msg2 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[15:]])
         # except:
@@ -373,6 +389,11 @@ class music(commands.Cog):
             print(error)
             await asyncio.sleep(15)
             await msg.delete()
+
+    @queue.error
+    async def emptyqueue(self, ctx, error):
+        if isinstance(error, commands.CommandInvokeError):
+            print(error)
     
 def setup(bot):
     bot.add_cog(music(bot))
