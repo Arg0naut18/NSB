@@ -23,7 +23,7 @@ class dm(commands.Cog):
     async def on_message(self, msg):
         color_main = color[random.randint(0, len(color)-1)]
         channel = msg.channel
-        botn = await self.bot.fetch_user("763700343137239070")
+        botn = await self.bot.fetch_user("743741872039657492")
         owners = ["436844058217021441"]
         owner = await self.bot.fetch_user(owners[0])
         if isinstance(channel, discord.channel.DMChannel):

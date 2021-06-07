@@ -84,6 +84,7 @@ class music(commands.Cog):
                 artist = video.author
                 newtitle = f"{name} {artist}"
                 await player.queue(newtitle, search=True)
+            await player.remove_from_queue(len(player.current_queue()-1))
             await ctx.send(f"Added `{len(play_list.videos)}` songs to the queue!")
         if 'spotify.com/album' in url:
             urn, idextra = url.split('album/')
@@ -96,6 +97,7 @@ class music(commands.Cog):
                 artist = album['artists'][0]['name']
                 url = f"{name} lyrics {artist}"
                 await player.queue(url, search=True)
+            await player.remove_from_queue(len(player.current_queue()-1))
             await ctx.send(f"Added `{len(album['tracks']['items'])}` songs to the queue!")
         if 'spotify.com/playlist' in url:
             urn, idextra = url.split('playlist/')
@@ -108,6 +110,7 @@ class music(commands.Cog):
                 artist = playlist['tracks']['items'][i]['track']['artists'][0]['name']
                 url = f"{name} lyrics {artist}"
                 await player.queue(url, search=True)
+            await player.remove_from_queue(len(player.current_queue()-1))
             await ctx.send(f"Added `{len(playlist['tracks']['items'])}` songs to the queue!")
         if ctx.voice_client.is_paused() and url==None:
             try:
@@ -332,7 +335,7 @@ class music(commands.Cog):
         #     q.set_footer(text=f"{len(player.current_queue())} songs -> ({durafoot}) duration")
         #     await ctx.send(embed=q)
 
-    @commands.command()
+    @commands.command(aliases=["now"])
     async def np(self, ctx):
         player = m.get_player(guild_id=ctx.guild.id)
         song = player.now_playing()
@@ -344,7 +347,7 @@ class music(commands.Cog):
         emb = discord.Embed(title="Now Playing!", description=f"[{song.name}]({song.url})"+f" - ({dura})", color=0x00FF00)
         await ctx.send(embed=emb)
 
-    @commands.command()
+    @commands.command(aliases = ['next'])
     async def skip(self, ctx):
         try:
             vc = ctx.author.voice.channel
