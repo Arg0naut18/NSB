@@ -35,5 +35,10 @@ class wiki(commands.Cog):
             # embed.set_thumbnail(page_obj.images)
             await ctx.reply(embed=embed)
 
+    @wiki.error
+    async def wikinotfound(self, ctx, error):
+        if isinstance(error, commands.CommandInvokeError):
+            await ctx.send("`Wiki not found!`")
+
 def setup(bot):
     bot.add_cog(wiki(bot))
