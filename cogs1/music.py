@@ -484,7 +484,7 @@ class music(commands.Cog):
 
     @lyrics.error
     async def nolyricsfound(self, ctx, error):
-        if isinstance(error, commands.CommandInvoke):
+        if isinstance(error, commands.CommandInvokeError):
             msg = await ctx.send("`Lyrics not found!`")
             print(error)
             await asyncio.sleep(7)
