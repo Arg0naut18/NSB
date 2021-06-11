@@ -57,9 +57,7 @@ class meme(commands.Cog):
             headerText = f"{submission.title} [{slink}]"
             mainPart = submission.url
             footerText = f'Post by u/{submission.author}  from {memes_submissions.url}'
-            await ctx.send(headerText)
-            await ctx.send(mainPart)
-            await ctx.send(footerText)
+            await ctx.send(headerText+'\n'+mainPart+'\n'+footerText)
             # if isVideo(submission.url):
             #     print("video!")
             #     slink = f'{submission.shortlink}'

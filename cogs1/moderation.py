@@ -21,44 +21,45 @@ class moderation(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, mssg):
         channel = mssg.channel
-        if mssg.guild.id == 711079029624537098:
+        if mssg.guild is not None:
+            if mssg.guild.id == 711079029624537098:
         # 765647163463434298 || 801811950119157790
-            if channel.id != 753632407332192366:
-                words = mssg.content.split(" ")
-                for word in words:
-                    if word in blocked_words:
-                        await mssg.delete()
-                        nsfw = discord.utils.get(mssg.guild.text_channels, id=753632407332192366)
-                        resp = await channel.send(f"U used a bad word. Please refrain from using it. U can use it in {nsfw.mention}")
-                        await asyncio.sleep(10)
-                        await resp.delete()
-            if not channel.id in common:
-                if len(mssg.attachments) > 0:
-                    if channel.id not in picchannels:
-                        if not mssg.author.bot:
+                if channel.id != 753632407332192366:
+                    words = mssg.content.split(" ")
+                    for word in words:
+                        if word in blocked_words:
                             await mssg.delete()
-                            picC1 = discord.utils.get(mssg.guild.text_channels, id=801811950119157790)
-                            picC2 = discord.utils.get(mssg.guild.text_channels, id=711217046272344094)
-                            resp = await channel.send(f"Please send the image in {picC1.mention} or {picC2.mention}")
+                            nsfw = discord.utils.get(mssg.guild.text_channels, id=753632407332192366)
+                            resp = await channel.send(f"U used a bad word. Please refrain from using it. U can use it in {nsfw.mention}")
                             await asyncio.sleep(10)
                             await resp.delete()
-                    #elif mssg_sp != None:
-                elif "https://youtu.be/" in mssg.content and channel.id not in ytchannel:
-                    if not mssg.author.bot:
-                        await mssg.delete()
-                        yt = discord.utils.get(mssg.guild.text_channels, id=747320665073385493)
-                        respo = await channel.send(f"Please send the link in {yt.mention}")
-                        await asyncio.sleep(10)
-                        await respo.delete()
-                elif "!rank" in mssg.content.lower() and channel.id not in level_check:
-                    if not mssg.author.bot:
-                        await mssg.delete()
-                        levelChannel = discord.utils.get(mssg.guild.text_channels, id=822527895296933918)
-                        respo = await channel.send(f"Please use this command in {levelChannel.mention}")
-                        await asyncio.sleep(10)
-                        # await mssg.channel.purge(limit=1)
-                        await respo.delete()
-
+                if not channel.id in common:
+                    if len(mssg.attachments) > 0:
+                        if channel.id not in picchannels:
+                            if not mssg.author.bot:
+                                await mssg.delete()
+                                picC1 = discord.utils.get(mssg.guild.text_channels, id=801811950119157790)
+                                picC2 = discord.utils.get(mssg.guild.text_channels, id=711217046272344094)
+                                resp = await channel.send(f"Please send the image in {picC1.mention} or {picC2.mention}")
+                                await asyncio.sleep(10)
+                                await resp.delete()
+                        #elif mssg_sp != None:
+                    elif "https://youtu.be/" in mssg.content and channel.id not in ytchannel:
+                        if not mssg.author.bot:
+                            await mssg.delete()
+                            yt = discord.utils.get(mssg.guild.text_channels, id=747320665073385493)
+                            respo = await channel.send(f"Please send the link in {yt.mention}")
+                            await asyncio.sleep(10)
+                            await respo.delete()
+                    elif "!rank" in mssg.content.lower() and channel.id not in level_check:
+                        if not mssg.author.bot:
+                            await mssg.delete()
+                            levelChannel = discord.utils.get(mssg.guild.text_channels, id=822527895296933918)
+                            respo = await channel.send(f"Please use this command in {levelChannel.mention}")
+                            await asyncio.sleep(10)
+                            await respo.delete()
+                            await mssg.channel.purge(limit=1)
+                            
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def announce(self, ctx, chan: TextChannel, *, mssg):

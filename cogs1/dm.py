@@ -27,7 +27,7 @@ class dm(commands.Cog):
         owners = ["436844058217021441"]
         owner = await self.bot.fetch_user(owners[0])
         if isinstance(channel, discord.channel.DMChannel):
-            if msg.author != botn and msg.author != owner:
+            if msg.author != botn and msg.author != owner and not msg.content.startswith('nsb'):
                 await self.bot.process_commands(msg)
                 # print(msg)
                 emb = discord.Embed(title="Message recieved!", color = color_main)

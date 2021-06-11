@@ -26,6 +26,7 @@ token = vari["nsbtoken"]
 #     return commands.when_mentioned_or(*BOT_PREFIX)(client, message)
 
 def get_prefix(client, message):
+    if message.guild is None: return commands.when_mentioned_or('nsb ')(client, message)
     try:
         with open('./prefixes/prefixes.json', 'r') as f:
             prefixes = json.load(f)
