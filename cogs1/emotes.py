@@ -48,7 +48,7 @@ class emotes(commands.Cog):
                 'https://media.tenor.com/images/ac4f49e01b8d289c16271e2187ee62d8/tenor.gif',
                 'https://media.tenor.com/images/25d627f3e0f09fe712f8b9fd4bd675cb/tenor.gif',
                 'https://media.tenor.com/images/0b6f0b738d777f1f393492918ef94eda/tenor.gif']
-        embed = discord.Embed(title=(f'__***{ctx.author.name} and NotSoBasicBot***__ is wishing **Happy Birthday** to __***{member.name}***__') ,color=random.randint(0x000000, 0xFFFFFF))
+        embed = discord.Embed(title=(f'__***{ctx.author.name} and NotSoBasicBot***__ are wishing **Happy Birthday** to __***{member.name}***__') ,color=random.randint(0x000000, 0xFFFFFF))
         embed.set_image(url=urls[random.randint(0, len(urls)-1)])
         await ctx.send(embed=embed)
 
@@ -141,8 +141,9 @@ class emotes(commands.Cog):
         if member is None:
             urls = ['https://media3.giphy.com/media/6fScAIQR0P0xW/giphy.gif?cid=ecf05e47tg1vl88unml2kr0tg3sn01482oa1jqstgs7d028u&rid=giphy.gif',
             'https://i.imgur.com/wstXmJw.gif',
-            'https://64.media.tumblr.com/9c7b6dec09a2e5cebb5cb5fa1e3c1f2f/tumblr_npk6npowW21qicfexo1_540.gifv',
-            'https://media1.tenor.com/images/e19a05faf32c511572acd08a38bebdd6/tenor.gif']
+            'https://media1.tenor.com/images/e19a05faf32c511572acd08a38bebdd6/tenor.gif',
+            'https://i.pinimg.com/originals/1c/79/ac/1c79ac50b06bb42a24058bf13c162a3e.gif',
+            'https://media.tenor.com/images/4fd49de4149a6d348e04f2465a3970af/tenor.gif']
             
             embed = discord.Embed(title=(f'__***{ctx.author.name}***__ is dancing.') ,color=random.randint(0x000000, 0xFFFFFF))
             embed.set_image(url=urls[random.randint(0, len(urls)-1)])
