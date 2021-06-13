@@ -6,6 +6,7 @@ import json
 import sys
 import psutil
 import os
+from pytz import timezone
 
 j_file = open("divinesecrets.txt")
 vari = json.load(j_file)
@@ -38,6 +39,19 @@ class pterostats(commands.Cog):
         emb.add_field(name="Members", value=f"`{member_count}`", inline=True)
         await ctx.send(embed=emb)
 
+    @commands.command(aliases=['gstats', 'guild'])
+    @commands.is_owner()
+    async def guildstats(self, ctx):
+        creationdate = ctx.guild.created_at
+        creation = creationdate.replace(tzinfo=timezone('UTC')).astimezone(timezone('Asia/Kolkata'))
+        emb = discord.Embed(title="Guild Stats", color=random.randint(0x000000, 0xFFFFFF))
+        emb.add_field(name="Name", value=f"{ctx.guild.name}", inline=True)
+        emb.add_field(name="Members", value=f"`{len([m for m in ctx.guild.members if not m.bot])}`", inline=True)
+        emb.add_field(name="Bots", value=f"`{len([m for m in ctx.guild.members if m.bot])}`", inline=True)
+        emb.add_field(name="Created At", value=f'{creation.strftime("%a, %b %d, %Y, %I:%M%p IST")}', inline=True)
+        emb.set_thumbnail(url=ctx.guild.icon_url)
+        emb.set_footer(text=f"Invoked by {ctx.author}", icon_url=ctx.author.avatar_url)
+        await ctx.send(embed=emb)
 
 def setup(bot):
     bot.add_cog(pterostats(bot))
