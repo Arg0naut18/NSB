@@ -300,7 +300,7 @@ class music(commands.Cog):
                     durafoot = f"{total_duration//60}:{secs}"
         except Exception as error:
             pass
-        paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx)
+        paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
         msg1=''
         try:
             msg1 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[:15]])
