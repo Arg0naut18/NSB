@@ -19,12 +19,12 @@ vari = json.load(j_file)
 j_file.close()
 TOKEN = vari["TOKEN"]
 token = vari["nsbtoken"]
+dev_id = vari["dev_id"]
 
 
 # def pref(client, message):
 #     BOT_PREFIX = ["{prefix[2]}", "{prefix[2]}", "{prefix[2]}"]
 #     return commands.when_mentioned_or(*BOT_PREFIX)(client, message)
-
 def get_prefix(client, message):
     if message.guild is None: return commands.when_mentioned_or('nsb ')(client, message)
     try:
@@ -91,7 +91,7 @@ async def on_guild_remove(guild): #when the bot is removed from the guild
     with open('./prefixes/prefixes.json', 'w') as f: #deletes the guild.id as well as its prefix
         json.dump(prefixes, f, indent=4)
 
-@bot.command(pass_context=True)
+@bot.command(pass_context=True, aliases=["setprefix"])
 @has_permissions(administrator=True) #ensure that only administrators can use this command
 async def changeprefix(ctx, *, prefix): #command: bl!changeprefix ...
     with open('./prefixes/prefixes.json', 'r') as f:
@@ -122,7 +122,7 @@ async def help(ctx, category = None):
         emb.add_field(name=":hugging: Emotes", value=f"`{prefix[2]}help emotes`", inline=True)
         emb.add_field(name=":man_zombie: Lifeafter", value=f"`{prefix[2]}help la`", inline=True)
         emb.add_field(name=":love_letter: Direct Message",
-                        value=f"`{prefix[2]} help dm`", inline=True)
+                        value=f"`{prefix[2]}help dm`", inline=True)
         emb.set_thumbnail(url=bot.user.avatar_url)
         emb.set_footer(text=f"Invoked by {ctx.author.display_name}",icon_url=ctx.author.avatar_url)
         emb.timestamp = datetime.datetime.now()
@@ -210,97 +210,101 @@ async def help(ctx, category = None):
 
 @bot.command(aliases=["l"])
 async def load(ctx, extension):
-    try:
-        bot.load_extension(f"cogs1.{extension}")
-        respo = await ctx.reply(f"{extension} loaded!")
-        await asyncio.sleep(5)
-        await respo.delete()
+    if ctx.message.author.id == dev_id:
         try:
-            await ctx.message.delete()
-        except:
-            pass
-    except Exception as e:
-        respo = await ctx.reply(f"Error loading {extension}")
-        await asyncio.sleep(5)
-        await respo.delete()
-        try:
-            await ctx.message.delete()
-        except:
-            pass
-        print(e)
+            bot.load_extension(f"divinecogs.{extension}")
+            respo = await ctx.reply(f"{extension} loaded!")
+            await asyncio.sleep(5)
+            await respo.delete()
+            try:
+                await ctx.message.delete()
+            except:
+                pass
+        except Exception as e:
+            respo = await ctx.reply(f"Error loading {extension}")
+            await asyncio.sleep(5)
+            await respo.delete()
+            try:
+                await ctx.message.delete()
+            except:
+                pass
+            print(e)
 
 
 @bot.command(aliases=["u"])
 async def unload(ctx, extension):
-    try:
-        bot.unload_extension(f"cogs1.{extension}")
-        respo = await ctx.reply(f"{extension} unloaded!")
-        await asyncio.sleep(5)
-        await respo.delete()
+    if ctx.message.author.id == dev_id:
         try:
-            await ctx.message.delete()
-        except:
-            pass
-    except Exception as e:
-        respo = await ctx.reply(f"Error unloading {extension}")
-        await asyncio.sleep(5)
-        await respo.delete()
-        try:
-            await ctx.message.delete()
-        except:
-            pass
-        print(e)
+            bot.unload_extension(f"divinecogs.{extension}")
+            respo = await ctx.reply(f"{extension} unloaded!")
+            await asyncio.sleep(5)
+            await respo.delete()
+            try:
+                await ctx.message.delete()
+            except:
+                pass
+        except Exception as e:
+            respo = await ctx.reply(f"Error unloading {extension}")
+            await asyncio.sleep(5)
+            await respo.delete()
+            try:
+                await ctx.message.delete()
+            except:
+                pass
+            print(e)
 
 
 @bot.command(aliases=["r"])
 async def reload(ctx, extension):
-    try:
-        bot.unload_extension(f"cogs1.{extension}")
-        bot.load_extension(f"cogs1.{extension}")
-        respo = await ctx.reply(f"{extension} re-loaded!")
-        await asyncio.sleep(5)
-        await respo.delete()
+    if ctx.message.author.id == dev_id:
         try:
-            await ctx.message.delete()
-        except:
-            pass
-    except Exception as e:
-        respo = await ctx.reply(f"Error re-loading {extension}")
-        await asyncio.sleep(5)
-        await respo.delete()
-        try:
-            await ctx.message.delete()
-        except:
-            pass
-        print(e)
+            bot.unload_extension(f"divinecogs.{extension}")
+            bot.load_extension(f"divinecogs.{extension}")
+            respo = await ctx.reply(f"{extension} re-loaded!")
+            await asyncio.sleep(5)
+            await respo.delete()
+            try:
+                await ctx.message.delete()
+            except:
+                pass
+        except Exception as e:
+            respo = await ctx.reply(f"Error re-loading {extension}")
+            await asyncio.sleep(5)
+            await respo.delete()
+            try:
+                await ctx.message.delete()
+            except:
+                pass
+            print(e)
 
 
 @bot.command(aliases=["ra"])
 async def reloadall(ctx):
-    try:
-        for file in os.listdir('./cogs1'):
-            if file.endswith(".py"):
-                bot.unload_extension(f"cogs1.{file[:-3]}")
-                bot.load_extension(f"cogs1.{file[:-3]}")
-                respo = await ctx.reply(f"All Divine cogs reloaded!")
-                await asyncio.sleep(5)
-                await respo.delete()
-                try:
-       		        await ctx.message.delete()
-       	        except:
-       		        pass
-    except Exception as e:
-        respo = await ctx.reply(f"Error re-loading cogs1.")
-        await asyncio.sleep(5)
-        await respo.delete()
+    if ctx.message.author.id == dev_id:
         try:
-            await ctx.message.delete()
-        except:
-            pass
-        print(e)
+            for file in os.listdir('./divinecogs'):
+                if file.endswith(".py"):
+                    bot.unload_extension(f"divinecogs.{file[:-3]}")
+                    bot.load_extension(f"divinecogs.{file[:-3]}")
+                    respo = await ctx.reply(f"All Divine cogs reloaded!")
+                    await asyncio.sleep(5)
+                    await respo.delete()
+                    try:
+                        await ctx.message.delete()
+                    except:
+                        pass
+        except Exception as e:
+            respo = await ctx.reply(f"Error re-loading divinecogs.")
+            await asyncio.sleep(5)
+            await respo.delete()
+            try:
+                await ctx.message.delete()
+            except:
+                pass
+            print(e)
 
-for file in os.listdir('./cogs1'):
+for file in os.listdir('./divinecogs'):
     if file.endswith(".py"):
-        bot.load_extension(f"cogs1.{file[:-3]}")
+        bot.load_extension(f"divinecogs.{file[:-3]}")
 
 bot.run(token)
