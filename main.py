@@ -19,8 +19,8 @@ vari = json.load(j_file)
 j_file.close()
 TOKEN = vari["TOKEN"]
 token = vari["nsbtoken"]
-dev_id = vari["dev_id"]
-
+dev_id = id
+# replace with developer's id vari thing doesn't work
 
 # def pref(client, message):
 #     BOT_PREFIX = ["{prefix[2]}", "{prefix[2]}", "{prefix[2]}"]

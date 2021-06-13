@@ -19,9 +19,9 @@ m = DiscordUtils.Music()
 j_file = open("divinesecrets.txt")
 vari = json.load(j_file)
 j_file.close()
-cid = vari['spotipyid']
-ctoken = vari['spotipytoken']
-apikey = vari['musixmatchkey']
+cid = vari["spotipyid"]
+ctoken = vari["spotipytoken"]
+apikey = vari["musixmatchkey"]
 client_cred = SpotifyClientCredentials(client_id=cid, client_secret=ctoken)
 
 # def get_lyrics(artist,song_title): 
@@ -97,7 +97,24 @@ class music(commands.Cog):
             player = m.create_player(ctx, ffmpeg_error_betterfix=True)
         @player.on_play
         async def on_play(ctx, song):
-            emb = discord.Embed(title="Now Playing!", description=f"[{song.name}]({song.url})", color=0x00FF00)
+            # emb = discord.Embed(title="Now Playing!", description=f"[{song.name}]({song.url})", color=0x00FF00)
+            try:
+                artist, title = get_artist_title(f"{song.name}")
+            except:
+                title = song.name
+                artist = song.channel
+            if song.duration % 60 >= 10:
+                dura = f"{song.duration//60}:{song.duration%60}"
+            else:
+                secs = '0' + str(song.duration%60)
+                dura = f"{song.duration//60}:{secs}"
+            emb = discord.Embed(title="Now Playing!",color=0x00FF00)
+            emb.add_field(name="Title", value=f"[{title}]({song.url})", inline=True)
+            emb.add_field(name="Duration", value=f"`{dura}`", inline=True)
+            try:
+                emb.add_field(name="Artist", value=f"`{artist}`", inline=False)
+            except:
+                pass
             npsong = await ctx.send(embed=emb)
             await asyncio.sleep(song.duration)
             await npsong.delete()
@@ -156,24 +173,24 @@ class music(commands.Cog):
         if not ctx.voice_client.is_playing() and not ctx.voice_client.is_paused():
             await player.queue(url, search=True)
             song = await player.play()
-            # try:
-            #     artist, title = get_artist_title(f"{song.name}")
-            # except:
-            #     title = song.name
-            #     artist = song.channel
-            # if song.duration % 60 >= 10:
-            #     dura = f"{song.duration//60}:{song.duration%60}"
-            # else:
-            #     secs = '0' + str(song.duration%60)
-            #     dura = f"{song.duration//60}:{secs}"
-            # emb = discord.Embed(title="Now Playing!",color=0x00FF00)
-            # emb.add_field(name="Title", value=f"[{title}]({song.url})", inline=True)
-            # emb.add_field(name="Duration", value=f"`{dura}`", inline=True)
-            # try:
-            #     emb.add_field(name="Artist", value=f"`{artist}`", inline=False)
-            # except:
-            #     pass
-            # await ctx.send(embed=emb)
+            try:
+                artist, title = get_artist_title(f"{song.name}")
+            except:
+                title = song.name
+                artist = song.channel
+            if song.duration % 60 >= 10:
+                dura = f"{song.duration//60}:{song.duration%60}"
+            else:
+                secs = '0' + str(song.duration%60)
+                dura = f"{song.duration//60}:{secs}"
+            emb = discord.Embed(title="Now Playing!",color=0x00FF00)
+            emb.add_field(name="Title", value=f"[{title}]({song.url})", inline=True)
+            emb.add_field(name="Duration", value=f"`{dura}`", inline=True)
+            try:
+                emb.add_field(name="Artist", value=f"`{artist}`", inline=False)
+            except:
+                pass
+            await ctx.send(embed=emb)
 
         else:
             song = await player.queue(url, search=True)
