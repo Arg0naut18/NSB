@@ -9,6 +9,7 @@ import json
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from pytube import Playlist
+import datetime
 # import re
 # import urllib.request
 # from bs4 import BeautifulSoup
@@ -262,43 +263,50 @@ class music(commands.Cog):
     @commands.command(aliases = ['q'])
     async def queue(self, ctx):
         player = m.get_player(guild_id=ctx.guild.id)
-        duralist = []
-        total_duration = 0
-        try:   
-            for song in player.current_queue():
-                total_duration += song.duration
-                if song.duration % 60 != 0:
-                    dura = f"{song.duration//60}:{song.duration%60}"
-                else:
-                    secs = '0' + str(song.duration%60)
-                    dura = f"{song.duration//60}:{secs}"
-                duralist.append(dura)
-            if total_duration % 60 != 10:
-                if total_duration >= 3600:
-                    hours=total_duration//3600
-                    mins = (total_duration//60) - 60
-                    secs = total_duration%60
-                    if mins<10:
-                        minu = '0'+str(mins)
-                        durafoot = f"{hours}:{minu}:{secs}"
-                    else:
-                        durafoot = f"{hours}:{mins}:{secs}"
-                else:
-                    durafoot = f"{total_duration//60}:{secs}"
-            else:
-                secs = '0' + str(total_duration%60)
-                if total_duration >= 3600:
-                    hours=total_duration//3600
-                    mins = (total_duration//60) - 60
-                    if mins<10:
-                        minu = '0'+str(mins)
-                        durafoot = f"{hours}:{minu}:{secs}"
-                    else:
-                        durafoot = f"{hours}:{mins}:{secs}"
-                else:
-                    durafoot = f"{total_duration//60}:{secs}"
-        except Exception as error:
-            pass
+        duralist = [str(datetime.timedelta(seconds = song.duration)) for song in player.current_queue()]
+        for durationosong in duralist:
+            if durationosong.startswith("0:"):
+                durationosong = durationosong.replace("0:", "", 1)
+        durationsofsongs = [song.duration for song in player.current_queue()]
+        total_duration = sum(durationsofsongs)
+        durafoot = str(datetime.timedelta(seconds = total_duration))
+        if durafoot.startswith("0:"):
+            durafoot = durafoot.replace("0:", "", 1)
+        # try:   
+        #     for song in player.current_queue():
+        #         total_duration += song.duration
+        #         if song.duration % 60 != 0:
+        #             dura = f"{song.duration//60}:{song.duration%60}"
+        #         else:
+        #             secs = '0' + str(song.duration%60)
+        #             dura = f"{song.duration//60}:{secs}"
+        #         duralist.append(dura)
+        #     if total_duration % 60 != 10:
+        #         if total_duration >= 3600:
+        #             hours=total_duration//3600
+        #             mins = (total_duration//60) - 60*hours
+        #             secs = total_duration%60
+        #             if mins<10:
+        #                 minu = '0'+str(mins)
+        #                 durafoot = f"{hours}:{minu}:{secs}"
+        #             else:
+        #                 durafoot = f"{hours}:{mins}:{secs}"
+        #         else:
+        #             durafoot = f"{total_duration//60}:{secs}"
+        #     else:
+        #         secs = '0' + str(total_duration%60)
+        #         if total_duration >= 3600:
+        #             hours=total_duration//3600
+        #             mins = (total_duration//60) - 60
+        #             if mins<10:
+        #                 minu = '0'+str(mins)
+        #                 durafoot = f"{hours}:{minu}:{secs}"
+        #             else:
+        #                 durafoot = f"{hours}:{mins}:{secs}"
+        #         else:
+        #             durafoot = f"{total_duration//60}:{secs}"
+        # except Exception as error:
+        #     pass
         paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
         msg1=''
         try:
