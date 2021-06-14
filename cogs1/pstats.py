@@ -57,12 +57,16 @@ class pterostats(commands.Cog):
                 away += 1
             else:
                 offline += 1
-        emb = discord.Embed(title="Guild Stats", color=random.randint(0x000000, 0xFFFFFF))
-        emb.add_field(name="Name", value=f"{ctx.guild.name}", inline=True)
+        banned_users = await ctx.guild.bans()
+        emb = discord.Embed(title=f"{ctx.guild.name}'s Status", color=0x00FF00)
+        emb.add_field(name="Name", value=f"{ctx.guild.name}", inline=False)
         emb.add_field(name="Members", value=f"`{len([m for m in ctx.guild.members if not m.bot])}`", inline=True)
         emb.add_field(name="Bots", value=f"`{len([m for m in ctx.guild.members if m.bot])}`", inline=True)
-        emb.add_field(name="Member Status", value=f":green_circle:{online} :red_circle:{dnd} :orange_circle:{away} :black_circle:{offline}", inline=False)
+        emb.add_field(name="Region", value=f"{ctx.guild.region}".title(), inline=True)
+        emb.add_field(name="Banned Members", value=f"`{len(banned_users)}`", inline=True)
+        emb.add_field(name="Member Status", value=f":green_circle:`{online}` :red_circle:`{dnd}` :orange_circle:`{away}` :white_circle:`{offline}`", inline=False)
         emb.add_field(name="Created At", value=f'{creation.strftime("%a, %b %d, %Y, %I:%M%p IST")}', inline=False)
+        emb.add_field(name="Guild ID", value=f"`{ctx.guild.id}`", inline=False)
         emb.set_thumbnail(url=ctx.guild.icon_url)
         emb.set_footer(text=f"Invoked by {ctx.author}", icon_url=ctx.author.avatar_url)
         await ctx.send(embed=emb)
