@@ -263,10 +263,12 @@ class music(commands.Cog):
     @commands.command(aliases = ['q'])
     async def queue(self, ctx):
         player = m.get_player(guild_id=ctx.guild.id)
-        duralist = [str(datetime.timedelta(seconds = song.duration)) for song in player.current_queue()]
-        for durationosong in duralist:
+        duralist = []
+        duras = [str(datetime.timedelta(seconds = song.duration)) for song in player.current_queue()]
+        for durationosong in duras:
             if durationosong.startswith("0:"):
                 durationosong = durationosong.replace("0:", "", 1)
+                duralist.append(durationosong)
         durationsofsongs = [song.duration for song in player.current_queue()]
         total_duration = sum(durationsofsongs)
         durafoot = str(datetime.timedelta(seconds = total_duration))
