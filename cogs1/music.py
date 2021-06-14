@@ -165,7 +165,6 @@ class music(commands.Cog):
             await ctx.send(f"Added `{len(playlist['tracks']['items'])}` songs to the queue!")
         if ctx.voice_client.is_paused() and url==None:
             try:
-                player = m.get_player(guild_id=ctx.guild.id)
                 await player.resume()
                 await ctx.message.add_reaction("👍")
             except:
@@ -268,13 +267,13 @@ class music(commands.Cog):
         try:   
             for song in player.current_queue():
                 total_duration += song.duration
-                if song.duration % 60 >= 10:
+                if song.duration % 60 != 0:
                     dura = f"{song.duration//60}:{song.duration%60}"
                 else:
                     secs = '0' + str(song.duration%60)
                     dura = f"{song.duration//60}:{secs}"
                 duralist.append(dura)
-            if total_duration % 60 >= 10:
+            if total_duration % 60 != 10:
                 if total_duration >= 3600:
                     hours=total_duration//3600
                     mins = (total_duration//60) - 60
