@@ -38,6 +38,11 @@ class errors(commands.Cog):
             await asyncio.sleep(10)
             await respo.delete()
             raise error
+        elif isinstance(error, commands.NotOwner):
+            respo = await ctx.reply("You do not have the permission to execute this command.")
+            await asyncio.sleep(10)
+            await ctx.message.delete()
+            await respo.delete()
         else:
             raise error
 

@@ -40,15 +40,29 @@ class pterostats(commands.Cog):
         await ctx.send(embed=emb)
 
     @commands.command(aliases=['gstats', 'guild'])
-    @commands.is_owner()
+    @commands.has_permissions(administrator=True)
     async def guildstats(self, ctx):
         creationdate = ctx.guild.created_at
         creation = creationdate.replace(tzinfo=timezone('UTC')).astimezone(timezone('Asia/Kolkata'))
+        online = 0
+        offline = 0
+        away = 0
+        dnd = 0
+        for member in ctx.guild.members:
+            if str(member.status)=="online":
+                online += 1
+            elif str(member.status)=="dnd":
+                dnd += 1
+            elif member.status=="idle":
+                away += 1
+            else:
+                offline += 1
         emb = discord.Embed(title="Guild Stats", color=random.randint(0x000000, 0xFFFFFF))
         emb.add_field(name="Name", value=f"{ctx.guild.name}", inline=True)
         emb.add_field(name="Members", value=f"`{len([m for m in ctx.guild.members if not m.bot])}`", inline=True)
         emb.add_field(name="Bots", value=f"`{len([m for m in ctx.guild.members if m.bot])}`", inline=True)
-        emb.add_field(name="Created At", value=f'{creation.strftime("%a, %b %d, %Y, %I:%M%p IST")}', inline=True)
+        emb.add_field(name="Member Status", value=f":green_circle:{online} :red_circle:{dnd} :orange_circle:{away} :black_circle:{offline}", inline=False)
+        emb.add_field(name="Created At", value=f'{creation.strftime("%a, %b %d, %Y, %I:%M%p IST")}', inline=False)
         emb.set_thumbnail(url=ctx.guild.icon_url)
         emb.set_footer(text=f"Invoked by {ctx.author}", icon_url=ctx.author.avatar_url)
         await ctx.send(embed=emb)
