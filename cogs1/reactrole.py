@@ -129,8 +129,6 @@ class atom(commands.Cog):
                     await user.add_roles(role)
                 except Exception as e:
                     print("Error: "+str(e))
-                    print(roledict)
-                    raise(e)
                     return
 
     @commands.Cog.listener()
