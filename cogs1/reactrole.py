@@ -145,5 +145,13 @@ class atom(commands.Cog):
                     print("Error: "+str(e))
                     return
 
+    @reactrole.error
+    async def somerandomemojierror(self, ctx, error):
+        if isinstance(error, commands.CommandInvokeError):
+            respo = await ctx.send("`Please use emojis from this server preferably.`")
+            await asyncio.sleep(10)
+            await respo.delete()
+            await ctx.channel.purge(limit=1)
+
 def setup(bot):
     bot.add_cog(atom(bot))

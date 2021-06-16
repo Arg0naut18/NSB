@@ -43,6 +43,11 @@ class errors(commands.Cog):
             await asyncio.sleep(10)
             await ctx.message.delete()
             await respo.delete()
+        elif isinstance(error, discord.errors.Forbidden):
+            respo = await ctx.reply("Please check that the role of the bot has to be higher than the role it's alloting.")
+            await asyncio.sleep(10)
+            await ctx.message.delete()
+            await respo.delete()
         else:
             raise error
 
