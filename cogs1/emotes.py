@@ -41,7 +41,7 @@ class emotes(commands.Cog):
             await ctx.send(embed=embed)
 
     @commands.command(aliases = ['hbd'])
-    async def bday(self, ctx, member: discord.Member):
+    async def bdaywish(self, ctx, member: discord.Member):
         urls = ['https://media.tenor.com/images/e37ae589afa0cffe7c9957bee26e36cc/tenor.gif',
                 'https://media.tenor.com/images/72fead26968d18a5846f02298dacb3b3/tenor.gif',
                 'https://media.tenor.com/images/ee1cd9269f1872a5eb31cef9b86a20cd/tenor.gif',
