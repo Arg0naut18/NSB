@@ -75,7 +75,7 @@ class atom(commands.Cog):
         for i in range(n):
             roles[i] = discord.utils.get(ctx.guild.roles, id=roleid[i])
 
-        emojis = await ctx.send("React to this message with discord's emojis according to the roles within 30 seconds. ||(Do not use custom emojis. Service coming soon.)||")
+        emojis = await ctx.send("React to this message with emojis according to the roles within 30 seconds.")
         await asyncio.sleep(30)
         msgreact = await ctx.fetch_message(emojis.id)
         emoji = [i.emoji for i in msgreact.reactions]
@@ -99,7 +99,10 @@ class atom(commands.Cog):
         await emojis.delete()
         resp = await ctx.send("The rolemenu is done. Creating embed.")
         for i in range(n):
-            roledict[emoji[i]]=roles[i].id
+            try:
+                roledict[emoji[i].id]=roles[i].id
+            except:
+                roledict[emoji[i]]=roles[i].id
         emb = discord.Embed(title="__**React Roles**__", description=f"**Category**: {category}".title(), color=random.randint(0x000000, 0xFFFFFF))
         for i in range(n):
             user = roles[i]
@@ -119,10 +122,15 @@ class atom(commands.Cog):
         if reaction.message.id == msgid:
             if not user.bot:
                 try:
-                    role = discord.utils.get(user.guild.roles, id=int(roledict[str(reaction)]))
+                    try:
+                        role = discord.utils.get(user.guild.roles, id=int(roledict[reaction.emoji.id]))
+                    except:
+                        role = discord.utils.get(user.guild.roles, id=int(roledict[str(reaction)]))
                     await user.add_roles(role)
                 except Exception as e:
                     print("Error: "+str(e))
+                    print(roledict)
+                    raise(e)
                     return
 
     @commands.Cog.listener()
@@ -130,7 +138,10 @@ class atom(commands.Cog):
         if reaction.message.id == msgid:
             if not user.bot:
                 try:
-                    role = discord.utils.get(user.guild.roles, id=int(roledict[str(reaction)]))
+                    try:
+                        role = discord.utils.get(user.guild.roles, id=int(roledict[reaction.emoji.id]))
+                    except:
+                        role = discord.utils.get(user.guild.roles, id=int(roledict[str(reaction)]))
                     await user.remove_roles(role)
                 except Exception as e:
                     print("Error: "+str(e))
