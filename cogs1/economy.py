@@ -35,8 +35,8 @@ class bday(commands.Cog):
         wallet_money = users[str(member.id)]["wallet"]
         bank_money = users[str(member.id)]["bank"]
         emb = discord.Embed(title=f"{member.name}'s Balance", color=0x00FF00)
-        emb.add_field(name="Wallet balance", value=f"{wallet_money}", inline=True)
-        emb.add_field(name="Bank balance", value=f"{bank_money}", inline=True)
+        emb.add_field(name=":money_with_wings: Wallet balance", value=f"`{wallet_money}`", inline=False)
+        emb.add_field(name=":bank: Bank balance", value=f"`{bank_money}`", inline=False)
         await ctx.send(embed=emb)
 
     @commands.command()
@@ -48,7 +48,7 @@ class bday(commands.Cog):
             users[str(ctx.author.id)]["wallet"] += money
             with open(r'./bank/bank.json', 'w') as f:
                 json.dump(users, f, indent=4)
-            await ctx.send(f"Someone just gave you :coin:{money}! Congrats <:party:855108695192895498>!")
+            await ctx.send(f"Someone just gave you :coin:`{money}`! Congrats <:party:855108695192895498>!")
         else:
             await ctx.send(f"Better luck next time. <:sadcrypeace:855109459852656690>")
 
@@ -60,14 +60,14 @@ class bday(commands.Cog):
             amount = users[str(ctx.author.id)]["wallet"]
             users[str(ctx.author.id)]["bank"] += users[str(ctx.author.id)]["wallet"]
             users[str(ctx.author.id)]["wallet"] = 0
-            await ctx.send(f"You successfully deposited :coin:{amount}!")
+            await ctx.send(f"You successfully deposited :coin:`{amount}`!")
         elif amount==None:
             await ctx.send("You need to mention the money you want to deposit.")
         else:
             if int(amount)<=users[str(ctx.author.id)]["wallet"]:
                 users[str(ctx.author.id)]["bank"] += int(amount)
                 users[str(ctx.author.id)]["wallet"] -= int(amount)
-                await ctx.send(f"You successfully deposited :coin:{amount}!")
+                await ctx.send(f"You successfully deposited :coin:`{amount}`!")
             else:
                 await ctx.send("You don't have enough money to deposit.")
                 return
@@ -84,12 +84,12 @@ class bday(commands.Cog):
             amount = users[str(ctx.author.id)]["bank"]
             users[str(ctx.author.id)]["wallet"] += users[str(ctx.author.id)]["bank"]
             users[str(ctx.author.id)]["bank"] = 0
-            await ctx.send(f"You successfully withdrew :coin:{amount}!")
+            await ctx.send(f"You successfully withdrew :coin:`{amount}`!")
         else:
             if int(amount)<=users[str(ctx.author.id)]["bank"]:
                 users[str(ctx.author.id)]["wallet"] += int(amount)
                 users[str(ctx.author.id)]["bank"] -= int(amount)
-                await ctx.send(f"You successfully withdrew :coin:{amount}!")
+                await ctx.send(f"You successfully withdrew :coin:`{amount}`!")
             else:
                 await ctx.send("You don't have enough money to withdraw.")
                 return
