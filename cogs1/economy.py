@@ -27,7 +27,7 @@ class bday(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
      
-    @commands.command()
+    @commands.command(aliases = ['bal'])
     async def balance(self, ctx, member: discord.Member = None):
         member = ctx.author if not member else member
         await open_account(member)
@@ -63,6 +63,7 @@ class bday(commands.Cog):
             await ctx.send(f"You successfully deposited :coin:`{amount}`!")
         elif amount==None:
             await ctx.send("You need to mention the money you want to deposit.")
+            return
         else:
             if int(amount)<=users[str(ctx.author.id)]["wallet"]:
                 users[str(ctx.author.id)]["bank"] += int(amount)
@@ -80,6 +81,7 @@ class bday(commands.Cog):
         users = await get_account_data()
         if amount == None:
             await ctx.send("You need to mention the amount you wanna withdraw!")
+            return
         elif amount=="all" or amount=="max":
             amount = users[str(ctx.author.id)]["bank"]
             users[str(ctx.author.id)]["wallet"] += users[str(ctx.author.id)]["bank"]
@@ -95,6 +97,15 @@ class bday(commands.Cog):
                 return
         with open(r'./bank/bank.json', 'w') as f:
                 json.dump(users, f, indent=4)
+
+    @commands.command()
+    async def rob(self, ctx, member: discord.Member=None):
+        if member is None:
+            await ctx.send("You need to mention the person you wanna rob lmao.")
+            return
+        users = await get_account_data()
+        if ctx.author.id not in users:
+            await ctx.send("You need to create your own account first!")
 
 def setup(bot):
     bot.add_cog(bday(bot))
