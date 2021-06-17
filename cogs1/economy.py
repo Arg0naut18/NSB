@@ -56,15 +56,21 @@ class bday(commands.Cog):
     async def deposit(self, ctx, amount=None):
         await open_account(ctx.author)
         users = await get_account_data()
-        if amount == None:
+        if amount=="all" or amount=="max":
             amount = users[str(ctx.author.id)]["wallet"]
             users[str(ctx.author.id)]["bank"] += users[str(ctx.author.id)]["wallet"]
             users[str(ctx.author.id)]["wallet"] = 0
             await ctx.send(f"You successfully deposited :coin:{amount}!")
+        elif amount==None:
+            await ctx.send("You need to mention the money you want to deposit.")
         else:
-            users[str(ctx.author.id)]["bank"] += int(amount)
-            users[str(ctx.author.id)]["wallet"] -= int(amount)
-            await ctx.send(f"You successfully deposited :coin:{amount}!")
+            if int(amount)<=users[str(ctx.author.id)]["wallet"]:
+                users[str(ctx.author.id)]["bank"] += int(amount)
+                users[str(ctx.author.id)]["wallet"] -= int(amount)
+                await ctx.send(f"You successfully deposited :coin:{amount}!")
+            else:
+                await ctx.send("You don't have enough money to deposit.")
+                return
         with open(r'./bank/bank.json', 'w') as f:
             json.dump(users, f, indent=4)
 
@@ -74,12 +80,21 @@ class bday(commands.Cog):
         users = await get_account_data()
         if amount == None:
             await ctx.send("You need to mention the amount you wanna withdraw!")
-        else:
-            users[str(ctx.author.id)]["wallet"] += int(amount)
-            users[str(ctx.author.id)]["bank"] -= int(amount)
-            with open(r'./bank/bank.json', 'w') as f:
-                json.dump(users, f, indent=4)
+        elif amount=="all" or amount=="max":
+            amount = users[str(ctx.author.id)]["bank"]
+            users[str(ctx.author.id)]["wallet"] += users[str(ctx.author.id)]["bank"]
+            users[str(ctx.author.id)]["bank"] = 0
             await ctx.send(f"You successfully withdrew :coin:{amount}!")
+        else:
+            if int(amount)<=users[str(ctx.author.id)]["bank"]:
+                users[str(ctx.author.id)]["wallet"] += int(amount)
+                users[str(ctx.author.id)]["bank"] -= int(amount)
+                await ctx.send(f"You successfully withdrew :coin:{amount}!")
+            else:
+                await ctx.send("You don't have enough money to withdraw.")
+                return
+        with open(r'./bank/bank.json', 'w') as f:
+                json.dump(users, f, indent=4)
 
 def setup(bot):
     bot.add_cog(bday(bot))
