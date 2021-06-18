@@ -50,7 +50,7 @@ class errors(commands.Cog):
             await respo.delete()
         elif isinstance(error, commands.CommandOnCooldown):
             trash, time = str(error).split("Try again in ")
-            respo = await ctx.reply(f"Chill dude. You can use this command in {time} seconds.")
+            respo = await ctx.reply(f"Chill dude. You can use this command in `{time}` seconds.")
             await asyncio.sleep(10)
             await respo.delete()
         else:
