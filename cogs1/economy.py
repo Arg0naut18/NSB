@@ -124,11 +124,27 @@ class economy(commands.Cog):
     @commands.command()
     async def rob(self, ctx, member: discord.Member=None):
         if member is None:
-            await ctx.send("You need to mention the person you wanna rob lmao.")
+            await ctx.send("You need to mention whom you wanna give the money to.")
             return
-        users = await get_account_data()
-        if ctx.author.id not in users:
-            await ctx.send("You need to create your own account first!")
+        await open_account(ctx.author)
+        await open_account(member)
+        bal = await update_bank_data(ctx.author)
+        membal = await update_bank_data(member)
+        if bal[0]<50:
+            await ctx.send("You need to have :coin:50 in your wallet to rob.")
+            return
+        if membal[0]<100:
+            await ctx.send("It's not worth it man.")
+            return
+        chance = random.randint(1)
+        if chance==1:
+            amount = random.randrange(0, membal[0])
+            await update_bank_data(member, int(amount))
+            await update_bank_data(ctx.author, -1*int(amount))
+            await ctx.send(f"You just gave :coin:{amount} to {member.mention}! What a generous lad.")
+        else:
+            await update_bank_data(ctx.author, -50)
+            await ctx.send(f"Failed to rob {member}. You lost :coin:50!")
 
 def setup(bot):
     bot.add_cog(economy(bot))
