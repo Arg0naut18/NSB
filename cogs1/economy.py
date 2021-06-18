@@ -23,7 +23,15 @@ async def get_account_data():
         users = json.load(j)
     return users
 
-class bday(commands.Cog):
+async def update_bank_data(user,amount=0,mode="wallet"):
+    users = await get_account_data()
+    users[str(user.id)][mode] += amount
+    with open(r'./bank/bank.json', 'w') as j:
+        json.dump(users, j)
+    bal = [users[str(user.id)]["wallet"], users[str(user.id)]["bank"]]
+    return bal
+
+class economy(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
      
@@ -43,7 +51,7 @@ class bday(commands.Cog):
     async def beg(self, ctx):
         await open_account(ctx.author)
         users = await get_account_data()
-        money = random.randrange(1000)
+        money = random.randrange(100)
         if money != 0:
             users[str(ctx.author.id)]["wallet"] += money
             with open(r'./bank/bank.json', 'w') as f:
@@ -54,49 +62,41 @@ class bday(commands.Cog):
 
     @commands.command()
     async def deposit(self, ctx, amount=None):
-        await open_account(ctx.author)
-        users = await get_account_data()
-        if amount=="all" or amount=="max":
-            amount = users[str(ctx.author.id)]["wallet"]
-            users[str(ctx.author.id)]["bank"] += users[str(ctx.author.id)]["wallet"]
-            users[str(ctx.author.id)]["wallet"] = 0
-            await ctx.send(f"You successfully deposited :coin:`{amount}`!")
-        elif amount==None:
-            await ctx.send("You need to mention the money you want to deposit.")
+        if amount is None:
+            await ctx.send("You need to mention the amount you wanna deposit.")
             return
-        else:
-            if int(amount)<=users[str(ctx.author.id)]["wallet"]:
-                users[str(ctx.author.id)]["bank"] += int(amount)
-                users[str(ctx.author.id)]["wallet"] -= int(amount)
-                await ctx.send(f"You successfully deposited :coin:`{amount}`!")
-            else:
-                await ctx.send("You don't have enough money to deposit.")
-                return
-        with open(r'./bank/bank.json', 'w') as f:
-            json.dump(users, f, indent=4)
+        await open_account(ctx.author)
+        bal = await update_bank_data(ctx.author)
+        if amount == "all" or amount == "max":
+            amount = bal[0]
+        if int(amount)>bal[0]:
+            await ctx.send("You don't have enough money.")
+            return
+        if int(amount)<0:
+            await ctx.send("The amount can't be negative.")
+            return
+        await update_bank_data(ctx.author, int(amount), "bank")
+        await update_bank_data(ctx.author, -1*int(amount))
+        await ctx.send(f"You just deposited :coin:{amount}!")
 
     @commands.command()
     async def withdraw(self, ctx, amount=None):
-        await open_account(ctx.author)
-        users = await get_account_data()
-        if amount == None:
-            await ctx.send("You need to mention the amount you wanna withdraw!")
+        if amount is None:
+            await ctx.send("You need to mention the amount you wanna deposit.")
             return
-        elif amount=="all" or amount=="max":
-            amount = users[str(ctx.author.id)]["bank"]
-            users[str(ctx.author.id)]["wallet"] += users[str(ctx.author.id)]["bank"]
-            users[str(ctx.author.id)]["bank"] = 0
-            await ctx.send(f"You successfully withdrew :coin:`{amount}`!")
-        else:
-            if int(amount)<=users[str(ctx.author.id)]["bank"]:
-                users[str(ctx.author.id)]["wallet"] += int(amount)
-                users[str(ctx.author.id)]["bank"] -= int(amount)
-                await ctx.send(f"You successfully withdrew :coin:`{amount}`!")
-            else:
-                await ctx.send("You don't have enough money to withdraw.")
-                return
-        with open(r'./bank/bank.json', 'w') as f:
-                json.dump(users, f, indent=4)
+        await open_account(ctx.author)
+        bal = await update_bank_data(ctx.author)
+        if amount == "all" or amount == "max":
+            amount = bal[1]
+        if int(amount)>bal[1]:
+            await ctx.send("You don't have enough money.")
+            return
+        if int(amount)<0:
+            await ctx.send("The amount can't be negative.")
+            return
+        await update_bank_data(ctx.author, int(amount))
+        await update_bank_data(ctx.author, -1*int(amount), "bank")
+        await ctx.send(f"You just withdrew :coin:{amount}!")
 
     @commands.command()
     async def rob(self, ctx, member: discord.Member=None):
@@ -108,4 +108,4 @@ class bday(commands.Cog):
             await ctx.send("You need to create your own account first!")
 
 def setup(bot):
-    bot.add_cog(bday(bot))
+    bot.add_cog(economy(bot))
