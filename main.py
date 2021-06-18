@@ -1,7 +1,7 @@
 #importing necessary modules
 
 import discord
-from discord.ext import commands, tasks
+from discord.ext import commands, tasks, ipc
 from discord.ext.commands import has_permissions
 import os
 import datetime
@@ -19,12 +19,24 @@ vari = json.load(j_file)
 j_file.close()
 TOKEN = vari["TOKEN"]
 token = vari["nsbtoken"]
+# ipcsecret = vari["ipcsecret"]
 dev_id = id
 # replace with developer's id vari thing doesn't work
 
 # def pref(client, message):
 #     BOT_PREFIX = ["{prefix[2]}", "{prefix[2]}", "{prefix[2]}"]
 #     return commands.when_mentioned_or(*BOT_PREFIX)(client, message)
+
+# class MyBOt(commands.Bot):
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.ipc=ipc.Server(self, secret_key=ipcsecret)
+#     async def on_ipc_ready(self):
+#         print("IPC ready!")
+#     async def on_ipc_error(self, endpoint, error):
+#         print(endpoint, "raised", error)
+
+
 def get_prefix(client, message):
     if message.guild is None: return commands.when_mentioned_or('nsb ')(client, message)
     try:
