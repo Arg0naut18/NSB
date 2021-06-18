@@ -152,8 +152,7 @@ async def help(ctx, category = None):
         emb.add_field(name=":notebook_with_decorative_cover: Educational", value=f"`{prefix[2]}help edu`", inline=True)
         emb.add_field(name=":hugging: Emotes", value=f"`{prefix[2]}help emotes`", inline=True)
         emb.add_field(name=":man_zombie: Lifeafter", value=f"`{prefix[2]}help la`", inline=True)
-        emb.add_field(name=":love_letter: Direct Message",
-                        value=f"`{prefix[2]}help dm`", inline=True)
+        emb.add_field(name=":money_with_wings: Economy", value=f"`{prefix[2]}help economy`", inline=True)
         emb.set_thumbnail(url=bot.user.avatar_url)
         emb.set_footer(text=f"Invoked by {ctx.author.display_name}",icon_url=ctx.author.avatar_url)
         emb.timestamp = datetime.datetime.now()
@@ -230,9 +229,9 @@ async def help(ctx, category = None):
         emb.timestamp = datetime.datetime.now()
         await ctx.send(embed=emb)
 
-    elif category.lower() == "dm":
-        msg = f"·Direct Message\n`{prefix[2]}dm <@member>/<member_id>`\n\nTHANK YOU"
-        emb = discord.Embed(title=":love_letter: __**NSB DIRECT MESSAGE COMMANDS:**__",
+    elif category.lower() == "economy":
+        msg = f"·Balance\n`{prefix[2]}balance <@member>/<member_id>`\n\n·Beg\n`{prefix[2]}beg`\n\n·Rob\n`{prefix[2]}rob <@member>/<member_id>`\n\n·Give\n`{prefix[2]}give <@member>/<member_id> <amount>`\n\n·Deposit\n`{prefix[2]}deposit <amount>`\n\n·Withdraw\n`{prefix[2]}withdraw <amount>`\n\nTHANK YOU"
+        emb = discord.Embed(title=":money_with_wings: __**NSB ECONOMY COMMANDS:**__",
                             description=msg, color=random.randint(0x000000, 0xFFFFFF))
         emb.set_footer(
             text=f"Invoked by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
