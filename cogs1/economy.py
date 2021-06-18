@@ -136,12 +136,12 @@ class economy(commands.Cog):
         if membal[0]<100:
             await ctx.send("It's not worth it man.")
             return
-        chance = random.randint(1)
+        chance = random.randrange(0, 2)
         if chance==1:
             amount = random.randrange(0, membal[0])
-            await update_bank_data(member, int(amount))
-            await update_bank_data(ctx.author, -1*int(amount))
-            await ctx.send(f"You just gave :coin:{amount} to {member.mention}! What a generous lad.")
+            await update_bank_data(member, -1*int(amount))
+            await update_bank_data(ctx.author, int(amount))
+            await ctx.send(f"You just robbed :coin:{amount} from {member.mention}! Poor lad.")
         else:
             await update_bank_data(ctx.author, -50)
             await ctx.send(f"Failed to rob {member}. You lost :coin:50!")
