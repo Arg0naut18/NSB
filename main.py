@@ -78,6 +78,16 @@ async def get_guild_ids(data):
         final.append(guild.id)
     return final
 
+@bot.ipc.route()
+async def get_guild(data):
+    guild = bot.get_guild(data.guild_id)
+    if guild is None: return None
+    guild_data = {
+        "name": guild.name,
+        "id": guild.id
+    }
+    return guild_data
+
 @bot.event
 async def on_ready():
     # ch_pr.start()
