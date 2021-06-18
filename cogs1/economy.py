@@ -45,7 +45,7 @@ class economy(commands.Cog):
         emb = discord.Embed(title=f"{member.name}'s Balance", color=0x00FF00)
         emb.add_field(name=":money_with_wings: Wallet balance", value=f"`{wallet_money}`", inline=False)
         emb.add_field(name=":bank: Bank balance", value=f"`{bank_money}`", inline=False)
-        emb.set_footer(text=f"Invoked by: {member.name}", icon_url=member.avatar_url)
+        emb.set_footer(text=f"Invoked by: {ctx.author.name}", icon_url=ctx.author.avatar_url)
         await ctx.send(embed=emb)
 
     @commands.command()
@@ -53,7 +53,7 @@ class economy(commands.Cog):
         await open_account(ctx.author)
         users = await get_account_data()
         money = random.randrange(500)
-        if money != 0:
+        if money != 0 and random.randrange(0,2)==1:
             users[str(ctx.author.id)]["wallet"] += money
             with open(r'./bank/bank.json', 'w') as f:
                 json.dump(users, f, indent=4)
