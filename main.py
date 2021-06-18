@@ -19,7 +19,7 @@ vari = json.load(j_file)
 j_file.close()
 TOKEN = vari["TOKEN"]
 token = vari["nsbtoken"]
-# ipcsecret = vari["ipcsecret"]
+ipcsecret = vari["ipcsecret"]
 dev_id = id
 # replace with developer's id vari thing doesn't work
 
@@ -27,14 +27,14 @@ dev_id = id
 #     BOT_PREFIX = ["{prefix[2]}", "{prefix[2]}", "{prefix[2]}"]
 #     return commands.when_mentioned_or(*BOT_PREFIX)(client, message)
 
-# class MyBOt(commands.Bot):
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.ipc=ipc.Server(self, secret_key=ipcsecret)
-#     async def on_ipc_ready(self):
-#         print("IPC ready!")
-#     async def on_ipc_error(self, endpoint, error):
-#         print(endpoint, "raised", error)
+class MyBot(commands.Bot):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ipc=ipc.Server(self, secret_key=ipcsecret)
+    async def on_ipc_ready(self):
+        print("IPC ready!")
+    async def on_ipc_error(self, endpoint, error):
+        print(endpoint, "raised", error)
 
 
 def get_prefix(client, message):
@@ -63,11 +63,13 @@ def get_prefix(client, message):
 
 intents = discord.Intents.all()
 intents.members = True
-bot = commands.Bot(command_prefix=(get_prefix), intents=intents, owner_id=436844058217021441,
+bot = MyBot(command_prefix=(get_prefix), intents=intents, owner_id=436844058217021441,
                    case_insensitive=True, help_command=None, description="Made by Argonaut#6921 for NSB")
 
 #main thing starts here
-
+@bot.ipc.route()
+async def get_guild_count(data):
+    return len(bot.guilds)
 
 @bot.event
 async def on_ready():
@@ -319,4 +321,5 @@ for file in os.listdir('./divinecogs'):
     if file.endswith(".py"):
         bot.load_extension(f"divinecogs.{file[:-3]}")
 
+bot.ipc.start()
 bot.run(token)
