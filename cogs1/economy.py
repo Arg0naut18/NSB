@@ -49,6 +49,7 @@ class economy(commands.Cog):
         await ctx.send(embed=emb)
 
     @commands.command()
+    @commands.cooldown(1, 30, commands.BucketType.user)
     async def beg(self, ctx):
         await open_account(ctx.author)
         users = await get_account_data()
@@ -123,6 +124,7 @@ class economy(commands.Cog):
         await ctx.send(f"You just gave :coin:{amount} to {member.mention}! What a generous lad.")
     
     @commands.command()
+    @commands.cooldown(1, 30, commands.BucketType.user)
     async def rob(self, ctx, member: discord.Member=None):
         if member is None:
             await ctx.send("You need to mention whom you wanna give the money to.")

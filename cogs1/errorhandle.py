@@ -48,6 +48,10 @@ class errors(commands.Cog):
             await asyncio.sleep(10)
             await ctx.message.delete()
             await respo.delete()
+        elif isinstance(error, commands.CommandOnCooldown):
+            respo = await ctx.reply("Chill dude. You can use this command every 30 seconds.")
+            await asyncio.sleep(10)
+            await respo.delete()
         else:
             raise error
 
