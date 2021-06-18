@@ -56,7 +56,7 @@ class economy(commands.Cog):
             users[str(ctx.author.id)]["wallet"] += money
             with open(r'./bank/bank.json', 'w') as f:
                 json.dump(users, f, indent=4)
-            await ctx.send(f"Someone just gave you :coin:`{money}`! Congrats <:party:855108695192895498>!")
+            await ctx.send(f"Someone just gave you :coin:`{money}`! Congrats :tada:!")
         else:
             await ctx.send(f"Better luck next time. <:sadcrypeace:855109459852656690>")
 
@@ -78,6 +78,29 @@ class economy(commands.Cog):
         await update_bank_data(ctx.author, int(amount), "bank")
         await update_bank_data(ctx.author, -1*int(amount))
         await ctx.send(f"You just deposited :coin:{amount}!")
+    
+    @commands.command()
+    async def give(self, ctx, member: discord.Member=None, amount=None):
+        if amount is None:
+            await ctx.send("You need to mention the amount you wanna deposit.")
+            return
+        if member is None:
+            await ctx.send("You need to mention whom you wanna give the money to.")
+            return
+        await open_account(ctx.author)
+        await open_account(member)
+        bal = await update_bank_data(ctx.author)
+        if amount == "all" or amount == "max":
+            amount = bal[0]
+        if int(amount)>bal[0]:
+            await ctx.send("You don't have enough money.")
+            return
+        if int(amount)<0:
+            await ctx.send("The amount can't be negative.")
+            return
+        await update_bank_data(member, int(amount))
+        await update_bank_data(ctx.author, -1*int(amount))
+        await ctx.send(f"You just gave :coin:{amount} to {member.mention}! What a generous lad.")
 
     @commands.command()
     async def withdraw(self, ctx, amount=None):
