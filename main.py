@@ -71,6 +71,13 @@ bot = MyBot(command_prefix=(get_prefix), intents=intents, owner_id=4368440582170
 async def get_guild_count(data):
     return len(bot.guilds)
 
+@bot.ipc.route()
+async def get_guild_ids(data):
+    final = []
+    for guild in bot.guilds:
+        final.append(guild.id)
+    return final
+
 @bot.event
 async def on_ready():
     # ch_pr.start()
