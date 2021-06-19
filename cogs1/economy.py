@@ -23,6 +23,12 @@ async def get_account_data():
         users = json.load(j)
     return users
 
+async def get_total_balance(user):
+    users = await get_account_data()
+    total = users[str(user.id)]["wallet"]+users[str(user.id)]["bank"]
+    user_stats = [users[str(user.id)]["wallet"], users[str(user.id)]["bank"], total]
+    return user_stats
+
 async def update_bank_data(user,amount=0,mode="wallet"):
     users = await get_account_data()
     users[str(user.id)][mode] += amount
@@ -30,6 +36,11 @@ async def update_bank_data(user,amount=0,mode="wallet"):
         json.dump(users, j)
     bal = [users[str(user.id)]["wallet"], users[str(user.id)]["bank"]]
     return bal
+
+async def get_key_dict(val, dicti):
+    for key,value in dicti.items():
+        if val == value:
+             return key
 
 class economy(commands.Cog):
     def __init__(self, bot):
@@ -148,6 +159,23 @@ class economy(commands.Cog):
         else:
             await update_bank_data(ctx.author, -50)
             await ctx.send(f"Failed to rob {member.mention}. You lost :coin:50!")
+
+    @commands.command(aliases=["lb"])
+    async def leaderboard(self, ctx):
+        users = await get_account_data()
+        total_list = {}
+        for user in users:
+            member = discord.utils.get(self.bot.users, id=int(user))
+            if ctx.author.guild in member.mutual_guilds:
+                total = await get_total_balance(member)
+                total_list[f"{member.id}"]=total[2]
+        sorteddict = dict(sorted(total_list.items(), key=lambda item: item[1], reverse=True))
+        lb = discord.Embed(title=f"{ctx.author.guild.name}'s Leaderboard!", color=0x00FF00)
+        for player_id in sorteddict.keys():
+            member = await self.bot.fetch_user(int(player_id))
+            lb.add_field(name=f"{member.display_name}".title(), value=f'Wallet: {users[str(player_id)]["wallet"]} | Bank: {users[str(player_id)]["bank"]} | Total: {users[str(player_id)]["wallet"]+users[str(player_id)]["bank"]}', inline=False)
+        lb.set_footer(text=f"Invoked by: {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
+        await ctx.send(embed=lb)
 
 def setup(bot):
     bot.add_cog(economy(bot))
