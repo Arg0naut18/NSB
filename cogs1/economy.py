@@ -53,16 +53,16 @@ class economy(commands.Cog):
     async def beg(self, ctx):
         await open_account(ctx.author)
         users = await get_account_data()
-        money = random.randrange(500)
+        money = random.randrange(1, 251)
         if money != 0 and random.randrange(0,2)==1:
             users[str(ctx.author.id)]["wallet"] += money
             with open(r'./bank/bank.json', 'w') as f:
                 json.dump(users, f, indent=4)
             await ctx.send(f"Someone just gave you :coin:`{money}`! Congrats <a:partygif:855108791532388422>!")
         else:
-            await ctx.send(f"Better luck next time. <a:sadcrypeace:855109649962369054>")
+            await ctx.send(f"You got shooed away! Better luck next time. <a:sadcrypeace:855109649962369054>")
 
-    @commands.command()
+    @commands.command(aliases=['dep'])
     async def deposit(self, ctx, amount=None):
         if amount is None:
             await ctx.send("You need to mention the amount you wanna deposit.")
@@ -81,7 +81,7 @@ class economy(commands.Cog):
         await update_bank_data(ctx.author, -1*int(amount))
         await ctx.send(f"You just deposited :coin:{amount}!")
 
-    @commands.command()
+    @commands.command(aliases=['with'])
     async def withdraw(self, ctx, amount=None):
         if amount is None:
             await ctx.send("You need to mention the amount you wanna deposit.")
