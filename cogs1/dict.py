@@ -49,9 +49,9 @@ class dict(commands.Cog):
             embed = discord.Embed(
                 title=f"__**{defs[i].word}**__".title(), color=random.randint(0x000000, 0xFFFFFF))
             embed.add_field(name="__Definition__", value=str(
-                defs[i].definition), inline=False)
+                defs[i].definition)[:1024], inline=False)
             embed.add_field(name="__Example__", value=str(
-                defs[i].example), inline=False)
+                defs[i].example)[:1024], inline=False)
             embed.set_footer(text=f"Meaning:{i+1}/{len(defs)}")
             await meaning.edit(embed=embed)
             await meaning.add_reaction("⬅️")
@@ -69,9 +69,9 @@ class dict(commands.Cog):
                             embed = discord.Embed(
                                 title=f"__**{defs[i].word}**__".title(), color=random.randint(0x000000, 0xFFFFFF))
                             embed.add_field(name="__Definition__", value=str(
-                                defs[i].definition), inline=False)
+                                defs[i].definition)[:1024], inline=False)
                             embed.add_field(name="__Example__", value=str(
-                                defs[i].example), inline=False)
+                                defs[i].example)[:1024], inline=False)
                             embed.set_footer(text=f"Meaning:{i+1}/{len(defs)}")
                             await meaning.edit(embed=embed)
                             await meaning.remove_reaction("➡️", user)
@@ -87,9 +87,9 @@ class dict(commands.Cog):
                             embed = discord.Embed(
                                 title=f"__**{defs[i].word}**__".title(), color=random.randint(0x000000, 0xFFFFFF))
                             embed.add_field(name="__Definition__", value=str(
-                                defs[i].definition), inline=False)
+                                defs[i].definition)[:1024], inline=False)
                             embed.add_field(name="__Example__", value=str(
-                                defs[i].example), inline=False)
+                                defs[i].example)[:1024], inline=False)
                             embed.set_footer(text=f"Meaning:{i+1}/{len(defs)}")
                             await meaning.edit(embed=embed)
                             await meaning.remove_reaction("⬅️", user)
