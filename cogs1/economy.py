@@ -64,8 +64,9 @@ class economy(commands.Cog):
     async def beg(self, ctx):
         await open_account(ctx.author)
         users = await get_account_data()
-        money = random.randrange(1, 251)
-        if money != 0 and random.randrange(0,2)==1:
+        money = random.randrange(1, 151)
+        chance = random.randrange(0,5)
+        if money != 0 and chance==0 or chance==2 or chance== 4:
             users[str(ctx.author.id)]["wallet"] += money
             with open(r'./bank/bank.json', 'w') as f:
                 json.dump(users, f, indent=4)
@@ -176,6 +177,32 @@ class economy(commands.Cog):
             lb.add_field(name=f"{member.display_name}".title(), value=f'Wallet: {users[str(player_id)]["wallet"]} | Bank: {users[str(player_id)]["bank"]} | Total: {users[str(player_id)]["wallet"]+users[str(player_id)]["bank"]}', inline=False)
         lb.set_footer(text=f"Invoked by: {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
         await ctx.send(embed=lb)
+
+    @commands.command()
+    @commands.cooldown(1, 3600, commands.BucketType.user)
+    async def work(self, ctx):
+        await open_account(ctx.author)
+        users = await get_account_data()
+        with open('./bank/questions.json') as qt:
+            questions = json.load(qt)
+        question_list = list(questions.items())
+        query = random.choice(question_list)[0]
+        def check(m):
+            return m.author == ctx.author and m.channel == ctx.channel
+        await ctx.send(query[0])
+        answer = await self.bot.wait_for('message', timeout=60, check=check)
+        is_it_correct = False
+        if answer.content.lower().strip() == query[1]:
+            is_it_correct=True
+        if is_it_correct==True:
+            money = 1000
+            users[str(ctx.author.id)]["wallet"] += money
+            with open(r'./bank/bank.json', 'w') as f:
+                json.dump(users, f, indent=4)
+            await ctx.send(f"Great job! Your boss just gave you :coin:`{money}`! Congrats <a:partygif:855108791532388422>!")
+        else:
+            await ctx.send(f"Ooh man! I expected you to do this simple job. Well atleast better luck next time.<:aqua_thumbsup:856058717119447040>")
+
 
 def setup(bot):
     bot.add_cog(economy(bot))
