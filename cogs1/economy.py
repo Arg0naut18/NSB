@@ -4,6 +4,12 @@ import json
 from datetime import date
 import calendar
 import random
+import dbl
+
+j_file = open("secrets.txt")
+vari = json.load(j_file)
+j_file.close()
+dbl_key = vari["dbltoken"]
 
 async def open_account(user):
     with open(r'./bank/bank.json', 'r') as f:
@@ -45,6 +51,19 @@ async def get_key_dict(val, dicti):
 class economy(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.token = dbl_key  # set this to your DBL token
+        self.dblpy = dbl.DBLClient(self.bot, self.token, webhook_path='/dblwebhook', webhook_auth='password', webhook_port=5000)
+    
+    @commands.Cog.listener()
+    async def on_dbl_vote(self,data):
+        log_channel = self.bot.get_channel(856597432191942677)
+        voteemb = discord.Embed(title=f"New Upvote", description="By:", color=0x00FF00)
+        voteemb.add_field(name="Name:", value=f"{data['user']}", inline=False)
+        try:
+            voteemb.add_field(name="ID:", value=f"{data['id']}", inline=False)
+        except Exception as e:
+            print(e)
+        await log_channel.send(embed=voteemb)
      
     @commands.command(aliases = ['bal'])
     async def balance(self, ctx, member: discord.Member = None):
