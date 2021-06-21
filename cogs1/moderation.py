@@ -22,6 +22,12 @@ class moderation(commands.Cog):
     async def on_message(self, mssg):
         channel = mssg.channel
         if mssg.guild is not None:
+            if mssg.guild.id == 743741348578066442:
+                if channel.id == 764073807627157515:
+                    if mssg.content.lower() == "nsb verify":
+                        role = discord.utils.get(mssg.guild.roles, id=764059798719037460)
+                        await mssg.author.add_roles(role)
+                        await mssg.delete()
             if mssg.guild.id == 711079029624537098:
         # 765647163463434298 || 801811950119157790
                 if channel.id != 753632407332192366:
