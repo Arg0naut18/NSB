@@ -224,8 +224,8 @@ class economy(commands.Cog):
     @commands.command()
     async def vote(self, ctx):
         vembed = discord.Embed(title="Thank you for choosing to vote for NSB.", description="You can vote the bot in the three mentioned websites and get :coin:5000 instantly in your NSB wallet.", color=0x00FF00)
-        vembed.add_field(name="<:topgg:856926154510696488>",value=f"[Top.gg](https://top.gg/bot/743741872039657492)", inline=False)
-        vembed.add_field(name="<:bfd:856926116655923200>",value=f"[Bots For Discord](https://botsfordiscord.com/bot/743741872039657492)", inline=False)
+        vembed.add_field(name="<a:topggshrink:856942112670875718>",value=f"[Top.gg](https://top.gg/bot/743741872039657492)", inline=False)
+        vembed.add_field(name="<a:bfdspin:856942081679687721>",value=f"[Bots For Discord](https://botsfordiscord.com/bot/743741872039657492)", inline=False)
         vembed.add_field(name="<:dbl:856926134549217330>",value=f"[Discord Bot List](https://discordbotlist.com/bots/notsobasic)", inline=False)
         await ctx.reply(embed=vembed)        
 
