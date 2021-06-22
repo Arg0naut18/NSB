@@ -24,12 +24,6 @@ async def get_account_data():
         users = json.load(j)
     return users
 
-async def get_total_balance(user):
-    users = await get_account_data()
-    total = users[str(user.id)]["wallet"]+users[str(user.id)]["bank"]
-    user_stats = [users[str(user.id)]["wallet"], users[str(user.id)]["bank"], total]
-    return user_stats
-
 async def update_bank_data(user,amount=0,mode="wallet"):
     users = await get_account_data()
     users[str(user.id)][mode] += amount
@@ -42,6 +36,12 @@ async def get_key_dict(val, dicti):
     for key,value in dicti.items():
         if val == value:
              return key
+            
+async def get_total_balance(user):
+    users = await get_account_data()
+    total = users[str(user.id)]["wallet"]+users[str(user.id)]["bank"]
+    user_stats = [users[str(user.id)]["wallet"], users[str(user.id)]["bank"], total]
+    return user_stats
 
 class economy(commands.Cog):
     def __init__(self, bot):
@@ -49,7 +49,7 @@ class economy(commands.Cog):
     
     @commands.Cog.listener()
     async def on_message(self,message):
-        if message.channel.id == 856597432191942677:
+        if message.channel.id == 856873592570773521:
             data = message.content.split(" ")
             user_info = re.sub("\D", "", data[6])
             try:
@@ -58,12 +58,10 @@ class economy(commands.Cog):
                 print(e)
                 return
             await open_account(user)
-            users = await get_account_data()
-            users[str(user.id)]["wallet"] += 5000
+            await update_bank_data(user, 5000)
             msg = ("Thanks a lot for voting the bot <a:flashingheart:856875077023039528>! Here is :coin:5000 as a gift <a:partygif:855108791532388422>.")
             voteembed = discord.Embed(title="Thanks for voting!", description=msg, color=0x00FF00)
             await user.send(embed=voteembed)
-
      
     @commands.command(aliases = ['bal'])
     async def balance(self, ctx, member: discord.Member = None):
@@ -81,6 +79,7 @@ class economy(commands.Cog):
     @commands.command()
     @commands.cooldown(1, 30, commands.BucketType.user)
     async def beg(self, ctx):
+        responses = ["You got shooed away! Better luck next time. <:sadcrypeace:855109649962369054>", "Mr. Selfish said he doesn't have time. Don't worry. Try again. <:aqua_thumbsup:856058717119447040>", "Mrs. Idon'tcare said she doesn't trust you coz you're poor! Yea she's a nitwit. Don't worry. Try again! <:aqua_thumbsup:856058717119447040>", "Mr. Selfish said he doesn't trust you coz you're poor! Yea he's a nitwit. Don't worry. Try again! <:aqua_thumbsup:856058717119447040>", "Mrs. Idon'tcare just considered you a ghost. Don't worry. Try again. <:aqua_thumbsup:856058717119447040>"]
         await open_account(ctx.author)
         users = await get_account_data()
         money = random.randrange(1, 151)
@@ -91,7 +90,7 @@ class economy(commands.Cog):
                 json.dump(users, f, indent=4)
             await ctx.send(f"Someone just gave you :coin:`{money}`! Congrats <a:partygif:855108791532388422>!")
         else:
-            await ctx.send(f"You got shooed away! Better luck next time. <a:sadcrypeace:855109649962369054>")
+            await ctx.send(f"{random.choice(responses)}")
 
     @commands.command(aliases=['dep'])
     async def deposit(self, ctx, amount=None):
@@ -155,7 +154,7 @@ class economy(commands.Cog):
         await ctx.send(f"You just gave :coin:{amount} to {member.mention}! What a generous lad.")
     
     @commands.command()
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    @commands.cooldown(1, 60, commands.BucketType.user)
     async def rob(self, ctx, member: discord.Member=None):
         if member is None:
             await ctx.send("You need to mention whom you wanna give the money to.")
@@ -179,8 +178,8 @@ class economy(commands.Cog):
         else:
             await update_bank_data(ctx.author, -50)
             await ctx.send(f"Failed to rob {member.mention}. You lost :coin:50!")
-
-    @commands.command(aliases=["ranks"])
+            
+    @commands.command(aliases=['ranks'])
     async def leaderboard(self, ctx):
         users = await get_account_data()
         total_list = {}
@@ -196,7 +195,7 @@ class economy(commands.Cog):
             lb.add_field(name=f"{member.display_name}".title(), value=f'Wallet: {users[str(player_id)]["wallet"]} | Bank: {users[str(player_id)]["bank"]} | Total: {users[str(player_id)]["wallet"]+users[str(player_id)]["bank"]}', inline=False)
         lb.set_footer(text=f"Invoked by: {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
         await ctx.send(embed=lb)
-
+        
     @commands.command()
     @commands.cooldown(1, 3600, commands.BucketType.user)
     async def work(self, ctx):
@@ -205,7 +204,7 @@ class economy(commands.Cog):
         with open('./bank/questions.json') as qt:
             questions = json.load(qt)
         question_list = list(questions.items())
-        query = random.choice(question_list)[0]
+        query = random.choice(question_list)
         def check(m):
             return m.author == ctx.author and m.channel == ctx.channel
         await ctx.send(query[0])
@@ -221,7 +220,14 @@ class economy(commands.Cog):
             await ctx.send(f"Great job! Your boss just gave you :coin:`{money}`! Congrats <a:partygif:855108791532388422>!")
         else:
             await ctx.send(f"Ooh man! I expected you to do this simple job. Well atleast better luck next time.<:aqua_thumbsup:856058717119447040>")
-
+            
+    @commands.command()
+    async def vote(self, ctx):
+        vembed = discord.Embed(title="Thank you for choosing to vote for NSB.", description="You can vote the bot in the three mentioned websites and get :coin:5000 instantly in your NSB wallet.", color=0x00FF00)
+        vembed.add_field(name="<:topgg:856926154510696488>",value=f"[Top.gg](https://top.gg/bot/743741872039657492)", inline=False)
+        vembed.add_field(name="<:bfd:856926116655923200>",value=f"[Bots For Discord](https://botsfordiscord.com/bot/743741872039657492)", inline=False)
+        vembed.add_field(name="<:dbl:856926134549217330>",value=f"[Discord Bot List](https://discordbotlist.com/bots/notsobasic)", inline=False)
+        await ctx.reply(embed=vembed)        
 
 def setup(bot):
     bot.add_cog(economy(bot))
