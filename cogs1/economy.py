@@ -4,12 +4,7 @@ import json
 from datetime import date
 import calendar
 import random
-import dbl
-
-j_file = open("secrets.txt")
-vari = json.load(j_file)
-j_file.close()
-dbl_key = vari["dbltoken"]
+import re
 
 async def open_account(user):
     with open(r'./bank/bank.json', 'r') as f:
@@ -51,19 +46,24 @@ async def get_key_dict(val, dicti):
 class economy(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.token = dbl_key  # set this to your DBL token
-        self.dblpy = dbl.DBLClient(self.bot, self.token, webhook_path='/dblwebhook', webhook_auth='password', webhook_port=5000)
     
     @commands.Cog.listener()
-    async def on_dbl_vote(self,data):
-        log_channel = self.bot.get_channel(856597432191942677)
-        voteemb = discord.Embed(title=f"New Upvote", description="By:", color=0x00FF00)
-        voteemb.add_field(name="Name:", value=f"{data['user']}", inline=False)
-        try:
-            voteemb.add_field(name="ID:", value=f"{data['id']}", inline=False)
-        except Exception as e:
-            print(e)
-        await log_channel.send(embed=voteemb)
+    async def on_message(self,message):
+        if message.channel.id == 856597432191942677:
+            data = message.content.split(" ")
+            user_info = re.sub("\D", "", data[6])
+            try:
+                user = self.bot.get_user(int(user_info)) or await self.bot.fetch_user(int(user_info))
+            except Exception as e:
+                print(e)
+                return
+            await open_account(user)
+            users = await get_account_data()
+            users[str(user.id)]["wallet"] += 5000
+            msg = ("Thanks a lot for voting the bot <a:flashingheart:856875077023039528>! Here is :coin:5000 as a gift <a:partygif:855108791532388422>.")
+            voteembed = discord.Embed(title="Thanks for voting!", description=msg, color=0x00FF00)
+            await user.send(embed=voteembed)
+
      
     @commands.command(aliases = ['bal'])
     async def balance(self, ctx, member: discord.Member = None):
@@ -180,12 +180,12 @@ class economy(commands.Cog):
             await update_bank_data(ctx.author, -50)
             await ctx.send(f"Failed to rob {member.mention}. You lost :coin:50!")
 
-    @commands.command(aliases=["lb"])
+    @commands.command(aliases=["ranks"])
     async def leaderboard(self, ctx):
         users = await get_account_data()
         total_list = {}
         for user in users:
-            member = discord.utils.get(self.bot.users, id=int(user))
+            member = self.bot.get_user(int(user)) or await self.bot.fetch_user(int(user))
             if ctx.author.guild in member.mutual_guilds:
                 total = await get_total_balance(member)
                 total_list[f"{member.id}"]=total[2]
