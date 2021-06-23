@@ -15,6 +15,7 @@ async def open_account(user):
         users[str(user.id)] = {}
         users[str(user.id)]["wallet"] = 0
         users[str(user.id)]["bank"] = 0
+        users[str(user.id)]["maxbank"] = 15000
     with open(r'./bank/bank.json', 'w') as f:
         json.dump(users, f, indent=4)
     return True
@@ -139,18 +140,29 @@ class economy(commands.Cog):
             await ctx.send("You need to mention the amount you wanna deposit.")
             return
         await open_account(ctx.author)
+        users = await get_account_data()
         bal = await update_bank_data(ctx.author)
+        maxbank = int(users[str(ctx.author.id)]["maxbank"])
         if amount == "all" or amount == "max":
             amount = bal[0]
+        amount = int(amount)
         if int(amount)>bal[0]:
             await ctx.send("You don't have enough Ncoin.")
             return
         if int(amount)<0:
             await ctx.send("The amount can't be negative.")
             return
-        await update_bank_data(ctx.author, int(amount), "bank")
-        await update_bank_data(ctx.author, -1*int(amount))
-        await ctx.send(f"You just deposited <:ncoin:857167494585909279>{amount}!")
+        if bal[1]+amount<maxbank:
+            await update_bank_data(ctx.author, int(amount), "bank")
+            await update_bank_data(ctx.author, -1*int(amount))
+            await ctx.send(f"You just deposited <:ncoin:857167494585909279>{amount}!")
+        elif bal[1]+amount >= maxbank and bal[1]<maxbank:
+            updated_amount = maxbank - bal[1]
+            await update_bank_data(ctx.author, updated_amount, "bank")
+            await update_bank_data(ctx.author, -1*updated_amount)
+            await ctx.send(f"You just deposited <:ncoin:857167494585909279>{updated_amount}!")
+        else:
+            await ctx.send("Your bank is full.")
 
     @commands.command(aliases=['with'])
     async def withdraw(self, ctx, amount=None):
@@ -273,11 +285,14 @@ class economy(commands.Cog):
             inv = users[str(user.id)]["bag"]
         except:
             inv = []
-        invembed = discord.Embed(title=f"{user.display_name}'s Inventory", color=0x00FF00)
-        for item in inv:
+        i=1
+        msg = ''
+        for item in inv: 
             name = item["item"]
             amount = item["amount"]
-            invembed.add_field(name=name, value=f"{amount}")
+            msg = msg.join(f"{i}) Name: {name} | Quantity: {amount}\n")
+            i+=1
+        invembed = discord.Embed(title=f"{user.display_name}'s Inventory", description=msg, color=0x00FF00)
         await ctx.send(embed=invembed)
 
     @commands.command()
