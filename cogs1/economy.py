@@ -227,6 +227,7 @@ class economy(commands.Cog):
         vembed.add_field(name="<a:topggshrink:856942112670875718>",value=f"[Top.gg](https://top.gg/bot/743741872039657492)", inline=False)
         vembed.add_field(name="<a:bfdspin:856942081679687721>",value=f"[Bots For Discord](https://botsfordiscord.com/bot/743741872039657492)", inline=False)
         vembed.add_field(name="<:dbl:856926134549217330>",value=f"[Discord Bot List](https://discordbotlist.com/bots/notsobasic)", inline=False)
+        vembed.set_footer(text=f"Invoked by {ctx.author} | Rewards for Discord bot list is currently unavailable.", icon_url=ctx.author.avatar_url)
         await ctx.reply(embed=vembed)        
 
 def setup(bot):
