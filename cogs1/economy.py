@@ -43,6 +43,47 @@ async def get_total_balance(user):
     user_stats = [users[str(user.id)]["wallet"], users[str(user.id)]["bank"], total]
     return user_stats
 
+async def buy_this(user, item_name, amount):
+    item_name = item_name.lower()
+    with open('./bank/shop.json', 'r') as f:
+            mainshop = json.load(f)
+    name_ = None
+    for item in mainshop:
+        name = item["name"].lower()
+        if name == item_name:
+            name_ = name
+            price = item["price"]
+            break
+    if name_ == None:
+        return [False, 1]
+    cost = price*amount
+    users = await get_account_data()
+    bal = await update_bank_data(user)
+    if bal[0]<cost:
+        return [False, 2]
+    try:
+        index=0
+        t=None
+        for thing in users[str(user.id)]["bag"]:
+            n=thing["item"]
+            if n==item_name:
+                old_amt = thing["amount"]
+                new_amt = old_amt + amount
+                users[str(user.id)]["bag"][index]["amount"] = new_amt
+                t=1
+                break
+            index+=1
+        if t==None:
+            obj={"item":item_name, "amount": amount}
+            users[str(user.id)]["bag"].append(obj)
+    except:
+        obj = {"item": item_name, "amount": amount}
+        users[str(user.id)]["bag"]=[obj]
+    with open('./bank/bank.json', 'w') as f:
+        json.dump(users,f)
+    await update_bank_data(user, cost*-1)
+    return [True,"Worked"]
+
 class economy(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -102,7 +143,7 @@ class economy(commands.Cog):
         if amount == "all" or amount == "max":
             amount = bal[0]
         if int(amount)>bal[0]:
-            await ctx.send("You don't have enough money.")
+            await ctx.send("You don't have enough Ncoin.")
             return
         if int(amount)<0:
             await ctx.send("The amount can't be negative.")
@@ -121,7 +162,7 @@ class economy(commands.Cog):
         if amount == "all" or amount == "max":
             amount = bal[1]
         if int(amount)>bal[1]:
-            await ctx.send("You don't have enough money.")
+            await ctx.send("You don't have enough Ncoin.")
             return
         if int(amount)<0:
             await ctx.send("The amount can't be negative.")
@@ -136,7 +177,7 @@ class economy(commands.Cog):
             await ctx.send("You need to mention the amount you wanna deposit.")
             return
         if member is None:
-            await ctx.send("You need to mention whom you wanna give the money to.")
+            await ctx.send("You need to mention whom you wanna give the Ncoin to.")
             return
         await open_account(ctx.author)
         await open_account(member)
@@ -144,7 +185,7 @@ class economy(commands.Cog):
         if amount == "all" or amount == "max":
             amount = bal[0]
         if int(amount)>bal[0]:
-            await ctx.send("You don't have enough money.")
+            await ctx.send("You don't have enough Ncoin.")
             return
         if int(amount)<0:
             await ctx.send("The amount can't be negative.")
@@ -157,7 +198,7 @@ class economy(commands.Cog):
     @commands.cooldown(1, 60, commands.BucketType.user)
     async def rob(self, ctx, member: discord.Member=None):
         if member is None:
-            await ctx.send("You need to mention whom you wanna give the money to.")
+            await ctx.send("You need to mention whom you wanna give the Ncoin to.")
             return
         await open_account(ctx.author)
         await open_account(member)
@@ -197,11 +238,54 @@ class economy(commands.Cog):
         await ctx.send(embed=lb)
         
     @commands.command()
+    async def shop(self, ctx):
+        with open('./bank/shop.json', 'r') as f:
+            mainshop = json.load(f)
+        shopembed = discord.Embed(title="NSB Shop!", color=0x00FF00)
+        i=1
+        for item in mainshop:
+            name = item["display_name"]
+            price = item["price"]
+            description = item["description"]
+            id = item["name"]
+            shopembed.add_field(name=f"{i}) {name}", value=f"Price: <:ncoin:857167494585909279>{price}\nDescription: {description}\nID: {id}", inline=False)
+            i+=1
+        await ctx.send(embed=shopembed)
+
+    @commands.command()
+    async def buy(self, ctx, item, amount=None):
+        res = await buy_this(ctx.author, item, amount)
+        if not res[0]:
+            if res[1] == 1:
+                await ctx.send("This item isn't available on the shop yet! Please type the item ID properly.")
+                return
+            if res[1]== 2:
+                await ctx.send(f"You don't have enough Ncoin in your wallet to buy {amount} {item}(s)")
+                return
+        await ctx.send(f"Added {amount} {item} to your inventory <a:partygif:855108791532388422>.")
+
+    @commands.command(aliases=["inv"])
+    async def inventory(self, ctx, user: discord.Member=None):
+        user = ctx.author if not user else user
+        await open_account(user)
+        users = await get_account_data()
+        try:
+            inv = users[str(user.id)]["bag"]
+        except:
+            inv = []
+        invembed = discord.Embed(title=f"{user.display_name}'s Inventory", color=0x00FF00)
+        for item in inv:
+            name = item["item"]
+            amount = item["amount"]
+            invembed.add_field(name=name, value=f"{amount}")
+        await ctx.send(embed=invembed)
+
+    @commands.command()
     @commands.cooldown(1, 3600, commands.BucketType.user)
     async def work(self, ctx):
         await open_account(ctx.author)
         users = await get_account_data()
-        with open('./bank/questions.json') as qt:
+        with open('./bank/questions.json', 'r') as qt:
             questions = json.load(qt)
         question_list = list(questions.items())
         query = random.choice(question_list)

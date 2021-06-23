@@ -1,0 +1,20 @@
+[
+  {
+    "display_name": "Bank Note",
+    "name" : "banknote",
+    "price": 10000,
+    "description": "Increases the bank limit."
+  },
+  {
+    "display_name": "Fishing Rod",
+    "name": "fishingrod",
+    "price": 5000,
+    "description": "U can start fishing to earn Ncoin."
+  },
+  {
+    "display_name": "Hunting Gun",
+    "name": "huntinggun",
+    "price": 8000,
+    "description": "U can start hunting to earn Ncoin."
+  }
+]
