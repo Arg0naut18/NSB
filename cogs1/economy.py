@@ -59,7 +59,7 @@ class economy(commands.Cog):
                 return
             await open_account(user)
             await update_bank_data(user, 5000)
-            msg = ("Thanks a lot for voting the bot <a:flashingheart:856875077023039528>! Here is :coin:5000 as a gift <a:partygif:855108791532388422>.")
+            msg = ("Thanks a lot for voting the bot <a:flashingheart:856875077023039528>! Here is <:ncoin:857167494585909279>5000 as a gift <a:partygif:855108791532388422>.")
             voteembed = discord.Embed(title="Thanks for voting!", description=msg, color=0x00FF00)
             await user.send(embed=voteembed)
      
@@ -88,7 +88,7 @@ class economy(commands.Cog):
             users[str(ctx.author.id)]["wallet"] += money
             with open(r'./bank/bank.json', 'w') as f:
                 json.dump(users, f, indent=4)
-            await ctx.send(f"Someone just gave you :coin:`{money}`! Congrats <a:partygif:855108791532388422>!")
+            await ctx.send(f"Someone just gave you <:ncoin:857167494585909279>`{money}`! Congrats <a:partygif:855108791532388422>!")
         else:
             await ctx.send(f"{random.choice(responses)}")
 
@@ -109,7 +109,7 @@ class economy(commands.Cog):
             return
         await update_bank_data(ctx.author, int(amount), "bank")
         await update_bank_data(ctx.author, -1*int(amount))
-        await ctx.send(f"You just deposited :coin:{amount}!")
+        await ctx.send(f"You just deposited <:ncoin:857167494585909279>{amount}!")
 
     @commands.command(aliases=['with'])
     async def withdraw(self, ctx, amount=None):
@@ -128,7 +128,7 @@ class economy(commands.Cog):
             return
         await update_bank_data(ctx.author, int(amount))
         await update_bank_data(ctx.author, -1*int(amount), "bank")
-        await ctx.send(f"You just withdrew :coin:{amount}!")
+        await ctx.send(f"You just withdrew <:ncoin:857167494585909279>{amount}!")
 
     @commands.command()
     async def give(self, ctx, member: discord.Member=None, amount=None):
@@ -151,7 +151,7 @@ class economy(commands.Cog):
             return
         await update_bank_data(member, int(amount))
         await update_bank_data(ctx.author, -1*int(amount))
-        await ctx.send(f"You just gave :coin:{amount} to {member.mention}! What a generous lad.")
+        await ctx.send(f"You just gave <:ncoin:857167494585909279>{amount} to {member.mention}! What a generous lad.")
     
     @commands.command()
     @commands.cooldown(1, 60, commands.BucketType.user)
@@ -164,7 +164,7 @@ class economy(commands.Cog):
         bal = await update_bank_data(ctx.author)
         membal = await update_bank_data(member)
         if bal[0]<50:
-            await ctx.send("You need to have :coin:50 in your wallet to rob.")
+            await ctx.send("You need to have <:ncoin:857167494585909279>50 in your wallet to rob.")
             return
         if membal[0]<100:
             await ctx.send("It's not worth it man.")
@@ -174,10 +174,10 @@ class economy(commands.Cog):
             amount = random.randrange(0, membal[0])
             await update_bank_data(member, -1*int(amount))
             await update_bank_data(ctx.author, int(amount))
-            await ctx.send(f"You just robbed :coin:{amount} from {member.mention}! Poor lad.")
+            await ctx.send(f"You just robbed <:ncoin:857167494585909279>{amount} from {member.mention}! Poor lad.")
         else:
             await update_bank_data(ctx.author, -50)
-            await ctx.send(f"Failed to rob {member.mention}. You lost :coin:50!")
+            await ctx.send(f"Failed to rob {member.mention}. You lost <:ncoin:857167494585909279>50!")
             
     @commands.command(aliases=['ranks'])
     async def leaderboard(self, ctx):
@@ -217,16 +217,16 @@ class economy(commands.Cog):
             users[str(ctx.author.id)]["wallet"] += money
             with open(r'./bank/bank.json', 'w') as f:
                 json.dump(users, f, indent=4)
-            await ctx.send(f"Great job! Your boss just gave you :coin:`{money}`! Congrats <a:partygif:855108791532388422>!")
+            await ctx.send(f"Great job! Your boss just gave you <:ncoin:857167494585909279>`{money}`! Congrats <a:partygif:855108791532388422>!")
         else:
             await ctx.send(f"Ooh man! I expected you to do this simple job. Well atleast better luck next time.<:aqua_thumbsup:856058717119447040>")
             
     @commands.command()
     async def vote(self, ctx):
-        vembed = discord.Embed(title="Thank you for choosing to vote for NSB.", description="You can vote the bot in the three mentioned websites and get :coin:5000 instantly in your NSB wallet.", color=0x00FF00)
-        vembed.add_field(name="<a:topggshrink:856942112670875718>",value=f"[Top.gg](https://top.gg/bot/743741872039657492)", inline=False)
-        vembed.add_field(name="<a:bfdspin:856942081679687721>",value=f"[Bots For Discord](https://botsfordiscord.com/bot/743741872039657492)", inline=False)
-        vembed.add_field(name="<:dbl:856926134549217330>",value=f"[Discord Bot List](https://discordbotlist.com/bots/notsobasic)", inline=False)
+        vembed = discord.Embed(title="Thank you for choosing to vote for NSB.", description="You can vote the bot in the three mentioned websites and get <:ncoin:857167494585909279>5000 instantly in your NSB wallet.", color=0x00FF00)
+        vembed.add_field(name="<a:topggshrink:856942112670875718>",value=f"[Top.gg](https://top.gg/bot/743741872039657492/vote)", inline=False)
+        vembed.add_field(name="<a:bfdspin:856942081679687721>",value=f"[Bots For Discord](https://botsfordiscord.com/bot/743741872039657492/vote)", inline=False)
+        vembed.add_field(name="<:dbl:856926134549217330>",value=f"[Discord Bot List](https://discordbotlist.com/bots/notsobasic/upvote)", inline=False)
         vembed.set_footer(text=f"Invoked by {ctx.author} | Rewards for Discord bot list is currently unavailable.", icon_url=ctx.author.avatar_url)
         await ctx.reply(embed=vembed)        
 
