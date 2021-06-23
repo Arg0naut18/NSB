@@ -83,7 +83,7 @@ async def buy_this(user, item_name, amount):
     with open('./bank/bank.json', 'w') as f:
         json.dump(users,f)
     await update_bank_data(user, cost*-1)
-    return [True,"Worked"]
+    return [True,"Successful"]
 
 class economy(commands.Cog):
     def __init__(self, bot):
@@ -112,14 +112,15 @@ class economy(commands.Cog):
         users = await get_account_data()
         wallet_money = users[str(member.id)]["wallet"]
         bank_money = users[str(member.id)]["bank"]
+        maxbank = users[str(member.id)]["maxbank"]
         emb = discord.Embed(title=f"{member.name}'s Balance", color=0x00FF00)
         emb.add_field(name=":money_with_wings: Wallet balance", value=f"`{wallet_money}`", inline=False)
-        emb.add_field(name=":bank: Bank balance", value=f"`{bank_money}`", inline=False)
+        emb.add_field(name=":bank: Bank balance", value=f"`{bank_money}/{maxbank}`", inline=False)
         emb.set_footer(text=f"Invoked by: {ctx.author.name}", icon_url=ctx.author.avatar_url)
         await ctx.send(embed=emb)
 
     @commands.command()
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    @commands.cooldown(1, 15, commands.BucketType.user)
     async def beg(self, ctx):
         responses = ["You got shooed away! Better luck next time. <:sadcrypeace:855109649962369054>", "Mr. Selfish said he doesn't have time. Don't worry. Try again. <:aqua_thumbsup:856058717119447040>", "Mrs. Idon'tcare said she doesn't trust you coz you're poor! Yea she's a nitwit. Don't worry. Try again! <:aqua_thumbsup:856058717119447040>", "Mr. Selfish said he doesn't trust you coz you're poor! Yea he's a nitwit. Don't worry. Try again! <:aqua_thumbsup:856058717119447040>", "Mrs. Idon'tcare just considered you a ghost. Don't worry. Try again. <:aqua_thumbsup:856058717119447040>"]
         await open_account(ctx.author)
@@ -162,7 +163,7 @@ class economy(commands.Cog):
             await update_bank_data(ctx.author, -1*updated_amount)
             await ctx.send(f"You just deposited <:ncoin:857167494585909279>{updated_amount}!")
         else:
-            await ctx.send("Your bank is full.")
+            await ctx.send("Your bank is full. Use Bank note to get more bank storage.")
 
     @commands.command(aliases=['with'])
     async def withdraw(self, ctx, amount=None):
@@ -250,57 +251,11 @@ class economy(commands.Cog):
         await ctx.send(embed=lb)
         
     @commands.command()
-    async def shop(self, ctx):
-        with open('./bank/shop.json', 'r') as f:
-            mainshop = json.load(f)
-        shopembed = discord.Embed(title="NSB Shop!", color=0x00FF00)
-        i=1
-        for item in mainshop:
-            name = item["display_name"]
-            price = item["price"]
-            description = item["description"]
-            id = item["name"]
-            shopembed.add_field(name=f"{i}) {name}", value=f"Price: <:ncoin:857167494585909279>{price}\nDescription: {description}\nID: {id}", inline=False)
-            i+=1
-        await ctx.send(embed=shopembed)
-
-    @commands.command()
-    async def buy(self, ctx, item, amount=None):
-        res = await buy_this(ctx.author, item, amount)
-        if not res[0]:
-            if res[1] == 1:
-                await ctx.send("This item isn't available on the shop yet! Please type the item ID properly.")
-                return
-            if res[1]== 2:
-                await ctx.send(f"You don't have enough Ncoin in your wallet to buy {amount} {item}(s)")
-                return
-        await ctx.send(f"Added {amount} {item} to your inventory <a:partygif:855108791532388422>.")
-
-    @commands.command(aliases=["inv"])
-    async def inventory(self, ctx, user: discord.Member=None):
-        user = ctx.author if not user else user
-        await open_account(user)
-        users = await get_account_data()
-        try:
-            inv = users[str(user.id)]["bag"]
-        except:
-            inv = []
-        i=1
-        msg = ''
-        for item in inv: 
-            name = item["item"]
-            amount = item["amount"]
-            msg = msg.join(f"{i}) Name: {name} | Quantity: {amount}\n")
-            i+=1
-        invembed = discord.Embed(title=f"{user.display_name}'s Inventory", description=msg, color=0x00FF00)
-        await ctx.send(embed=invembed)
-
-    @commands.command()
     @commands.cooldown(1, 3600, commands.BucketType.user)
     async def work(self, ctx):
         await open_account(ctx.author)
         users = await get_account_data()
-        with open('./bank/questions.json', 'r') as qt:
+        with open('./bank/questions.json') as qt:
             questions = json.load(qt)
         question_list = list(questions.items())
         query = random.choice(question_list)
@@ -328,6 +283,144 @@ class economy(commands.Cog):
         vembed.add_field(name="<:dbl:856926134549217330>",value=f"[Discord Bot List](https://discordbotlist.com/bots/notsobasic/upvote)", inline=False)
         vembed.set_footer(text=f"Invoked by {ctx.author} | Rewards for Discord bot list is currently unavailable.", icon_url=ctx.author.avatar_url)
         await ctx.reply(embed=vembed)        
+
+    @commands.command()
+    async def shop(self, ctx):
+        with open('./bank/shop.json', 'r') as f:
+            mainshop = json.load(f)
+        shopembed = discord.Embed(title="NSB Shop!", color=0x00FF00)
+        i=1
+        for item in mainshop:
+            name = item["display_name"]
+            price = item["price"]
+            description = item["description"]
+            id = item["name"]
+            shopembed.add_field(name=f"{i}) {name}", value=f"Price: <:ncoin:857167494585909279>{price}\nDescription: {description}\nID: {id}", inline=False)
+            i+=1
+        await ctx.send(embed=shopembed)
+
+    @commands.command()
+    async def buy(self, ctx, item, amount=1):
+        res = await buy_this(ctx.author, item, amount)
+        if not res[0]:
+            if res[1] == 1:
+                await ctx.send("This item isn't available on the shop yet! Please type the item ID properly.")
+                return
+            if res[1]== 2:
+                await ctx.send(f"You don't have enough Ncoin in your wallet to buy {amount} {item}(s)")
+                return
+        await ctx.send(f"Added `{amount}` `{item}` to your inventory <a:partygif:855108791532388422>.")
+
+    @commands.command(aliases=["inv"])
+    async def inventory(self, ctx, user: discord.Member=None):
+        user = ctx.author if not user else user
+        await open_account(user)
+        users = await get_account_data()
+        try:
+            inv = users[str(user.id)]["bag"]
+        except:
+            inv = []
+        i=1
+        msg = ''
+        for item in inv: 
+            name = item["item"].title()
+            amount = item["amount"]
+            msg += f"{i}) `{name}` | `{amount}`\n"
+            i+=1
+        if msg=='':
+            msg = "You don't own anything yet lmao!"    
+        invembed = discord.Embed(title=f"{user.display_name}'s Inventory", description=msg, color=0x00FF00)
+        await ctx.send(embed=invembed)
+        
+    @commands.command()
+    async def use(self, ctx, item=None, amount=1):
+        if item is None:
+            await ctx.send("You need to mention the item you want to use.")
+            return
+        user = ctx.author
+        users = await get_account_data()
+        try:
+            inv = users[str(user.id)]["bag"]
+        except:
+            await ctx.send("You don't own anything to use.")
+            return
+        found = 0
+        for index in range(len(inv)):
+            if item == inv[index]["item"]:
+                if inv[index]["amount"]-amount==0:
+                    del inv[index]
+                    found = 1
+                    break
+                else:
+                    inv[index]["amount"]-=amount
+                    found = 1
+                    break
+        if found==1 and item=="banknote":
+            old_maxbank = users[str(ctx.author.id)]["maxbank"]
+            users[str(ctx.author.id)]["maxbank"]+=10000
+            await ctx.send(f'You just used a bank note. Now your bank balance has increased from `{old_maxbank}` to `{users[str(ctx.author.id)]["maxbank"]}` <a:partygif:855108791532388422>')
+        if found==1:    
+            with open(r'./bank/bank.json','w') as f:
+                json.dump(users, f)
+        else:
+            await ctx.send("You don't own this item.'")
+            return
+
+    @commands.command()
+    @commands.cooldown(1, 30, commands.BucketType.user)
+    async def fish(elf, ctx):
+        users = await get_account_data()
+        user = ctx.author
+        try:
+            inv = users[str(user.id)]["bag"]
+        except:
+            await ctx.send("You don't own anything to use.")
+            return
+        found = 0
+        for index in range(len(inv)):
+            if "fishingrod" == inv[index]["item"]:
+                found=1
+                break
+        if found==1:
+            money = random.randrange(1, 151)
+            chance = random.randrange(0,5)
+            if money != 0 and chance==0 or chance==2 or chance== 4:
+                await update_bank_data(ctx.author, money)
+                await ctx.send(f"Found a fish ! You sold it for <:ncoin:857167494585909279>`{money}` <a:partygif:855108791532388422>.")
+                return
+            else:
+                await ctx.send("You couldn't catch a fish. Try again later. <:aqua_thumbsup:856058717119447040>")
+                return
+        else:
+            await ctx.send("You don't own a fishing rod to begin with!")
+        
+    @commands.command()
+    @commands.cooldown(1, 30, commands.BucketType.user)
+    async def hunt(elf, ctx):
+        users = await get_account_data()
+        user = ctx.author
+        try:
+            inv = users[str(user.id)]["bag"]
+        except:
+            await ctx.send("You don't own anything to use.")
+            return
+        found = 0
+        for index in range(len(inv)):
+            if "huntinggun" == inv[index]["item"]:
+                found=1
+                break
+        if found==1:
+            money = random.randrange(1, 151)
+            chance = random.randrange(0,5)
+            if money != 0 and chance==0 or chance==2 or chance== 4:
+                await update_bank_data(ctx.author, money)
+                await ctx.send(f"Found a boar! You sold it for <:ncoin:857167494585909279>`{money}` <a:partygif:855108791532388422>.")
+                return
+            else:
+                await ctx.send("You couldn't find a hunt. Try again later. <:aqua_thumbsup:856058717119447040>")
+                return
+        else:
+            await ctx.send("You don't own a hunting gun to begin with!")
 
 def setup(bot):
     bot.add_cog(economy(bot))
