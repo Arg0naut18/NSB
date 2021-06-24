@@ -116,7 +116,10 @@ class economy(commands.Cog):
         emb = discord.Embed(title=f"{member.name}'s Balance", color=0x00FF00)
         emb.add_field(name=":money_with_wings: Wallet balance", value=f"`{wallet_money}`", inline=False)
         emb.add_field(name=":bank: Bank balance", value=f"`{bank_money}/{maxbank}`", inline=False)
-        emb.set_footer(text=f"Invoked by: {ctx.author.name}", icon_url=ctx.author.avatar_url)
+        if users[str(member.id)]["safe"] == 1:
+            emb.set_footer(text=f"Invoked by: {ctx.author.name} | This user has a 🔒 on!", icon_url=ctx.author.avatar_url)
+        else:
+            emb.set_footer(text=f"Invoked by: {ctx.author.name}", icon_url=ctx.author.avatar_url)
         await ctx.send(embed=emb)
 
     @commands.command()
@@ -215,6 +218,7 @@ class economy(commands.Cog):
             return
         await open_account(ctx.author)
         await open_account(member)
+        users = await get_account_data()
         bal = await update_bank_data(ctx.author)
         membal = await update_bank_data(member)
         if bal[0]<50:
@@ -224,11 +228,16 @@ class economy(commands.Cog):
             await ctx.send("It's not worth it man.")
             return
         chance = random.randrange(0,2)
-        if chance==1:
+        if chance==1 and users[str(member.id)]["safe"]!=1:
             amount = random.randrange(0, membal[0])
             await update_bank_data(member, -1*int(amount))
             await update_bank_data(ctx.author, int(amount))
             await ctx.send(f"You just robbed <:ncoin:857167494585909279>{amount} from {member.mention}! Poor lad.")
+        elif users[str(member.id)]["safe"]==1:
+            users[str(member.id)]["safe"] = 0
+            await ctx.send(f"You tried to rob {member.display_name} but they had a padlock on. So the robbery failed. Better luck next time.")
+            with open(r'./bank/bank.json', 'w') as f:
+                json.dump(users, f)
         else:
             await update_bank_data(ctx.author, -50)
             await ctx.send(f"Failed to rob {member.mention}. You lost <:ncoin:857167494585909279>50!")
@@ -358,7 +367,10 @@ class economy(commands.Cog):
         if found==1 and item=="banknote":
             old_maxbank = users[str(ctx.author.id)]["maxbank"]
             users[str(ctx.author.id)]["maxbank"]+=amount*10000
-            await ctx.send(f'You just used a bank note. Now your bank balance has increased from `{old_maxbank}` to `{users[str(ctx.author.id)]["maxbank"]}` <a:partygif:855108791532388422>')
+            await ctx.send(f'You just used {amount} bank note(s). Now your bank balance has increased from `{old_maxbank}` to `{users[str(ctx.author.id)]["maxbank"]}` <a:partygif:855108791532388422>')
+        if found==1 and item=="padlock":
+            users[str(ctx.author.id)]["safe"] = 1
+            await ctx.send(f'You just applied a padlock :lock:. Now your safe from one robbery.')    
         if found==1:    
             with open(r'./bank/bank.json','w') as f:
                 json.dump(users, f)
@@ -421,6 +433,6 @@ class economy(commands.Cog):
                 return
         else:
             await ctx.send("You don't own a hunting gun to begin with!")
-
+        
 def setup(bot):
     bot.add_cog(economy(bot))
