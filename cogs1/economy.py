@@ -357,7 +357,7 @@ class economy(commands.Cog):
                     break
         if found==1 and item=="banknote":
             old_maxbank = users[str(ctx.author.id)]["maxbank"]
-            users[str(ctx.author.id)]["maxbank"]+=10000
+            users[str(ctx.author.id)]["maxbank"]+=amount*10000
             await ctx.send(f'You just used a bank note. Now your bank balance has increased from `{old_maxbank}` to `{users[str(ctx.author.id)]["maxbank"]}` <a:partygif:855108791532388422>')
         if found==1:    
             with open(r'./bank/bank.json','w') as f:
