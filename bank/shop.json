@@ -16,5 +16,11 @@
     "name": "huntinggun",
     "price": 8000,
     "description": "U can start hunting to earn Ncoin."
+  },
+  {
+    "display_name": "Padlock",
+    "name": "padlock",
+    "price": 2000,
+    "description": "This will defend you from getting robbed once."
   }
 ]
