@@ -17,15 +17,14 @@ class welcome(commands.Cog):
         if member.guild.id == 711079029624537098:
             # channel = discord.channel.id(711083892068581377)
             camp_name = "Ɖɨʋɨռɛ"
-            rule_channel = discord.utils.get(
-                member.guild.text_channels, id=711440316695183386)
-            channel = discord.utils.get(
-                member.guild.text_channels, id=711083892068581377)
+            rule_channel = discord.utils.get(member.guild.text_channels, id=711440316695183386)
+            channel = discord.utils.get(member.guild.text_channels, id=711083892068581377)
             role = discord.utils.get(member.guild.roles, id=771981552837328897)
+            chat_channel = discord.utils.get(member.guild.text_channels, id=711086382579187794)
             await member.add_roles(role)
             #if channel.id == 765647163463434298:
-            mssg = f"Welcome {member.mention} to camp {camp_name}'s official discord server!\nPlease read the rules mentioned in {rule_channel.mention}.\nI hope you have a great time in our camp and our discord server. Feel free to chat here and ask help from any officials if needed."
-            await channel.send(mssg)
+            mssg = f"Welcome {member.mention} to camp {camp_name}'s official discord server!\n<a:right_arrow2:857929909966995487> Please read the rules mentioned in {rule_channel.mention}.\n<a:right_arrow2:857929909966995487> I hope you have a great time in our camp and our discord server. Feel free to chat in {chat_channel.mention} and ask help from any officials if needed."
+            # await channel.send(mssg)
             # Welcome Image
             layout = Image.open(r"./meme_templates/heaven.jpg")
             asset = member.avatar_url_as(size=128)
@@ -53,7 +52,11 @@ class welcome(commands.Cog):
             draw.text((45, 217), imgmssg, (0, 0, 0), font2)
             draw.text((194, 14), "WELCOME!", (0, 0, 0), font3)
             layout.save(r"./meme_templates/heavenedit.jpg")
-            await channel.send(file=discord.File(r"./meme_templates/heavenedit.jpg"))
+            file=discord.File(r"./meme_templates/heavenedit.jpg", filename="image.png")
+            welcomeEmbed = discord.Embed(description=mssg, color=0x00FF00)
+            welcomeEmbed.set_author(name=f"Welcome {member.display_name}!", icon_url=member.avatar_url)
+            welcomeEmbed.set_image(url="attachment://image.png")
+            await channel.send(file=file, embed=welcomeEmbed)
 
     @commands.Cog.listener()
     async def on_member_leave(self, member):
