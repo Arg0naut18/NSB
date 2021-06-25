@@ -55,6 +55,16 @@ class welcome(commands.Cog):
             layout.save(r"./meme_templates/heavenedit.jpg")
             await channel.send(file=discord.File(r"./meme_templates/heavenedit.jpg"))
 
+    @commands.Cog.listener()
+    async def on_member_leave(self, member):
+        if member.guild.id == 711079029624537098:
+            camp_name = "Ɖɨʋɨռɛ"
+            channel = discord.utils.get(member.guild.text_channels, id=848168452505075782)
+            leaveEmbed = discord.Embed(title=f"{member.name} just left {camp_name}")
+            leaveEmbed.set_author(name=f"{member.name}", icon_url=member.avatar_url)
+            leaveEmbed.set_footer(text=f"Now we have {channel.guild.member_count} members left.")
+            await channel.send(embed=leaveEmbed)
+
     @ commands.command()
     async def intro(self, ctx):
         dev_name = "Argonaut#6921"
