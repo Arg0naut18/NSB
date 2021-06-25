@@ -39,7 +39,7 @@ class welcome(commands.Cog):
             #mask = ImageChops.darker(mask, pfp.split()[-1])
             pfp.putalpha(mask)
             pfp.crop((0, 0)+bigsize)
-            pfp = pfp.resize((95, 95))
+            pfp = pfp.resize((95, 95)).convert("RGBA")
             #pfp = mask_circle_transparent(pfp, 1)
             layout.paste(pfp, (162, 92), pfp)
             draw = ImageDraw.Draw(layout)
@@ -47,7 +47,7 @@ class welcome(commands.Cog):
             font2 = ImageFont.truetype("./BullettoKilla.ttf", 24)
             font3 = ImageFont.truetype("./BullettoKilla.ttf", 46)
             imgdesc = f"{member}"
-            w, h = draw.textsize(imgdesc)
+            #w, h = draw.textsize(imgdesc)
             imgmssg = f"Welcome to DIVINE! Hope you have a blessed stay!"
             draw.text((275, 112), imgdesc, (0, 0, 0), font1)
             draw.text((45, 217), imgmssg, (0, 0, 0), font2)
@@ -59,10 +59,10 @@ class welcome(commands.Cog):
     async def intro(self, ctx):
         dev_name = "Argonaut#6921"
         dev_id = 436844058217021441
-        camp_name = "Ɖɨʋɨռɛ"
+        #camp_name = "Ɖɨʋɨռɛ"
         dev = await self.bot.fetch_user(dev_id)
         msg = f"Thanks for you're concern. I am a \
-bot developed by {dev} to help our campmates here in {camp_name}. Any trouble, DM me."
+bot developed by {dev} to help you out or entertain you in your daily busy lives."
         color_main = color[random.randint(0, 5)]
         embed = discord.Embed(
             title=":wave: Intro!", description=msg, color=color_main)
@@ -70,7 +70,7 @@ bot developed by {dev} to help our campmates here in {camp_name}. Any trouble, D
 
     @commands.command()
     async def invitelink(self, ctx):
-        await ctx.reply("Invite link for NSB\nhttps://discord.com/api/oauth2/authorize?client_id=743741872039657492&permissions=8&scope=bot")
+        await ctx.reply("Invite link for NSB\nhttps://discord.com/api/oauth2/authorize?client_id=743741872039657492&permissions=2130701687&scope=bot")
 
 def setup(bot):
     bot.add_cog(welcome(bot))

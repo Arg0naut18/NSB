@@ -22,5 +22,11 @@
     "name": "padlock",
     "price": 2000,
     "description": "This will defend you from getting robbed once."
+  },
+  {
+    "display_name": "Hentai Pic",
+    "name": "hentaipic",
+    "price": 10000,
+    "description": "Access to nsfw command `hentaipic`."
   }
 ]
