@@ -6,10 +6,30 @@
       "role": 771981552837328897,
       "imagelocation": "./meme_templates/heaven.jpg",
       "belowmessage": "Welcome to {}! Hope You have a blessed stay!",
+      "sizes" : {
+        "font1": 32,
+        "font2": 24,
+        "font3": 46,
+        "pfpsize": 95
+      },
       "color": {
         "red": 0,
         "green": 0,
         "blue": 0
+      },
+      "coordinates": {
+          "welcome": {
+              "x": 194,
+              "y": 14
+          },
+          "membername": {
+              "x": 275,
+              "y": 112
+          },
+          "pfp": {
+              "x": 162,
+              "y": 92
+          }
       }
     },
     "743741348578066442": {
@@ -17,10 +37,30 @@
       "welcomechannel": 764073602315976734,
       "chatchannel": 764154132217987112,
       "imagelocation": "./meme_templates/nsbwelcome.png",
-      "color":{
+      "sizes": {
+        "font1": 64,
+        "font2": 48,
+        "font3": 92,
+        "pfpsize": 120
+      },
+      "color": {
         "red": 0,
         "green": 255,
         "blue": 0
+      },
+      "coordinates": {
+        "welcome": {
+          "x": 431,
+          "y": 50
+        },
+        "membername": {
+          "x": 535,
+          "y": 220
+        },
+        "pfp": {
+          "x": 113,
+          "y": 216
         }
+      }
     }
 }
