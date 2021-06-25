@@ -42,7 +42,8 @@ def get_prefix(client, message):
     try:
         with open('./prefixes/prefixes.json', 'r') as f:
             prefixes = json.load(f)
-            return commands.when_mentioned_or(prefixes[str(message.guild.id)])(client, message)
+            prefixes_list = [prefixes[str(message.guild.id)], prefixes[str(message.guild.id)].lower(), prefixes[str(message.guild.id)].upper(), prefixes[str(message.guild.id)].title()]
+            return commands.when_mentioned_or(*prefixes_list)(client, message)
             # return prefixes[str(message.guild.id)]
         
     except KeyError: # if the guild's prefix cannot be found in 'prefixes.json'
