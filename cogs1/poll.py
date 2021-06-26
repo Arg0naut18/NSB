@@ -91,19 +91,23 @@ class poll(commands.Cog):
         embedreact = await channel.fetch_message(pollembed.id)
 
         i=0
+        total_reactions = 0
         for entry in entry_list:
             users = embedreact.reactions[i].count
+            total_reactions += users-1
             poll_entries[f"{entry}"] = users-1
             i+=1
         
         sorteddict = dict(sorted(poll_entries.items(), key=lambda item: item[1], reverse=True))
         winner = list(sorteddict.keys())[0]
+        winpercent = (list(sorteddict.values())[0]*100)/total_reactions
         await ever.delete()
         await pollembed.delete()
         await channel.send("@everyone")
         winnerembed = discord.Embed(title="Poll Winner", color=0x00FF00)
         winnerembed.add_field(name="Poll query", value=category.title(), inline=False)
         winnerembed.add_field(name="Winner", value=winner, inline=False)
+        winnerembed.add_field(name="Win Percentage", value=f"`{winpercent}`", inline=False)
         await channel.send(embed=winnerembed)
 
 def setup(bot):
