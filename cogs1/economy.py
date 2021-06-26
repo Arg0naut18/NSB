@@ -85,6 +85,58 @@ async def buy_this(user, item_name, amount):
     await update_bank_data(user, cost*-1)
     return [True,"Successful"]
 
+async def get_inventory(user):
+    users = await get_account_data()
+    try:
+        inv = users[str(user.id)]["bag"]
+    except:
+        inv = []
+    return inv
+
+async def is_in_inventory(user, item):
+    inventory = await get_inventory(user)
+    found = False
+    for index in range(len(inventory)):
+        if item == inventory[index]["item"]:
+            found = True
+    return found
+
+async def open_shop():
+    with open('./bank/shop.json', 'r') as f:
+        mainshop = json.load(f)
+    return mainshop
+
+async def get_random_gift():
+    shop = await open_shop()
+    gift_item =  random.choice(shop)
+    return [gift_item["display_name"], gift_item["name"], gift_item["price"]]
+
+async def add_gift_to_inventory(user, amount=1):
+    users = await get_account_data()
+    gift_item = await get_random_gift()
+    item_name = gift_item[1]
+    try:
+        index=0
+        t=None
+        for thing in users[str(user.id)]["bag"]:
+            n=thing["item"]
+            if n==item_name:
+                old_amt = thing["amount"]
+                new_amt = old_amt + amount
+                users[str(user.id)]["bag"][index]["amount"] = new_amt
+                t=1
+                break
+            index+=1
+        if t==None:
+            obj={"item":item_name, "amount": amount}
+            users[str(user.id)]["bag"].append(obj)
+    except:
+        obj = {"item": item_name, "amount": amount}
+        users[str(user.id)]["bag"]=[obj]
+    with open('./bank/bank.json', 'w') as f:
+        json.dump(users,f)
+    return gift_item[0]
+
 class economy(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -295,8 +347,7 @@ class economy(commands.Cog):
 
     @commands.command()
     async def shop(self, ctx):
-        with open('./bank/shop.json', 'r') as f:
-            mainshop = json.load(f)
+        mainshop = await open_shop()
         shopembed = discord.Embed(title="NSB Shop!", color=0x00FF00)
         i=1
         for item in mainshop:
@@ -395,10 +446,17 @@ class economy(commands.Cog):
                 break
         if found==1:
             money = random.randrange(1, 151)
-            chance = random.randrange(0,5)
-            if money != 0 and chance==0 or chance==2 or chance== 4:
+            chance = random.randrange(0,10)
+            correct=[0,2,4,5,8,6,9]
+            spl = [7]
+            if money != 0 and chance in correct:
                 await update_bank_data(ctx.author, money)
                 await ctx.send(f"Found a fish ! You sold it for <:ncoin:857167494585909279>`{money}` <a:partygif:855108791532388422>.")
+                return
+            elif money != 0 and chance in spl:
+                await update_bank_data(ctx.author, money)
+                gift = await add_gift_to_inventory(user)
+                await ctx.send(f"Found a fish ! You sold it for <:ncoin:857167494585909279>`{money}`.\nDamn you are lucky you also found this {gift}! <a:partygif:855108791532388422>.")
                 return
             else:
                 await ctx.send("You couldn't catch a fish. Try again later. <:aqua_thumbsup:856058717119447040>")
