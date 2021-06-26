@@ -74,15 +74,17 @@ class poll(commands.Cog):
         
         pollEmb = discord.Embed(color=0x00FF00)
         pollEmb.set_author(name=category.title(), icon_url=ctx.author.avatar_url)
-        number = 1
+        number = 0
+        emojiid=["<:one:858420222841847828>", "<:two:858420222288723989>", "<:three:858420221915562046>", "<:four:858420222372610108>", "<:five:858420222527799306>", "<:six:858420222687576094>", "<:seven:858420222670536714>", "<:eight:858420222725062696>", "<:nine:858420222464622602>"]
         for entry in entry_list:
-            pollEmb.add_field(name="** **", value=f"{entry} ==> :{num2words(number)}:", inline=False)
+            pollEmb.add_field(name="** **", value=f"**{emojiid[number]}**\t\t<a:right_arrow:857929374255153194>\t\t**{entry}**", inline=False)
             number+=1
+        ever = await channel.send("@everyone")
         pollembed = await channel.send(embed=pollEmb)
-        emojiid = [858380597268840491, 858381328898064386, 858381381829394493, 858381428512129025, 858381480673935370, 858381553414963230, 858381600748339211, 858381640417673266, 858381679071592469]
+        #emojiid = [858380597268840491, 858381328898064386, 858381381829394493, 858381428512129025, 858381480673935370, 858381553414963230, 858381600748339211, 858381640417673266, 858381679071592469]
         for i in range(entries):
-            emoji = discord.utils.get(ctx.message.guild.emojis, id=emojiid[i])
-            await pollembed.add_reaction(emoji)
+            #emoji = discord.utils.get(ctx.message.guild.emojis, id=emojiid[i])
+            await pollembed.add_reaction(emojiid[i])
 
         await asyncio.sleep(time)
 
@@ -90,17 +92,19 @@ class poll(commands.Cog):
 
         i=0
         for entry in entry_list:
-            users = await embedreact.reactions[i].count()
+            users = embedreact.reactions[i].count
             poll_entries[f"{entry}"] = users-1
             i+=1
         
         sorteddict = dict(sorted(poll_entries.items(), key=lambda item: item[1], reverse=True))
         winner = list(sorteddict.keys())[0]
+        await ever.delete()
         await pollembed.delete()
         await channel.send("@everyone")
         winnerembed = discord.Embed(title="Poll Winner", color=0x00FF00)
-        winnerembed.add_field(name="Winner", value=winner)
-        await pollembed.edit(embed=winnerembed)
+        winnerembed.add_field(name="Poll query", value=category.title(), inline=False)
+        winnerembed.add_field(name="Winner", value=winner, inline=False)
+        await channel.send(embed=winnerembed)
 
 def setup(bot):
     bot.add_cog(poll(bot))
