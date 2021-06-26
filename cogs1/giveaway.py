@@ -72,7 +72,7 @@ class giveaway(commands.Cog):
         await ctx.message.delete()
         await asyncio.sleep(20)
         await finaldraft.delete()
-        ann = await ctx.send("@everyone")
+        ann = await channel.send("@everyone")
         
         embed = discord.Embed(
             title="Giveaway!", description=f"Reward is {answers[2]}", color=random.randint(0x000000, 0xFFFFFF))
