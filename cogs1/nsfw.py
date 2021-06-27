@@ -48,7 +48,7 @@ class nsfw(commands.Cog):
                     found = 1
                     break
         if found==1 and item=="hentaipic":
-            meme = ['Hentai', 'AnimeMILFS']
+            meme = ['Hentai', 'AnimeMILFS', 'Paizuri']
             main_meme = meme[random.randint(0, len(meme)-1)]
             color_main = color[random.randint(0, len(color)-1)]
             memes_submissions = reddit.subreddit(main_meme).top()
