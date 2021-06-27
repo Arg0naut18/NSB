@@ -20,12 +20,7 @@ j_file.close()
 TOKEN = vari["TOKEN"]
 token = vari["nsbtoken"]
 ipcsecret = vari["ipcsecret"]
-dev_id = id
-# replace with developer's id vari thing doesn't work
-
-# def pref(client, message):
-#     BOT_PREFIX = ["{prefix[2]}", "{prefix[2]}", "{prefix[2]}"]
-#     return commands.when_mentioned_or(*BOT_PREFIX)(client, message)
+dev_id = 436844058217021441
 
 class MyBot(commands.Bot):
     def __init__(self, *args, **kwargs):
@@ -36,15 +31,15 @@ class MyBot(commands.Bot):
     async def on_ipc_error(self, endpoint, error):
         print(endpoint, "raised", error)
 
-
 def get_prefix(client, message):
     if message.guild is None: return commands.when_mentioned_or('nsb ')(client, message)
     try:
         with open('./prefixes/prefixes.json', 'r') as f:
             prefixes = json.load(f)
+            #return commands.when_mentioned_or(prefixes[str(message.guild.id)])(client, message)
+            # return prefixes[str(message.guild.id)]
             prefixes_list = [prefixes[str(message.guild.id)], prefixes[str(message.guild.id)].lower(), prefixes[str(message.guild.id)].upper(), prefixes[str(message.guild.id)].title()]
             return commands.when_mentioned_or(*prefixes_list)(client, message)
-            # return prefixes[str(message.guild.id)]
         
     except KeyError: # if the guild's prefix cannot be found in 'prefixes.json'
         with open('./prefixes/prefixes.json', 'r') as k:
