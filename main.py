@@ -208,7 +208,7 @@ async def help(ctx, category = None):
         await ctx.send(embed=emb)
 
     elif category.lower() == "music":
-        msg = f"·play\n`{prefix[2]}play <song name>`\n\n·pause\n`{prefix[2]}pause`\n\n·stop\n`{prefix[2]}stop`\n\n·leave\n`{prefix[2]}dc`\n\nTHANK YOU"
+        msg = f"·play\n`{prefix[2]}play <song name>`\n\n·pause\n`{prefix[2]}pause`\n\n·stop\n`{prefix[2]}stop`\n\n·leave\n`{prefix[2]}dc`\n\n·queue\n`{prefix[2]}queue`\n\n·skip\n`{prefix[2]}skip`\n\nTHANK YOU"
         emb = discord.Embed(title=":musical_keyboard: __**NSB MUSIC COMMANDS:**__",
                             description=msg, color=random.randint(0x000000, 0xFFFFFF))
         emb.set_footer(
@@ -226,7 +226,7 @@ async def help(ctx, category = None):
         await ctx.send(embed=emb)
 
     elif category.lower() == "economy":
-        msg = f"·Balance\n`{prefix[2]}balance <@member>/<member_id>`\n\n·Beg\n`{prefix[2]}beg`\n\n·Rob\n`{prefix[2]}rob <@member>/<member_id>`\n\n·Give\n`{prefix[2]}give <@member>/<member_id> <amount>`\n\n·Deposit\n`{prefix[2]}deposit <amount>`\n\n·Withdraw\n`{prefix[2]}withdraw <amount>`\n\nTHANK YOU"
+        msg = f"·Balance\n`{prefix[2]}balance <@member>/<member_id>`\n\n·Beg\n`{prefix[2]}beg`\n\n·Rob\n`{prefix[2]}rob <@member>/<member_id>`\n\n·Give\n`{prefix[2]}give <@member>/<member_id> <amount>`\n\n·Deposit\n`{prefix[2]}deposit <amount>`\n\n·Withdraw\n`{prefix[2]}withdraw <amount>`\n\n·work\n`{prefix[2]}work`\n\n·shop\n`{prefix[2]}shop`\n\n·Buy\n`{prefix[2]}buy <item_name>`\n\n·Hunting\n`{prefix[2]}hunt`\n\n·Fishing\n`{prefix[2]}fish`\n\n·Use\n`{prefix[2]}use <item_name>`\n\n·Inventory\n`{prefix[2]}inv`\n\n------NSFW Command------\n\n·hpic (`Works only if you have atleast 1 hpic in your inventory`)\n`{prefix[2]}hpic`\n\nTHANK YOU"
         emb = discord.Embed(title=":money_with_wings: __**NSB ECONOMY COMMANDS:**__",
                             description=msg, color=random.randint(0x000000, 0xFFFFFF))
         emb.set_footer(
