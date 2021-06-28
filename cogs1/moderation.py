@@ -10,6 +10,7 @@ picchannels = [801811950119157790, 711217046272344094, 753632407332192366, 71109
 ytchannel = [747320665073385493]
 common = [753914881727660062, 753632407332192366, 818192348793798667,
           711086134956130370, 747320665073385493, 770503986364547093, 711089041482711101, 770503986364547093, 711090925417267211]
+notypezone = [711087692582223873]
 blocked_words = []
 level_check = [822527895296933918]
 
@@ -30,6 +31,9 @@ class moderation(commands.Cog):
                         await mssg.delete()
             if mssg.guild.id == 711079029624537098:
         # 765647163463434298 || 801811950119157790
+                if channel.id in notypezone:
+                    if not mssg.author.bot:
+                        await mssg.delete()
                 if channel.id != 753632407332192366:
                     words = mssg.content.split(" ")
                     for word in words:

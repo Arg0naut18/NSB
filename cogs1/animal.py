@@ -18,8 +18,10 @@ async def get_fox_image(url):
 async def get_image(url):   
     htmldata = getdata(url) 
     soup = BeautifulSoup(htmldata, 'html.parser') 
+    image_srcs = []
     for item in soup.find_all('img'):
-        return item['src']
+        image_srcs.append(item['src'])
+    return image_srcs
 
 class animals(commands.Cog):
     def __init__(self, bot):
@@ -38,7 +40,9 @@ class animals(commands.Cog):
     async def wolf(self, ctx):
         q = random.randint(1,123)
         foxembed = discord.Embed(title="Here is a wolf for you!", color=0x00FF00)
-        url = await get_image(f"https://source.unsplash.com/800x450/?wolf")
+        url_list = await get_image(f"https://www.shutterstock.com/search/wolf")
+        url_list.pop(0)
+        url = random.choice(url_list)
         foxembed.set_image(url=url)
         foxembed.set_footer(text=f"Invoked by {ctx.author}", icon_url=ctx.author.avatar_url)
         await ctx.send(embed=foxembed)
