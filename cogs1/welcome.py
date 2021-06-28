@@ -48,18 +48,19 @@ class welcome(commands.Cog):
             pfp.crop((0, 0)+bigsize)
             pfp = pfp.resize((servers[str(member.guild.id)]["sizes"]["pfpsize"], servers[str(member.guild.id)]["sizes"]["pfpsize"])).convert("RGBA")
             #pfp = mask_circle_transparent(pfp, 1)
-            layout.paste(pfp, (servers[str(member.guild.id)]["coordinates"]["pfp"]["x"], servers[str(member.guild.id)]["coordinates"]["pfp"]["y"]), pfp)
+            layout.paste(pfp, (servers[str(member.guild.id)]["coordinates"]["pfp"][0], servers[str(member.guild.id)]["coordinates"]["pfp"][1]), pfp)
             draw = ImageDraw.Draw(layout)
-            font1 = ImageFont.truetype("./MPLUSRounded1c-Regular.ttf", servers[str(member.guild.id)]["sizes"]["font1"])
-            font2 = ImageFont.truetype("./BullettoKilla.ttf", servers[str(member.guild.id)]["sizes"]["font2"])
+            font1 = ImageFont.truetype("./MPLUSRounded1c-Medium.ttf", servers[str(member.guild.id)]["sizes"]["font1"])
+            font2 = ImageFont.truetype("./MPLUSRounded1c-Bold.ttf", servers[str(member.guild.id)]["sizes"]["font2"])
             font3 = ImageFont.truetype("./BullettoKilla.ttf", servers[str(member.guild.id)]["sizes"]["font3"])
             imgdesc = f"{member}"
             #w, h = draw.textsize(imgdesc)
             if "belowmessage" in servers[str(member.guild.id)]:
                 imgmssg = servers[str(member.guild.id)]["belowmessage"].format(member.guild.name)
-                draw.text((45, 217), imgmssg, (servers[str(member.guild.id)]["color"]["red"], servers[str(member.guild.id)]["color"]["green"], servers[str(member.guild.id)]["color"]["blue"]), font2)
-            draw.text((servers[str(member.guild.id)]["coordinates"]["membername"]["x"], servers[str(member.guild.id)]["coordinates"]["membername"]["y"]), imgdesc, (servers[str(member.guild.id)]["color"]["red"], servers[str(member.guild.id)]["color"]["green"], servers[str(member.guild.id)]["color"]["blue"]), font1)
-            draw.text((servers[str(member.guild.id)]["coordinates"]["welcome"]["x"], servers[str(member.guild.id)]["coordinates"]["welcome"]["y"]), "WELCOME!", (servers[str(member.guild.id)]["color"]["red"], servers[str(member.guild.id)]["color"]["green"], servers[str(member.guild.id)]["color"]["blue"]), font3)
+                #imgmssg = servers[str(member.guild.id)]["belowmessage"].format("Ɖɨʋɨռɛ")
+                draw.text((45, 217), imgmssg, (servers[str(member.guild.id)]["color"][0], servers[str(member.guild.id)]["color"][1], servers[str(member.guild.id)]["color"][2]), font2)
+            draw.text((servers[str(member.guild.id)]["coordinates"]["membername"][0], servers[str(member.guild.id)]["coordinates"]["membername"][1]), imgdesc, (servers[str(member.guild.id)]["color"][0], servers[str(member.guild.id)]["color"][1], servers[str(member.guild.id)]["color"][2]), font1)
+            draw.text((servers[str(member.guild.id)]["coordinates"]["welcome"][0], servers[str(member.guild.id)]["coordinates"]["welcome"][1]), "WELCOME!", (servers[str(member.guild.id)]["color"][0], servers[str(member.guild.id)]["color"][1], servers[str(member.guild.id)]["color"][2]), font3)
             layout.save(r"./meme_templates/welcomeedit.jpg")
             file=discord.File(r"./meme_templates/welcomeedit.jpg", filename="image.png")
             await welcome_channel.send(f"{member.mention}")
@@ -69,12 +70,12 @@ class welcome(commands.Cog):
             await welcome_channel.send(file=file, embed=welcomeEmbed)
 
     @commands.Cog.listener()
-    async def on_member_leave(self, member):
+    async def on_member_remove(self, member):
         print(member.guild.id)
         if member.guild.id == 711079029624537098:
             camp_name = "Ɖɨʋɨռɛ"
             channel = discord.utils.get(member.guild.text_channels, id=848168452505075782)
-            leaveEmbed = discord.Embed(title=f"{member.name} just left {camp_name}")
+            leaveEmbed = discord.Embed(title=f"{member.name} just left {camp_name}", color=0x00FF00)
             leaveEmbed.set_author(name=f"{member.name}", icon_url=member.avatar_url)
             leaveEmbed.set_footer(text=f"Now we have {channel.guild.member_count} members left.")
             await channel.send(embed=leaveEmbed)
