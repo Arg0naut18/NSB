@@ -61,13 +61,16 @@ class welcome(commands.Cog):
                 draw.text((45, 217), imgmssg, (servers[str(member.guild.id)]["color"][0], servers[str(member.guild.id)]["color"][1], servers[str(member.guild.id)]["color"][2]), font2)
             draw.text((servers[str(member.guild.id)]["coordinates"]["membername"][0], servers[str(member.guild.id)]["coordinates"]["membername"][1]), imgdesc, (servers[str(member.guild.id)]["color"][0], servers[str(member.guild.id)]["color"][1], servers[str(member.guild.id)]["color"][2]), font1)
             draw.text((servers[str(member.guild.id)]["coordinates"]["welcome"][0], servers[str(member.guild.id)]["coordinates"]["welcome"][1]), "WELCOME!", (servers[str(member.guild.id)]["color"][0], servers[str(member.guild.id)]["color"][1], servers[str(member.guild.id)]["color"][2]), font3)
-            layout.save(r"./meme_templates/welcomeedit.jpg")
-            file=discord.File(r"./meme_templates/welcomeedit.jpg", filename="image.png")
+            layout.save(r"./welcome/welcomeedit.jpg")
+            file=discord.File(r"./welcome/welcomeedit.jpg", filename="image.png")
             await welcome_channel.send(f"{member.mention}")
             welcomeEmbed = discord.Embed(description=mssg, color=0x00FF00)
             welcomeEmbed.set_author(name=f"Welcome {member.display_name}!", icon_url=member.avatar_url)
             welcomeEmbed.set_image(url="attachment://image.png")
             await welcome_channel.send(file=file, embed=welcomeEmbed)
+            if role is not None:
+                role_ = discord.utils.get(member.guild.roles, id = 711447121391255602)
+                await member.add_roles(role_)
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):

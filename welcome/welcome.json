@@ -4,7 +4,7 @@
       "welcomechannel": 711083892068581377,
       "chatchannel": 711086382579187794,
       "role": 771981552837328897,
-      "imagelocation": "./meme_templates/heaven.jpg",
+      "imagelocation": "./welcome/heaven.jpg",
       "belowmessage": "Welcome to {}! Hope You have a blessed stay!",
       "sizes" : {
         "font1": 32,
@@ -23,7 +23,7 @@
       "rulechannel": 764073773543718932,
       "welcomechannel": 764073602315976734,
       "chatchannel": 764154132217987112,
-      "imagelocation": "./meme_templates/nsbwelcome.png",
+      "imagelocation": "./welcome/nsbwelcome.png",
       "sizes": {
         "font1": 64,
         "font2": 48,
