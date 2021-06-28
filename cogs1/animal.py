@@ -40,7 +40,7 @@ class animals(commands.Cog):
     async def wolf(self, ctx):
         q = random.randint(1,123)
         foxembed = discord.Embed(title="Here is a wolf for you!", color=0x00FF00)
-        url_list = await get_image(f"https://www.shutterstock.com/search/wolf")
+        url_list = await get_image(f"https://pixabay.com/images/search/wolf/")
         url_list.pop(0)
         url = random.choice(url_list)
         foxembed.set_image(url=url)

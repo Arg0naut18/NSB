@@ -85,6 +85,51 @@ async def buy_this(user, item_name, amount):
     await update_bank_data(user, cost*-1)
     return [True,"Successful"]
 
+async def gift_this(user1, user2, item_name, amount):
+    item_name = item_name.lower()
+    inv = await get_inventory(user1)
+    name_ = None
+    for item in inv:
+        name = item["item"].lower()
+        if name == item_name:
+            name_ = name
+            break
+    if name_ == None:
+        return [False, 1]
+    users = await get_account_data()
+    try:
+        index=0
+        t=None
+        for thing in users[str(user2.id)]["bag"]:
+            n=thing["item"]
+            if n==item_name:
+                old_amt = thing["amount"]
+                new_amt = old_amt + amount
+                users[str(user2.id)]["bag"][index]["amount"] = new_amt
+                t=1
+                break
+            index+=1
+        if t==None:
+            obj={"item":item_name, "amount": amount}
+            users[str(user2.id)]["bag"].append(obj)
+    except:
+        obj = {"item": item_name, "amount": amount}
+        users[str(user2.id)]["bag"]=[obj]
+    for thing in inv:
+        n=thing["item"]
+        if n==item_name:
+            old_amt = thing["amount"]
+            new_amt = old_amt - amount
+            if new_amt==0:
+                del thing
+                break
+            else:
+                users[str(user1.id)]["bag"][index]["amount"] = new_amt
+                break
+    with open('./bank/bank.json', 'w') as f:
+        json.dump(users,f)
+    return [True,"Successful"]
+
 async def get_inventory(user):
     users = await get_account_data()
     try:
@@ -106,9 +151,12 @@ async def open_shop():
         mainshop = json.load(f)
     return mainshop
 
-async def get_random_gift():
+async def get_random_gift(item=None):
     shop = await open_shop()
-    gift_item =  random.choice(shop)
+    if item is None:
+        gift_item =  random.choice(shop)
+    else:
+        gift_item = item
     return [gift_item["display_name"], gift_item["name"], gift_item["price"]]
 
 async def add_gift_to_inventory(user, amount=1):
@@ -492,5 +540,14 @@ class economy(commands.Cog):
         else:
             await ctx.send("You don't own a hunting gun to begin with!")
         
+    @commands.command()
+    async def gift(self, ctx, member: discord.Member=None, item=None, amount=1):
+        res = await gift_this(ctx.author, member, item, amount)
+        if not res[0]:
+            if res[1] == 1:
+                await ctx.send("This item isn't available in your inventory! Please type the item ID properly.")
+                return
+        await ctx.send(f"You just gifted `{amount}` `{item}` to {member.mention} <a:partygif:855108791532388422>. I admire your generosity.")
+
 def setup(bot):
     bot.add_cog(economy(bot))
