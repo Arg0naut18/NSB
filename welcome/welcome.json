@@ -12,24 +12,11 @@
         "font3": 46,
         "pfpsize": 95
       },
-      "color": {
-        "red": 0,
-        "green": 0,
-        "blue": 0
-      },
+      "color": [0,0,0],
       "coordinates": {
-          "welcome": {
-              "x": 194,
-              "y": 14
-          },
-          "membername": {
-              "x": 275,
-              "y": 112
-          },
-          "pfp": {
-              "x": 162,
-              "y": 92
-          }
+          "welcome": [194, 14],
+          "membername": [275, 112],
+          "pfp": [162, 92]
       }
     },
     "743741348578066442": {
@@ -43,24 +30,11 @@
         "font3": 92,
         "pfpsize": 120
       },
-      "color": {
-        "red": 0,
-        "green": 255,
-        "blue": 0
-      },
+      "color": [173,255,47],
       "coordinates": {
-        "welcome": {
-          "x": 431,
-          "y": 50
-        },
-        "membername": {
-          "x": 535,
-          "y": 220
-        },
-        "pfp": {
-          "x": 113,
-          "y": 216
-        }
+        "welcome": [431,50],
+        "membername": [535, 220],
+        "pfp": [113,216]
       }
     }
 }
