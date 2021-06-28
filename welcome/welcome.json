@@ -32,9 +32,9 @@
       },
       "color": [173,255,47],
       "coordinates": {
-        "welcome": [431,50],
-        "membername": [535, 220],
-        "pfp": [113,216]
+        "welcome": [401,50],
+        "membername": [505, 250],
+        "pfp": [293,216]
       }
     }
 }
