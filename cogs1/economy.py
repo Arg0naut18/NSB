@@ -149,7 +149,7 @@ async def update_inventory(user, item, amount):
                 users[str(user.id)]["bag"][i]["amount"]+=amount
                 break
     with open(r'./bank/bank.json','w') as f:
-            json.dump(users, f)
+        json.dump(users, f)
 
 async def is_in_inventory(user, item):
     inventory = await get_inventory(user)
