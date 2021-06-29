@@ -30,7 +30,7 @@ async def update_bank_data(user,amount=0,mode="wallet"):
     users = await get_account_data()
     users[str(user.id)][mode] += amount
     with open(r'./bank/bank.json', 'w') as j:
-        json.dump(users, j)
+        json.dump(users, j, indent=4)
     bal = [users[str(user.id)]["wallet"], users[str(user.id)]["bank"]]
     return bal
 
@@ -82,7 +82,7 @@ async def buy_this(user, item_name, amount):
         obj = {"item": item_name, "amount": amount}
         users[str(user.id)]["bag"]=[obj]
     with open('./bank/bank.json', 'w') as f:
-        json.dump(users,f)
+        json.dump(users,f, indent=4)
     await update_bank_data(user, cost*-1)
     return [True,"Successful"]
 
@@ -135,7 +135,7 @@ async def add_gift_to_inventory(user, amount=1):
         obj = {"item": item_name, "amount": amount}
         users[str(user.id)]["bag"]=[obj]
     with open('./bank/bank.json', 'w') as f:
-        json.dump(users,f)
+        json.dump(users,f, indent=4)
     return gift_item[0]
 
 async def gift_this(user1, user2, item_name, amount):
@@ -185,7 +185,7 @@ async def gift_this(user1, user2, item_name, amount):
                 print(thing["amount"])
                 break    
     with open(r'./bank/bank.json', 'w') as f:
-        json.dump(users,f)
+        json.dump(users,f, indent=4)
     return [True,"Successful"]
 
 #async def update_inventory(user, item, amount):
@@ -199,7 +199,7 @@ async def gift_this(user1, user2, item_name, amount):
 #                users[str(user.id)]["bag"][i]["amount"]+=amount
 #                break
 #    with open(r'./bank/bank.json','w') as f:
-#        json.dump(users, f)
+#        json.dump(users, f, indent=4)
 
 async def update_inventory(user, item, amount):
     users = await get_account_data()
@@ -226,7 +226,7 @@ async def update_inventory(user, item, amount):
                 del users[str(user.id)]["bag"][i]
                 break
     with open(r'./bank/bank.json','w') as f:
-        json.dump(users, f)
+        json.dump(users, f, indent=4)
 
 class economy(commands.Cog):
     def __init__(self, bot):
@@ -380,7 +380,7 @@ class economy(commands.Cog):
             users[str(member.id)]["safe"] = 0
             await ctx.send(f"You tried to rob {member.display_name} but they had a padlock on. So the robbery failed. Better luck next time.")
             with open(r'./bank/bank.json', 'w') as f:
-                json.dump(users, f)
+                json.dump(users, f, indent=4)
         else:
             await update_bank_data(ctx.author, -50)
             await ctx.send(f"Failed to rob {member.mention}. You lost <:ncoin:857167494585909279>50!")
@@ -510,7 +510,7 @@ class economy(commands.Cog):
             await ctx.send(f"You just applied a padlock :lock:. Now you're safe from one robbery.")    
         if found==1:    
             with open(r'./bank/bank.json','w') as f:
-                json.dump(users, f)
+                json.dump(users, f, indent=4)
         else:
             await ctx.send("You don't own this item.'")
             return
