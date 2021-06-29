@@ -142,11 +142,11 @@ async def update_inventory(user, item, amount):
     users = await get_account_data()
     for i in range(len(users[str(user.id)]["bag"])):
         if item == users[str(user.id)]["bag"][i]["item"]:
-            if users[str(user.id)]["bag"][i]["amount"]-amount==0:
+            if users[str(user.id)]["bag"][i]["amount"]+amount==0:
                 del users[str(user.id)]["bag"][i]
                 break
             else:
-                users[str(user.id)]["bag"][i]["amount"]-=amount
+                users[str(user.id)]["bag"][i]["amount"]+=amount
                 break
     with open(r'./bank/bank.json','w') as f:
             json.dump(users, f)
