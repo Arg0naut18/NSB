@@ -115,17 +115,6 @@ async def gift_this(user1, user2, item_name, amount):
     except:
         obj = {"item": item_name, "amount": amount}
         users[str(user2.id)]["bag"]=[obj]
-    for thing in inv:
-        n=thing["item"]
-        if n==item_name:
-            old_amt = thing["amount"]
-            new_amt = old_amt - amount
-            if new_amt==0:
-                del thing
-                break
-            else:
-                users[str(user1.id)]["bag"][index]["amount"] = new_amt
-                break
     with open('./bank/bank.json', 'w') as f:
         json.dump(users,f)
     return [True,"Successful"]
