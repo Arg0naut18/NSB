@@ -390,9 +390,7 @@ class economy(commands.Cog):
             is_it_correct=True
         if is_it_correct==True:
             money = 1000
-            users[str(ctx.author.id)]["wallet"] += money
-            with open(r'./bank/bank.json', 'w') as f:
-                json.dump(users, f, indent=4)
+            await update_bank_data(ctx.author, money)
             await ctx.send(f"Great job! Your boss just gave you <:ncoin:857167494585909279>`{money}`! Congrats <a:partygif:855108791532388422>!")
         else:
             await ctx.send(f"Ooh man! I expected you to do this simple job. Well atleast better luck next time.<:aqua_thumbsup:856058717119447040>")
