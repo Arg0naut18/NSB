@@ -21,7 +21,7 @@ async def get_image(url):
     image_srcs = []
     for item in soup.find_all('img'):
         image_srcs.append(item['src'])
-    return image_srcs
+    return random.choice(image_srcs)
 
 class animals(commands.Cog):
     def __init__(self, bot):
@@ -40,9 +40,7 @@ class animals(commands.Cog):
     async def wolf(self, ctx):
         q = random.randint(1,123)
         foxembed = discord.Embed(title="Here is a wolf for you!", color=0x00FF00)
-        url_list = await get_image(f"https://pixabay.com/images/search/wolf/")
-        url_list.pop(0)
-        url = random.choice(url_list)
+        url = await get_image(f"https://source.unsplash.com/1600x900/?wolf")
         foxembed.set_image(url=url)
         foxembed.set_footer(text=f"Invoked by {ctx.author}", icon_url=ctx.author.avatar_url)
         await ctx.send(embed=foxembed)
