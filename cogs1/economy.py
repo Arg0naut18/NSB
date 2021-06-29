@@ -16,6 +16,7 @@ async def open_account(user):
         users[str(user.id)]["wallet"] = 0
         users[str(user.id)]["bank"] = 0
         users[str(user.id)]["maxbank"] = 15000
+        users[str(user.id)]["safe"] = 0
     with open(r'./bank/bank.json', 'w') as f:
         json.dump(users, f, indent=4)
     return True
@@ -85,40 +86,6 @@ async def buy_this(user, item_name, amount):
     await update_bank_data(user, cost*-1)
     return [True,"Successful"]
 
-async def gift_this(user1, user2, item_name, amount):
-    item_name = item_name.lower()
-    inv = await get_inventory(user1)
-    name_ = None
-    for item in inv:
-        name = item["item"].lower()
-        if name == item_name:
-            name_ = name
-            break
-    if name_ == None:
-        return [False, 1]
-    users = await get_account_data()
-    try:
-        index=0
-        t=None
-        for thing in users[str(user2.id)]["bag"]:
-            n=thing["item"]
-            if n==item_name:
-                old_amt = thing["amount"]
-                new_amt = old_amt + amount
-                users[str(user2.id)]["bag"][index]["amount"] = new_amt
-                t=1
-                break
-            index+=1
-        if t==None:
-            obj={"item":item_name, "amount": amount}
-            users[str(user2.id)]["bag"].append(obj)
-    except:
-        obj = {"item": item_name, "amount": amount}
-        users[str(user2.id)]["bag"]=[obj]
-    with open('./bank/bank.json', 'w') as f:
-        json.dump(users,f)
-    return [True,"Successful"]
-
 async def get_inventory(user):
     users = await get_account_data()
     try:
@@ -126,19 +93,6 @@ async def get_inventory(user):
     except:
         inv = []
     return inv
-
-async def update_inventory(user, item, amount):
-    users = await get_account_data()
-    for i in range(len(users[str(user.id)]["bag"])):
-        if item == users[str(user.id)]["bag"][i]["item"]:
-            if users[str(user.id)]["bag"][i]["amount"]+amount==0:
-                del users[str(user.id)]["bag"][i]
-                break
-            else:
-                users[str(user.id)]["bag"][i]["amount"]+=amount
-                break
-    with open(r'./bank/bank.json','w') as f:
-        json.dump(users, f)
 
 async def is_in_inventory(user, item):
     inventory = await get_inventory(user)
@@ -153,12 +107,9 @@ async def open_shop():
         mainshop = json.load(f)
     return mainshop
 
-async def get_random_gift(item=None):
+async def get_random_gift():
     shop = await open_shop()
-    if item is None:
-        gift_item =  random.choice(shop)
-    else:
-        gift_item = item
+    gift_item =  random.choice(shop)
     return [gift_item["display_name"], gift_item["name"], gift_item["price"]]
 
 async def add_gift_to_inventory(user, amount=1):
@@ -186,6 +137,96 @@ async def add_gift_to_inventory(user, amount=1):
     with open('./bank/bank.json', 'w') as f:
         json.dump(users,f)
     return gift_item[0]
+
+async def gift_this(user1, user2, item_name, amount):
+    item_name = item_name.lower()
+    amount = int(amount)
+    inv = await get_inventory(user1)
+    name_ = None
+    for item in inv:
+        name = item["item"].lower()
+        if name == item_name:
+            name_ = name
+            no = item["amount"]
+            break
+    if name_ == None or amount>no:
+        return [False, 1]
+    if user1==user2:
+        return [False, 2]
+    users = await get_account_data()
+    try:
+        index=0
+        t=None
+        for thing in users[str(user2.id)]["bag"]:
+            n=thing["item"]
+            if n==item_name:
+                old_amt = thing["amount"]
+                new_amt = old_amt + amount
+                users[str(user2.id)]["bag"][index]["amount"] = new_amt
+                t=1
+                break
+            index+=1
+        if t==None:
+            obj={"item":item_name, "amount": amount}
+            users[str(user2.id)]["bag"].append(obj)
+    except Exception as e:
+        obj = {"item": item_name, "amount": amount}
+        users[str(user2.id)]["bag"]=[obj]
+    for thing in inv:
+        n=thing["item"]
+        if n==item_name:
+            old_amt = thing["amount"]
+            new_amt = old_amt - amount
+            if new_amt==0:
+                del thing
+                break
+            else:
+                thing["amount"] = new_amt
+                print(thing["amount"])
+                break    
+    with open(r'./bank/bank.json', 'w') as f:
+        json.dump(users,f)
+    return [True,"Successful"]
+
+#async def update_inventory(user, item, amount):
+#    users = await get_account_data()
+#    for i in range(len(users[str(user.id)]["bag"])):
+#        if item == users[str(user.id)]["bag"][i]["item"]:
+#            if users[str(user.id)]["bag"][i]["amount"]+amount==0:
+#                del users[str(user.id)]["bag"][i]
+#                break
+#            else:
+#                users[str(user.id)]["bag"][i]["amount"]+=amount
+#                break
+#    with open(r'./bank/bank.json','w') as f:
+#        json.dump(users, f)
+
+async def update_inventory(user, item, amount):
+    users = await get_account_data()
+    try:
+        t=None
+        for thing in users[str(user.id)]["bag"]:
+            n=thing["item"]
+            if n==item:
+                old_amt = thing["amount"]
+                new_amt = old_amt + amount
+                thing["amount"] = new_amt
+                t=1
+                break
+        if t==None:
+            obj={"item":item, "amount": amount}
+            users[str(user.id)]["bag"].append(obj)
+    except Exception as e:
+        print(e)
+        obj = {"item": item, "amount": amount}
+        users[str(user.id)]["bag"]=[obj]
+    for i in range(len(users[str(user.id)]["bag"])):
+        if item == users[str(user.id)]["bag"][i]["item"]:
+            if users[str(user.id)]["bag"][i]["amount"]==0:
+                del users[str(user.id)]["bag"][i]
+                break
+    with open(r'./bank/bank.json','w') as f:
+        json.dump(users, f)
 
 class economy(commands.Cog):
     def __init__(self, bot):
@@ -380,13 +421,13 @@ class economy(commands.Cog):
         if is_it_correct==True:
             money = 1000
             await update_bank_data(ctx.author, money)
-            await ctx.send(f"Great job! Your boss just gave you <:ncoin:857167494585909279>`{money}`! Congrats <a:partygif:855108791532388422>!")
+            await ctx.send(f"Great job {ctx.author.mention}! Your boss just gave you <:ncoin:857167494585909279>`{money}`! Congrats <a:partygif:855108791532388422>!")
         else:
             await ctx.send(f"Ooh man! I expected you to do this simple job. Well atleast better luck next time.<:aqua_thumbsup:856058717119447040>")
             
     @commands.command()
     async def vote(self, ctx):
-        vembed = discord.Embed(title="Thank you for choosing to vote for NSB.", description="You can vote the bot in the three mentioned websites and get <:ncoin:857167494585909279>5000 instantly in your NSB wallet.", color=0x00FF00)
+        vembed = discord.Embed(title="Thank you for choosing to vote for NSB.", description="You can vote the bot in the three mentioned websites and get <:ncoin:857167494585909279>5000 per vote instantly in your NSB wallet.", color=0x00FF00)
         vembed.add_field(name="<a:topggshrink:856942112670875718>",value=f"[Top.gg](https://top.gg/bot/743741872039657492/vote)", inline=False)
         vembed.add_field(name="<a:bfdspin:856942081679687721>",value=f"[Bots For Discord](https://botsfordiscord.com/bot/743741872039657492/vote)", inline=False)
         vembed.add_field(name="<:dbl:856926134549217330>",value=f"[Discord Bot List](https://discordbotlist.com/bots/notsobasic/upvote)", inline=False)
@@ -405,6 +446,7 @@ class economy(commands.Cog):
             id = item["name"]
             shopembed.add_field(name=f"{i}) {name}", value=f"Price: <:ncoin:857167494585909279>{price}\nDescription: {description}\nID: {id}", inline=False)
             i+=1
+        shopembed.set_footer(text=f"Pro Tip: You can interact with the items in the shop using it's ID rather than it's Name.")
         await ctx.send(embed=shopembed)
 
     @commands.command()
@@ -423,17 +465,13 @@ class economy(commands.Cog):
     async def inventory(self, ctx, user: discord.Member=None):
         user = ctx.author if not user else user
         await open_account(user)
-        users = await get_account_data()
-        try:
-            inv = users[str(user.id)]["bag"]
-        except:
-            inv = []
+        inv = await get_inventory(user)
         i=1
         msg = ''
         for item in inv: 
             name = item["item"].title()
             amount = item["amount"]
-            msg += f"{i}) `{name}` | `{amount}`\n"
+            msg += f"\n{i}) `{name}` | `{amount}`\n"
             i+=1
         if msg=='':
             msg = "You don't own anything yet lmao!"    
@@ -469,7 +507,7 @@ class economy(commands.Cog):
             await ctx.send(f'You just used {amount} bank note(s). Now your bank balance has increased from `{old_maxbank}` to `{users[str(ctx.author.id)]["maxbank"]}` <a:partygif:855108791532388422>')
         if found==1 and item=="padlock":
             users[str(ctx.author.id)]["safe"] = 1
-            await ctx.send(f'You just applied a padlock :lock:. Now your safe from one robbery.')    
+            await ctx.send(f"You just applied a padlock :lock:. Now you're safe from one robbery.")    
         if found==1:    
             with open(r'./bank/bank.json','w') as f:
                 json.dump(users, f)
@@ -478,7 +516,7 @@ class economy(commands.Cog):
             return
 
     @commands.command()
-    @commands.cooldown(1, 30, commands.BucketType.user)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def fish(elf, ctx):
         users = await get_account_data()
         user = ctx.author
@@ -493,7 +531,7 @@ class economy(commands.Cog):
                 found=1
                 break
         if found==1:
-            money = random.randrange(1, 151)
+            money = random.randrange(20, 151)
             chance = random.randrange(0,20)
             correct=[0,2,4,5,8,6,9,13,15,18,10]
             spl = [7,17]
@@ -505,7 +543,7 @@ class economy(commands.Cog):
             elif money != 0 and chance in spl:
                 await update_bank_data(ctx.author, money)
                 gift = await add_gift_to_inventory(user)
-                await ctx.send(f"Found a fish ! You sold it for <:ncoin:857167494585909279>`{money}`.\nDamn you are lucky you also found this {gift}! <a:partygif:855108791532388422>.")
+                await ctx.send(f"Found a fish ! You sold it for <:ncoin:857167494585909279>`{money}`.\nDamn you are lucky you also found `{gift}`! <a:partygif:855108791532388422>.")
                 return
             elif money != 0 and chance in bad:
                 await ctx.send("You gave a hard jerk and the fishing rod broke <a:lmao:859292704650952704>. Anyway it was getting rusty. Time to buy another one. <:aqua_thumbsup:856058717119447040>")
@@ -533,18 +571,18 @@ class economy(commands.Cog):
                 found=1
                 break
         if found==1:
-            money = random.randrange(1, 151)
+            money = random.randrange(30, 151)
             chance = random.randrange(0,5)
             if money != 0 and chance==0 or chance==2 or chance== 4:
                 await update_bank_data(ctx.author, money)
-                await ctx.send(f"Found a boar! You sold it for <:ncoin:857167494585909279>`{money}` <a:partygif:855108791532388422>.")
+                await ctx.send(f"Found a skunk! You sold it for <:ncoin:857167494585909279>`{money}` <a:partygif:855108791532388422>.")
                 return
             else:
                 await ctx.send("You couldn't find a hunt. Try again later. <:aqua_thumbsup:856058717119447040>")
                 return
         else:
             await ctx.send("You don't own a hunting gun to begin with!")
-        
+
     @commands.command()
     async def gift(self, ctx, member: discord.Member=None, item=None, amount=1):
         users = await get_account_data()
@@ -562,17 +600,9 @@ class economy(commands.Cog):
             if res[1] == 2:
                 await ctx.send(f"Bruh did u really think u can gift yourself stuff? LMAO")
                 return
+        #await update_inventory(member, item, amount)
         await ctx.send(f"You just gifted `{amount}` `{item}` to {member.mention} <a:partygif:855108791532388422>. I admire your generosity.")
-        for i in range(len(users[str(ctx.author.id)]["bag"])):
-            if item == users[str(ctx.author.id)]["bag"][i]["item"]:
-                if users[str(ctx.author.id)]["bag"][i]["amount"]-amount==0:
-                    del users[str(ctx.author.id)]["bag"][i]
-                    break
-                else:
-                    users[str(ctx.author.id)]["bag"][i]["amount"]-=amount
-                    break
-        with open(r'./bank/bank.json','w') as f:
-                json.dump(users, f)
-
+        await update_inventory(ctx.author, item, -amount) 
+            
 def setup(bot):
     bot.add_cog(economy(bot))
