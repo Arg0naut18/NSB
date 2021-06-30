@@ -18,7 +18,7 @@ class translog(commands.Cog):
         transactions = await get_transactions(member)
         data_file = open('./bank/transactions.csv', 'w', newline='')
         item_data = transactions
-        csv_columns = ["amount", "description"]
+        csv_columns = ["amount", "description", "total"]
         csv_writer = csv.DictWriter(data_file, fieldnames=csv_columns, extrasaction='ignore')
         csv_writer.writeheader()
         for itm in item_data:

@@ -256,9 +256,10 @@ async def get_transactions():
     return transactions
 
 async def log_transaction(user, amount, string):
+    users = await get_account_data()
     await start_log_transaction(user)
     trans = await get_transactions()
-    trans[str(user.id)].append({"amount":amount, "description": string})
+    trans[str(user.id)].append({"amount":amount, "description": string, "total":users[str(user.id)]["bank"]+users[str(user.id)]["wallet"]})
     with open(r'./bank/transactions.json', 'w') as f:
         json.dump(trans, f, indent=4)
 
