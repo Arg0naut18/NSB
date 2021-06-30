@@ -245,9 +245,7 @@ async def start_log_transaction(user):
     if str(user.id) in users:
         return False
     else:
-        users[str(user.id)] = {}
-        users[str(user.id)]["amount"] = []
-        users[str(user.id)]["log"] = []
+        users[str(user.id)] = []
     with open(r'./bank/transactions.json', 'w') as f:
         json.dump(users, f, indent=4)
     return True
@@ -260,8 +258,7 @@ async def get_transactions():
 async def log_transaction(user, amount, string):
     await start_log_transaction(user)
     trans = await get_transactions()
-    trans[str(user.id)]["amount"].append(amount)
-    trans[str(user.id)]["log"].append(string)
+    trans[str(user.id)].append({"amount":amount, "description": string})
     with open(r'./bank/transactions.json', 'w') as f:
         json.dump(trans, f, indent=4)
 
