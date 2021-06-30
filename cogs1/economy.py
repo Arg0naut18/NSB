@@ -84,7 +84,7 @@ async def buy_this(user, item_name, amount):
     with open('./bank/bank.json', 'w') as f:
         json.dump(users,f, indent=4)
     await update_bank_data(user, cost*-1)
-    return [True,"Successful"]
+    return [True,"Successful", cost]
 
 async def get_inventory(user):
     users = await get_account_data()
@@ -238,7 +238,33 @@ async def get_tries(user):
     with open(r'./bank/fishingtries.json', 'w') as f:
         json.dump(users, f, indent=4)
     return True
-        
+
+async def start_log_transaction(user):
+    with open(r'./bank/transactions.json', 'r') as f:
+        users = json.load(f)
+    if str(user.id) in users:
+        return False
+    else:
+        users[str(user.id)] = {}
+        users[str(user.id)]["amount"] = []
+        users[str(user.id)]["log"] = []
+    with open(r'./bank/transactions.json', 'w') as f:
+        json.dump(users, f, indent=4)
+    return True
+
+async def get_transactions():
+    with open(r'./bank/transactions.json', 'r') as f:
+        transactions = json.load(f)
+    return transactions
+
+async def log_transaction(user, amount, string):
+    await start_log_transaction(user)
+    trans = await get_transactions()
+    trans[str(user.id)]["amount"].append(amount)
+    trans[str(user.id)]["log"].append(string)
+    with open(r'./bank/transactions.json', 'w') as f:
+        json.dump(trans, f, indent=4)
+
 class economy(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -314,11 +340,13 @@ class economy(commands.Cog):
             await update_bank_data(ctx.author, int(amount), "bank")
             await update_bank_data(ctx.author, -1*int(amount))
             await ctx.send(f"You just deposited <:ncoin:857167494585909279>{amount}!")
+            await log_transaction(ctx.author, amount, f"Deposited to bank.")
         elif bal[1]+amount >= maxbank and bal[1]<maxbank:
             updated_amount = maxbank - bal[1]
             await update_bank_data(ctx.author, updated_amount, "bank")
             await update_bank_data(ctx.author, -1*updated_amount)
             await ctx.send(f"You just deposited <:ncoin:857167494585909279>{updated_amount}!")
+            await log_transaction(ctx.author, amount, f"Deposited to bank.")
         else:
             await ctx.send("Your bank is full. Use Bank note to get more bank storage.")
 
@@ -331,6 +359,7 @@ class economy(commands.Cog):
         bal = await update_bank_data(ctx.author)
         if amount == "all" or amount == "max":
             amount = bal[1]
+        amount = int(amount)
         if int(amount)>bal[1]:
             await ctx.send("You don't have enough Ncoin.")
             return
@@ -340,6 +369,7 @@ class economy(commands.Cog):
         await update_bank_data(ctx.author, int(amount))
         await update_bank_data(ctx.author, -1*int(amount), "bank")
         await ctx.send(f"You just withdrew <:ncoin:857167494585909279>{amount}!")
+        await log_transaction(ctx.author, amount, f"Withdrew from bank.")
 
     @commands.command()
     async def give(self, ctx, member: discord.Member=None, amount=None):
@@ -354,6 +384,7 @@ class economy(commands.Cog):
         bal = await update_bank_data(ctx.author)
         if amount == "all" or amount == "max":
             amount = bal[0]
+        amount = int(amount)
         if int(amount)>bal[0]:
             await ctx.send("You don't have enough Ncoin.")
             return
@@ -363,6 +394,7 @@ class economy(commands.Cog):
         await update_bank_data(member, int(amount))
         await update_bank_data(ctx.author, -1*int(amount))
         await ctx.send(f"You just gave <:ncoin:857167494585909279>{amount} to {member.mention}! What a generous lad.")
+        await log_transaction(ctx.author, amount, f"Gave to {member.name}.")
     
     @commands.command()
     @commands.cooldown(1, 60, commands.BucketType.user)
@@ -471,6 +503,7 @@ class economy(commands.Cog):
                 await ctx.send(f"You don't have enough Ncoin in your wallet to buy {amount} {item}(s)")
                 return
         await ctx.send(f"Added `{amount}` `{item}` to your inventory <a:partygif:855108791532388422>.")
+        await log_transaction(ctx.author, res[2], f"Bought {amount} {item}(s)")
 
     @commands.command(aliases=["inv"])
     async def inventory(self, ctx, user: discord.Member=None):
