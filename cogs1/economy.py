@@ -188,18 +188,11 @@ async def gift_this(user1, user2, item_name, amount):
         json.dump(users,f, indent=4)
     return [True,"Successful"]
 
-#async def update_inventory(user, item, amount):
-#    users = await get_account_data()
-#    for i in range(len(users[str(user.id)]["bag"])):
-#        if item == users[str(user.id)]["bag"][i]["item"]:
-#            if users[str(user.id)]["bag"][i]["amount"]+amount==0:
-#                del users[str(user.id)]["bag"][i]
-#                break
-#            else:
-#                users[str(user.id)]["bag"][i]["amount"]+=amount
-#                break
-#    with open(r'./bank/bank.json','w') as f:
-#        json.dump(users, f, indent=4)
+async def update_tries():
+    with open(r'./bank/fishingtries.json', 'r') as t:
+        tries=json.load(t)
+    with open(r'./bank/fishingtries.json','w') as f:
+       json.dump(tries, f, indent=4)
 
 async def update_inventory(user, item, amount):
     users = await get_account_data()
@@ -520,12 +513,19 @@ class economy(commands.Cog):
     async def fish(elf, ctx):
         users = await get_account_data()
         user = ctx.author
+        with open(f"./bank/fishingtries.json") as t:
+            trys = json.load(t)
         try:
             inv = users[str(user.id)]["bag"]
         except:
             await ctx.send("You don't own anything to use.")
             return
         found = 0
+        try:
+            tries = trys[str(ctx.author.id)]
+        except:
+            trys[str(ctx.author.id)] = 0
+            tries = trys[str(ctx.author.id)]
         for index in range(len(inv)):
             if "fishingrod" == inv[index]["item"]:
                 found=1
@@ -539,18 +539,26 @@ class economy(commands.Cog):
             if money != 0 and chance in correct:
                 await update_bank_data(ctx.author, money)
                 await ctx.send(f"Found a fish ! You sold it for <:ncoin:857167494585909279>`{money}` <a:partygif:855108791532388422>.")
+                trys[str(ctx.author)]+=1
+                await update_tries()
                 return
             elif money != 0 and chance in spl:
                 await update_bank_data(ctx.author, money)
                 gift = await add_gift_to_inventory(user)
                 await ctx.send(f"Found a fish ! You sold it for <:ncoin:857167494585909279>`{money}`.\nDamn you are lucky you also found `{gift}`! <a:partygif:855108791532388422>.")
+                trys[str(ctx.author.id)]+=1
+                await update_tries()
                 return
-            elif money != 0 and chance in bad:
+            elif money != 0 and chance in bad and tries>=10:
                 await ctx.send("You gave a hard jerk and the fishing rod broke <a:lmao:859292704650952704>. Anyway it was getting rusty. Time to buy another one. <:aqua_thumbsup:856058717119447040>")
                 await update_inventory(ctx.author, "fishingrod", -1)
+                trys[str(ctx.author.id)]=0
+                await update_tries()
                 return
             else:
                 await ctx.send("You couldn't catch a fish. Try again later. <:aqua_thumbsup:856058717119447040>")
+                trys[str(ctx.author.id)]+=1
+                await update_tries()
                 return
         else:
             await ctx.send("You don't own a fishing rod to begin with!")

@@ -26,7 +26,7 @@ class csvbank(commands.Cog):
             data = bank_data[str(data_id)]
             csv_writer.writerow(["ID"])
             csv_writer.writerow([str(data_id)])
-            if type(data)!= list:
+            if not isinstance(data, list):
                 if count == 1:
                     header=data.keys()
                     csv_writer.writerow(header)
