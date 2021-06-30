@@ -393,7 +393,7 @@ class economy(commands.Cog):
         await update_bank_data(member, int(amount))
         await update_bank_data(ctx.author, -1*int(amount))
         await ctx.send(f"You just gave <:ncoin:857167494585909279>{amount} to {member.mention}! What a generous lad.")
-        await log_transaction(ctx.author, amount, f"Gave to {member.display_name}.")
+        await log_transaction(ctx.author, -amount, f"Gave to {member.display_name}.")
         await log_transaction(member, amount, f"Received from {ctx.author.display_name}")
     
     @commands.command()
@@ -504,7 +504,7 @@ class economy(commands.Cog):
                 await ctx.send(f"You don't have enough Ncoin in your wallet to buy {amount} {item}(s)")
                 return
         await ctx.send(f"Added `{amount}` `{item}` to your inventory <a:partygif:855108791532388422>.")
-        await log_transaction(ctx.author, res[2], f"Bought {amount} {item}(s)")
+        await log_transaction(ctx.author, -res[2], f"Bought {amount} {item}(s)")
 
     @commands.command(aliases=["inv"])
     async def inventory(self, ctx, user: discord.Member=None):
@@ -666,6 +666,8 @@ class economy(commands.Cog):
             
     @commands.command()
     async def sell(self, ctx, item=None, amount=1):
+        amount = int(amount)
+        users = await get_account_data()
         if item is None:
             await ctx.send("You need to mention what you want to sell.")
             return
@@ -678,22 +680,27 @@ class economy(commands.Cog):
         found = 0
         for index in range(len(inv)):
             if item == inv[index]["item"]:
-                if inv[index]["amount"]-amount==0:
-                    del inv[index]
+                if users[str(ctx.author.id)]["bag"][index]["amount"]-amount<0:
+                    await ctx.send("You don't have that many to sell.")
+                    return
+                if users[str(ctx.author.id)]["bag"][index]["amount"]-amount==0:
+                    del users[str(ctx.author.id)]["bag"][index]
                     found=1
                     break
                 else:
                     found=1
-                    inv[index]["amount"]-=amount
+                    users[str(ctx.author.id)]["bag"][index]["amount"]-=amount
                     break
             index+=1
         if found==1:
-            cost = price*amount/2
+            with open(r'./bank/bank.json','w') as f:
+                json.dump(users, f, indent=4)
+            cost = int(price*amount/2)
             await update_bank_data(ctx.author, cost)
-            await ctx.send(f"You just sold `{amount}``{item}(s)` and received `{cost}`")
+            await ctx.send(f"You just sold `{amount}` `{item}(s)` and received `{cost}`")
             await log_transaction(ctx.author, cost, f"Sold {amount} {item}(s)")
         else:
-            await ctx.send(f"You don't have {item} in your inventory.")
-
+            await ctx.send(f"You don't have {item} in your inventory.")       
+            
 def setup(bot):
     bot.add_cog(economy(bot))
