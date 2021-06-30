@@ -281,6 +281,7 @@ class economy(commands.Cog):
             msg = ("Thanks a lot for voting the bot <a:flashingheart:856875077023039528>! Here is <:ncoin:857167494585909279>5000 as a gift <a:partygif:855108791532388422>.")
             voteembed = discord.Embed(title="Thanks for voting!", description=msg, color=0x00FF00)
             await user.send(embed=voteembed)
+            await log_transaction(user, 5000, "For voting NSB.")
      
     @commands.command(aliases = ['bal'])
     async def balance(self, ctx, member: discord.Member = None):
@@ -391,7 +392,8 @@ class economy(commands.Cog):
         await update_bank_data(member, int(amount))
         await update_bank_data(ctx.author, -1*int(amount))
         await ctx.send(f"You just gave <:ncoin:857167494585909279>{amount} to {member.mention}! What a generous lad.")
-        await log_transaction(ctx.author, amount, f"Gave to {member.name}.")
+        await log_transaction(ctx.author, amount, f"Gave to {member.display_name}.")
+        await log_transaction(member, amount, f"Received from {ctx.author.display_name}")
     
     @commands.command()
     @commands.cooldown(1, 60, commands.BucketType.user)
