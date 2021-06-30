@@ -664,5 +664,36 @@ class economy(commands.Cog):
         await ctx.send(f"You just gifted `{amount}` `{item}` to {member.mention} <a:partygif:855108791532388422>. I admire your generosity.")
         await update_inventory(ctx.author, item, -amount) 
             
+    @commands.command()
+    async def sell(self, ctx, item=None, amount=1):
+        if item is None:
+            await ctx.send("You need to mention what you want to sell.")
+            return
+        inv = await get_inventory(ctx.author)
+        shop = await open_shop()
+        for items in shop:
+            if items["name"]==item:
+                price = items["price"]
+        index=0
+        found = 0
+        for index in range(len(inv)):
+            if item == inv[index]["item"]:
+                if inv[index]["amount"]-amount==0:
+                    del inv[index]
+                    found=1
+                    break
+                else:
+                    found=1
+                    inv[index]["amount"]-=amount
+                    break
+            index+=1
+        if found==1:
+            cost = price*amount/2
+            await update_bank_data(ctx.author, cost)
+            await ctx.send(f"You just sold `{amount}``{item}(s)` and received `{cost}`")
+            await log_transaction(ctx.author, cost, f"Sold {amount} {item}(s)")
+        else:
+            await ctx.send(f"You don't have {item} in your inventory.")
+
 def setup(bot):
     bot.add_cog(economy(bot))
