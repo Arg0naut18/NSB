@@ -461,7 +461,8 @@ class economy(commands.Cog):
         try:
             answer = await self.bot.wait_for('message', timeout=60, check=check)
         except:
-            await ctx.send("Ooh man! I expected you to do this simple job. Well atleast better luck next time.<:aqua_thumbsup:856058717119447040>")
+            await ctx.send(f"Ooh man! I expected you to do this simple job. Well atleast better luck next time.<:aqua_thumbsup:856058717119447040>")
+            return
         is_it_correct = False
         if answer.content.lower().strip() == query[1]:
             is_it_correct=True
@@ -550,7 +551,7 @@ class economy(commands.Cog):
                 if item=="padlock" or item=="coinbomb":
                     amount=1
                 if inv[index]["amount"]-amount==0:
-                    del users[str(user.id)]["bag"][index]["amount"]
+                    del users[str(user.id)]["bag"][index]
                     found = 1
                     break
                 else:
@@ -562,10 +563,12 @@ class economy(commands.Cog):
                 json.dump(users, f, indent=4)
         else:
             await ctx.send("You don't own this item.")
-            return
+            return        
         if found==1 and item=="banknote":
             old_maxbank = users[str(ctx.author.id)]["maxbank"]
             users[str(ctx.author.id)]["maxbank"]+=amount*10000
+            with open(r'./bank/bank.json', 'w') as j:
+                    json.dump(users, j, indent=4)
             await ctx.send(f'You just used {amount} bank note(s). Now your bank balance has increased from `{old_maxbank}` to `{users[str(ctx.author.id)]["maxbank"]}` <a:partygif:855108791532388422>')
         if found==1 and item=="coinbomb":
             users = await get_account_data()
@@ -623,14 +626,14 @@ class economy(commands.Cog):
             correct=[0,2,4,5,8,6,9,13,15,18,10]
             spl = [7,17]
             bad = [1]
-            if money != 0 and chance in correct:
+            if money != 0 and chance in correct and tries[str(user.id)]<=50:
                 await update_bank_data(ctx.author, money)
                 await ctx.send(f"Found a fish ! You sold it for <:ncoin:857167494585909279>`{money}` <a:partygif:855108791532388422>.")
                 tries[str(user.id)]+=1
                 with open(r'./bank/fishingtries.json','w') as f:
                     json.dump(tries, f, indent=4)
                 return
-            elif money != 0 and chance in spl:
+            elif money != 0 and chance in spl and tries[str(user.id)]<=50:
                 await update_bank_data(ctx.author, money)
                 gift = await add_gift_to_inventory(user)
                 await ctx.send(f"Found a fish ! You sold it for <:ncoin:857167494585909279>`{money}`.\nDamn you are lucky you also found `{gift}`! <a:partygif:855108791532388422>.")
@@ -638,7 +641,7 @@ class economy(commands.Cog):
                 with open(r'./bank/fishingtries.json','w') as f:
                     json.dump(tries, f, indent=4)
                 return
-            elif money != 0 and chance in bad and tries[str(user.id)]>=20:
+            elif (money != 0 and chance in bad and tries[str(user.id)]>=20) or tries[str(user.id)]>=50:
                 await ctx.send("You gave a hard jerk and the fishing rod broke <a:lmao:859292704650952704>. Anyway it was getting rusty. Time to buy another one. <:aqua_thumbsup:856058717119447040>")
                 await update_inventory(ctx.author, "fishingrod", -1)
                 tries[str(user.id)]=0
