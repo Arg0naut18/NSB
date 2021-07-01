@@ -544,7 +544,7 @@ class economy(commands.Cog):
                 if amount=="max" or amount=="all":
                     amount=inv[index]["amount"]
                 amount=int(amount)
-                if item=="padlock":
+                if item=="padlock" or item=="coinbomb":
                     amount=1
                 if inv[index]["amount"]-amount==0:
                     del users[str(user.id)]["bag"][index]["amount"]
@@ -557,6 +557,9 @@ class economy(commands.Cog):
         if found==1:
             with open(r'./bank/bank.json','w') as f:
                 json.dump(users, f, indent=4)
+        else:
+            await ctx.send("You don't own this item.")
+            return
         if found==1 and item=="banknote":
             old_maxbank = users[str(ctx.author.id)]["maxbank"]
             users[str(ctx.author.id)]["maxbank"]+=amount*10000
@@ -592,9 +595,6 @@ class economy(commands.Cog):
                 return
             users[str(ctx.author.id)]["safe"] = 1
             await ctx.send(f"You just applied a padlock :lock:. Now you're safe from one robbery.")
-        else:
-            await ctx.send("You don't own this item.")
-            return
 
     @commands.command()
     @commands.cooldown(1, 10, commands.BucketType.user)
