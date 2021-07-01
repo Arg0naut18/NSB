@@ -525,7 +525,9 @@ class economy(commands.Cog):
         await ctx.send(embed=invembed)
         
     @commands.command()
-    async def use(self, ctx, item=None, amount=1):
+    async def use(self, ctx, item=None, amount=None):
+        if amount is None:
+            amount=1
         if item is None:
             await ctx.send("You need to mention the item you want to use.")
             return
@@ -539,6 +541,9 @@ class economy(commands.Cog):
         found = 0
         for index in range(len(inv)):
             if item == inv[index]["item"]:
+                if amount=="max" or amount=="all":
+                    amount=inv[index]["amount"]
+                    amount=int(amount)
                 if item=="padlock":
                     amount=1
                 if inv[index]["amount"]-amount==0:
@@ -560,7 +565,8 @@ class economy(commands.Cog):
             def check(m):
                 if m.content == "I want coins" and m.author not in responses and m.author!=ctx.author and m.channel==ctx.channel:
                     responses.append(m.author)
-            await ctx.send(f"{ctx.author} just launched a coin bomb.\n Reply with `I want coins` to join in the event. First 3 to reply within 45 seconds win.")
+            coinbombemb = discord.Embed(title=f"{ctx.author.name} just launched a coin bomb.", description="Reply with **__I want coins__** to join in the event. First 3 to reply within 45 seconds win.", color=0x00FF00)    
+            await ctx.send(embed=coinbombemb)
             while(i>0):
                 try:
                     response = await self.bot.wait_for("message", timeout=15, check=check)
@@ -694,8 +700,9 @@ class economy(commands.Cog):
         await update_inventory(ctx.author, item, -amount) 
             
     @commands.command()
-    async def sell(self, ctx, item=None, amount=1):
-        amount = int(amount)
+    async def sell(self, ctx, item=None, amount=None):
+        if amount is None:
+            amount=1
         users = await get_account_data()
         if item is None:
             await ctx.send("You need to mention what you want to sell.")
@@ -709,6 +716,9 @@ class economy(commands.Cog):
         found = 0
         for index in range(len(inv)):
             if item == inv[index]["item"]:
+                if amount=="max" or amount=="all":
+                    amount = inv[index]["amount"]
+                    amount = int(amount)
                 if users[str(ctx.author.id)]["bag"][index]["amount"]-amount<0:
                     await ctx.send("You don't have that many to sell.")
                     return
