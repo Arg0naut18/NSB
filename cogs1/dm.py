@@ -62,10 +62,9 @@ class dm(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def reply(self, ctx, memberid: discord.Member, *, mssg):
-        color_main = color[random.randint(0, len(color)-1)]
         try:
             member = await self.bot.fetch_user(memberid)
-            emb = discord.Embed(title=mssg, color=color_main)
+            emb = discord.Embed(title=mssg, color=0x00FF00)
             # emb.add_field(name="Message:", value=mssg, inline=False)
             await member.send(embed=emb)
             await ctx.send("Message has been sent!")
