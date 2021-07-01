@@ -553,6 +553,29 @@ class economy(commands.Cog):
             old_maxbank = users[str(ctx.author.id)]["maxbank"]
             users[str(ctx.author.id)]["maxbank"]+=amount*10000
             await ctx.send(f'You just used {amount} bank note(s). Now your bank balance has increased from `{old_maxbank}` to `{users[str(ctx.author.id)]["maxbank"]}` <a:partygif:855108791532388422>')
+        if found==1 and item=="coinbomb":
+            users = await get_account_data()
+            responses = []
+            i=3
+            def check(m):
+                if m.content == "I want coins" and m.author not in responses and m.author!=ctx.author and m.channel==ctx.channel:
+                    responses.append(m.author)
+            await ctx.send(f"{ctx.author} just launched a coin bomb.\n Reply with `I want coins` to join in the event. First 3 to reply within 45 seconds win.")
+            while(i>0):
+                try:
+                    response = await self.bot.wait_for("message", timeout=15, check=check)
+                except:
+                    pass
+                i-=1
+            if i==0:
+                await ctx.send("Event finished!")
+            for user in responses:
+                amount=14000/len(responses)
+                amount = int(amount)
+                users[str(user.id)]["wallet"] += amount
+                with open(r'./bank/bank.json', 'w') as j:
+                    json.dump(users, j, indent=4)
+                await ctx.send(f"{user.mention} just won <:ncoin:857167494585909279>{amount} from the coinbomb invoked by {ctx.author.name}")
         if found==1 and item=="padlock":
             if users[str(ctx.author.id)]["safe"] == 1:
                 await ctx.send("You already have a padlock on!")
