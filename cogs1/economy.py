@@ -543,15 +543,15 @@ class economy(commands.Cog):
             if item == inv[index]["item"]:
                 if amount=="max" or amount=="all":
                     amount=inv[index]["amount"]
-                    amount=int(amount)
+                amount=int(amount)
                 if item=="padlock":
                     amount=1
                 if inv[index]["amount"]-amount==0:
-                    del inv[index]
+                    del users[str(user.id)]["bag"][index]["amount"]
                     found = 1
                     break
                 else:
-                    inv[index]["amount"]-=amount
+                    users[str(user.id)]["bag"][index]["amount"]-=amount
                     found = 1
                     break
         if found==1 and item=="banknote":
@@ -576,12 +576,13 @@ class economy(commands.Cog):
             if i==0:
                 await ctx.send("Event finished!")
             for user in responses:
-                amount=14000/len(responses)
+                amount=15000/len(responses)
                 amount = int(amount)
                 users[str(user.id)]["wallet"] += amount
                 with open(r'./bank/bank.json', 'w') as j:
                     json.dump(users, j, indent=4)
                 await ctx.send(f"{user.mention} just won <:ncoin:857167494585909279>{amount} from the coinbomb invoked by {ctx.author.name}")
+                await log_transaction(user, amount, f"Got from coin bomb invoked by {ctx.author}")
         if found==1 and item=="padlock":
             if users[str(ctx.author.id)]["safe"] == 1:
                 await ctx.send("You already have a padlock on!")
@@ -718,7 +719,7 @@ class economy(commands.Cog):
             if item == inv[index]["item"]:
                 if amount=="max" or amount=="all":
                     amount = inv[index]["amount"]
-                    amount = int(amount)
+                amount = int(amount)
                 if users[str(ctx.author.id)]["bag"][index]["amount"]-amount<0:
                     await ctx.send("You don't have that many to sell.")
                     return
