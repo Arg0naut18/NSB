@@ -60,6 +60,7 @@ class dm(commands.Cog):
             pass
 
     @commands.command()
+    @commands.is_owner()
     async def reply(self, ctx, memberid: discord.Member, *, mssg):
         color_main = color[random.randint(0, len(color)-1)]
         try:
