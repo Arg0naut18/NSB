@@ -539,6 +539,8 @@ class economy(commands.Cog):
         found = 0
         for index in range(len(inv)):
             if item == inv[index]["item"]:
+                if item=="padlock":
+                    amount=1
                 if inv[index]["amount"]-amount==0:
                     del inv[index]
                     found = 1
@@ -552,17 +554,20 @@ class economy(commands.Cog):
             users[str(ctx.author.id)]["maxbank"]+=amount*10000
             await ctx.send(f'You just used {amount} bank note(s). Now your bank balance has increased from `{old_maxbank}` to `{users[str(ctx.author.id)]["maxbank"]}` <a:partygif:855108791532388422>')
         if found==1 and item=="padlock":
+            if users[str(ctx.author.id)]["safe"] == 1:
+                await ctx.send("You already have a padlock on!")
+                return
             users[str(ctx.author.id)]["safe"] = 1
             await ctx.send(f"You just applied a padlock :lock:. Now you're safe from one robbery.")    
         if found==1:    
             with open(r'./bank/bank.json','w') as f:
                 json.dump(users, f, indent=4)
         else:
-            await ctx.send("You don't own this item.'")
+            await ctx.send("You don't own this item.")
             return
 
     @commands.command()
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @commands.cooldown(1, 10, commands.BucketType.user)
     async def fish(self, ctx):
         users = await get_account_data()
         user = ctx.author
