@@ -458,7 +458,10 @@ class economy(commands.Cog):
         def check(m):
             return m.author == ctx.author and m.channel == ctx.channel
         await ctx.send(query[0])
-        answer = await self.bot.wait_for('message', timeout=60, check=check)
+        try:
+            answer = await self.bot.wait_for('message', timeout=60, check=check)
+        except:
+            await ctx.send("Ooh man! I expected you to do this simple job. Well atleast better luck next time.<:aqua_thumbsup:856058717119447040>")
         is_it_correct = False
         if answer.content.lower().strip() == query[1]:
             is_it_correct=True

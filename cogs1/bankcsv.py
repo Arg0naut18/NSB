@@ -4,18 +4,36 @@ import json
 import csv
 import ast
 
-async def get_bank_data():
+async def get_bank_data(user=None):
     with open(r"./bank/bank.json", 'r') as f:
         bank = json.load(f)
-    return bank
+    if user is None:
+        return bank
+    else:
+        return bank[str(user.id)]
 
 class csvbank(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command()
-    @commands.has_permissions(administrator=True)
     async def bank(self, ctx):
+        bank_data = await get_bank_data(ctx.author)
+        data_file = open('./bank/bankdata.csv', 'w', newline='')
+        columns = ["wallet", "bank", "banknote", "huntinggun", "fishingrod", "coinbomb", "padlock", "hpic"]
+        csv_writer = csv.DictWriter(data_file, fieldnames=columns, extrasaction='ignore')
+        csv_writer.writeheader()
+        for item in bank_data:
+            csv_writer.writerow(item)
+        data_file.close()
+        file=discord.File(r"./bank/bankdata.csv", filename="bank.csv")
+        csvembed = discord.Embed(title=f"{ctx.author.name}'s Bank CSV", color=0x00FF00)
+        csvembed.set_image(url=f"attachment://{ctx.author.name}-bank.csv")
+        await ctx.send("CSV", file=file)
+
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def totalbank(self, ctx):
         bank_data = await get_bank_data()
         # bank_data = ast.literal_eval(bank_data)
         data_file = open('./bank/bankdata.csv', 'w', newline='')
@@ -43,9 +61,9 @@ class csvbank(commands.Cog):
                         count+=1
                 csv_writer.writerow(itm.values())
         data_file.close()
-        file=discord.File(r"./bank/bankdata.csv", filename="bank.csv")
+        file=discord.File(r"./bank/bankdata.csv", filename="totalbank.csv")
         csvembed = discord.Embed(title="Bank CSV file", color=0x00FF00)
-        csvembed.set_image(url="attachment://bank.csv")
+        csvembed.set_image(url="attachment://totalbank.csv")
         await ctx.send("CSV", file=file)
 
 def setup(bot):
