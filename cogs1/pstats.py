@@ -41,14 +41,18 @@ class pterostats(commands.Cog):
 
     @commands.command(aliases=['gstats', 'guild'])
     @commands.has_permissions(administrator=True)
-    async def guildstats(self, ctx):
-        creationdate = ctx.guild.created_at
+    async def guildstats(self, ctx, guildid=None):
+        if guildid is None:
+            guild = ctx.guild
+        else:
+            guild = self.bot.get_guild(guildid)
+        creationdate = guild.created_at
         creation = creationdate.replace(tzinfo=timezone('UTC')).astimezone(timezone('Asia/Kolkata'))
         online = 0
         offline = 0
         away = 0
         dnd = 0
-        for member in ctx.guild.members:
+        for member in guild.members:
             if str(member.status)=="online":
                 online += 1
             elif str(member.status)=="dnd":
@@ -57,17 +61,17 @@ class pterostats(commands.Cog):
                 away += 1
             else:
                 offline += 1
-        banned_users = await ctx.guild.bans()
-        emb = discord.Embed(title=f"{ctx.guild.name}'s Status", color=0x00FF00)
-        emb.add_field(name="Name", value=f"{ctx.guild.name}", inline=False)
-        emb.add_field(name="Members", value=f"`{len([m for m in ctx.guild.members if not m.bot])}`", inline=True)
-        emb.add_field(name="Bots", value=f"`{len([m for m in ctx.guild.members if m.bot])}`", inline=True)
-        emb.add_field(name="Region", value=f"{ctx.guild.region}".title(), inline=True)
+        banned_users = await guild.bans()
+        emb = discord.Embed(title=f"{guild.name}'s Status", color=0x00FF00)
+        emb.add_field(name="Name", value=f"{guild.name}", inline=False)
+        emb.add_field(name="Members", value=f"`{len([m for m in guild.members if not m.bot])}`", inline=True)
+        emb.add_field(name="Bots", value=f"`{len([m for m in guild.members if m.bot])}`", inline=True)
+        emb.add_field(name="Region", value=f"{guild.region}".title(), inline=True)
         emb.add_field(name="Banned Members", value=f"`{len(banned_users)}`", inline=True)
         emb.add_field(name="Member Status", value=f":green_circle:`{online}` :red_circle:`{dnd}` :orange_circle:`{away}` :white_circle:`{offline}`", inline=False)
         emb.add_field(name="Created At", value=f'{creation.strftime("%a, %b %d, %Y, %I:%M%p IST")}', inline=False)
-        emb.add_field(name="Guild ID", value=f"`{ctx.guild.id}`", inline=False)
-        emb.set_thumbnail(url=ctx.guild.icon_url)
+        emb.add_field(name="Guild ID", value=f"`{guild.id}`", inline=False)
+        emb.set_thumbnail(url=guild.icon_url)
         emb.set_footer(text=f"Invoked by {ctx.author}", icon_url=ctx.author.avatar_url)
         await ctx.send(embed=emb)
 

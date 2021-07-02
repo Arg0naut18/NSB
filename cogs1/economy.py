@@ -182,7 +182,6 @@ async def gift_this(user1, user2, item_name, amount):
                 break
             else:
                 thing["amount"] = new_amt
-                print(thing["amount"])
                 break    
     with open(r'./bank/bank.json', 'w') as f:
         json.dump(users,f, indent=4)
