@@ -17,6 +17,7 @@ async def open_account(user):
         users[str(user.id)]["bank"] = 0
         users[str(user.id)]["maxbank"] = 15000
         users[str(user.id)]["safe"] = 0
+        users[str(user.id)]["multiplier"] = 1
     with open(r'./bank/bank.json', 'w') as f:
         json.dump(users, f, indent=4)
     return True
