@@ -314,10 +314,14 @@ class economy(commands.Cog):
             users[str(ctx.author.id)]["wallet"] += money
             with open(r'./bank/bank.json', 'w') as f:
                 json.dump(users, f, indent=4)
-            await ctx.send(f"Someone just gave you <:ncoin:857167494585909279>`{money}`! Congrats <a:partygif:855108791532388422>!")
+            begemb = discord.Embed(title="Begging successful!", description=f"Someone just gave you <:ncoin:857167494585909279>`{money}`! Congrats <a:partygif:855108791532388422>!", color=0x00FF00)
+            if users[str(ctx.author.id)]["multiplier"]!=1:
+                begemb.set_footer(text=f'Multiplier {users[str(ctx.author.id)]["multiplier"]} is enabled.')
+            await ctx.send(embed=begemb)
             await log_transaction(ctx.author, money, "From begging.")
         else:
-            await ctx.send(f"{random.choice(responses)}")
+            begemb = discord.Embed(title="Begging Unsuccessful!", description=f"{random.choice(responses)}", color=0xff0000)
+            await ctx.send(embed=begemb)
 
     @commands.command(aliases=['dep'])
     async def deposit(self, ctx, amount=None):
@@ -462,7 +466,9 @@ class economy(commands.Cog):
         try:
             answer = await self.bot.wait_for('message', timeout=60, check=check)
         except:
-            await ctx.send(f"Ooh man! I expected you to do this simple job. Well atleast better luck next time.<:aqua_thumbsup:856058717119447040>")
+            msg = f"Ooh man! I expected you to do this simple job. Well atleast better luck next time.<:aqua_thumbsup:856058717119447040>"
+            workemb = discord.Embed(title="Work Unsuccessful!", description=f"{msg}", color=0xff0000)
+            await ctx.send(embed=workemb)
             return
         is_it_correct = False
         if answer.content.lower().strip() == query[1]:
@@ -470,10 +476,16 @@ class economy(commands.Cog):
         if is_it_correct==True:
             money = 1000*users[str(ctx.author.id)]["multiplier"]
             await update_bank_data(ctx.author, money)
-            await ctx.send(f"Great job {ctx.author.mention}! Your boss just gave you <:ncoin:857167494585909279>`{money}`! Congrats <a:partygif:855108791532388422>!")
+            msg = f"Great job {ctx.author.mention}! Your boss just gave you <:ncoin:857167494585909279>`{money}`! Congrats <a:partygif:855108791532388422>!"
+            workemb = discord.Embed(title="Work successful!", description=f"{msg}", color=0x00FF00)
+            if users[str(ctx.author.id)]["multiplier"]!=1:
+                workemb.set_footer(text=f'Multiplier x{users[str(ctx.author.id)]["multiplier"]} is enabled.')
+            await ctx.send(embed=workemb)
             await log_transaction(ctx.author, money, f"Received from your boss.")
         else:
-            await ctx.send(f"Ooh man! I expected you to do this simple job. Well atleast better luck next time.<:aqua_thumbsup:856058717119447040>")
+            msg = f"Ooh man! I expected you to do this simple job. Well atleast better luck next time.<:aqua_thumbsup:856058717119447040>"
+            workemb = discord.Embed(title="Work Unsuccessful!", description=f"{msg}", color=0xff0000)
+            await ctx.send(embed=workemb)
             
     @commands.command()
     async def vote(self, ctx):
@@ -594,7 +606,10 @@ class economy(commands.Cog):
                 users[str(user.id)]["wallet"] += amount*users[str(user.id)]["multiplier"]
                 with open(r'./bank/bank.json', 'w') as j:
                     json.dump(users, j, indent=4)
-                await ctx.send(f"{user.mention} just won <:ncoin:857167494585909279>{amount} from the coinbomb invoked by {ctx.author.name}")
+                if users[str(user.id)]["multiplier"]!=1:
+                    await ctx.send(f"{user.mention} just won <:ncoin:857167494585909279>{amount} from the coinbomb invoked by {ctx.author.name}. He also got multiplier benefit applied.")
+                else:
+                    await ctx.send(f"{user.mention} just won <:ncoin:857167494585909279>{amount} from the coinbomb invoked by {ctx.author.name}")
                 await log_transaction(user, amount, f"Got from coin bomb invoked by {ctx.author}")
         if found==1 and item=="padlock":
             if users[str(ctx.author.id)]["safe"] == 1:
@@ -630,7 +645,11 @@ class economy(commands.Cog):
             money*=users[str(user.id)]["multiplier"]
             if money != 0 and chance in correct and tries[str(user.id)]<=50:
                 await update_bank_data(ctx.author, money)
-                await ctx.send(f"Found a fish ! You sold it for <:ncoin:857167494585909279>`{money}` <a:partygif:855108791532388422>.")
+                msg=f"Found a fish ! You sold it for <:ncoin:857167494585909279>`{money}` <a:partygif:855108791532388422>."
+                fishemb = discord.Embed(title="Fishing successful!", description=f"{msg}", color=0x00ff00)
+                if users[str(ctx.author.id)]["multiplier"]!=1:
+                    fishemb.set_footer(text=f'Multiplier x{users[str(ctx.author.id)]["multiplier"]} is enabled.')
+                await ctx.send(embed=fishemb)
                 tries[str(user.id)]+=1
                 with open(r'./bank/fishingtries.json','w') as f:
                     json.dump(tries, f, indent=4)
@@ -638,20 +657,28 @@ class economy(commands.Cog):
             elif money != 0 and chance in spl and tries[str(user.id)]<=50:
                 await update_bank_data(ctx.author, money)
                 gift = await add_gift_to_inventory(user)
-                await ctx.send(f"Found a fish ! You sold it for <:ncoin:857167494585909279>`{money}`.\nDamn you are lucky you also found `{gift}`! <a:partygif:855108791532388422>.")
+                msg = f"Found a fish ! You sold it for <:ncoin:857167494585909279>`{money}`.\nDamn you are lucky you also found `{gift}`! <a:partygif:855108791532388422>."
+                fishemb = discord.Embed(title="Fishing successful!", description=f"{msg}", color=0x00ff00)
+                if users[str(ctx.author.id)]["multiplier"]!=1:
+                    fishemb.set_footer(text=f'Multiplier x{users[str(ctx.author.id)]["multiplier"]} is enabled.')
+                await ctx.send(embed=fishemb)
                 tries[str(user.id)]+=1
                 with open(r'./bank/fishingtries.json','w') as f:
                     json.dump(tries, f, indent=4)
                 return
             elif (money != 0 and chance in bad and tries[str(user.id)]>=20) or tries[str(user.id)]>=50:
-                await ctx.send("You gave a hard jerk and the fishing rod broke <a:lmao:859292704650952704>. Anyway it was getting rusty. Time to buy another one. <:aqua_thumbsup:856058717119447040>")
+                msg = "You gave a hard jerk and the fishing rod broke <a:lmao:859292704650952704>. Anyway it was getting rusty. Time to buy another one. <:aqua_thumbsup:856058717119447040>"
+                fishemb = discord.Embed(title="Fishing unsuccessful!", description=f"{msg}", color=0xff0000)
+                await ctx.send(embed=fishemb)
                 await update_inventory(ctx.author, "fishingrod", -1)
                 tries[str(user.id)]=0
                 with open(r'./bank/fishingtries.json','w') as f:
                     json.dump(tries, f, indent=4)
                 return
             else:
-                await ctx.send("You couldn't catch a fish. Try again later. <:aqua_thumbsup:856058717119447040>")
+                msg = "You couldn't catch a fish. Try again later. <:aqua_thumbsup:856058717119447040>"
+                fishemb = discord.Embed(title="Fishing unsuccessful!", description=f"{msg}", color=0xff0000)
+                await ctx.send(embed=fishemb)
                 tries[str(user.id)]+=1
                 with open(r'./bank/fishingtries.json','w') as f:
                     json.dump(tries, f, indent=4)
@@ -680,10 +707,16 @@ class economy(commands.Cog):
             money*=users[str(user.id)]["multiplier"]
             if money != 0 and chance==0 or chance==2 or chance== 4:
                 await update_bank_data(ctx.author, money)
-                await ctx.send(f"Found a skunk! You sold it for <:ncoin:857167494585909279>`{money}` <a:partygif:855108791532388422>.")
+                msg = f"Found a skunk! You sold it for <:ncoin:857167494585909279>`{money}` <a:partygif:855108791532388422>."
+                huntemb = discord.Embed(title="Hunt successful!", description=f"{msg}", color=0x00ff00)
+                if users[str(ctx.author.id)]["multiplier"]!=1:
+                    huntemb.set_footer(text=f'Multiplier x{users[str(ctx.author.id)]["multiplier"]} is enabled.')
+                await ctx.send(embed=huntemb)
                 return
             else:
-                await ctx.send("You couldn't find a hunt. Try again later. <:aqua_thumbsup:856058717119447040>")
+                msg="You couldn't find a hunt. Try again later. <:aqua_thumbsup:856058717119447040>"
+                huntemb = discord.Embed(title="Hunt unsuccessful!", description=f"{msg}", color=0xff0000)
+                await ctx.send(embed=huntemb)
                 return
         else:
             await ctx.send("You don't own a hunting gun to begin with!")
