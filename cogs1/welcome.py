@@ -92,12 +92,6 @@ class welcome(commands.Cog):
             if role is not None:
                 role_ = discord.utils.get(member.guild.roles, id = 711447121391255602)
                 await member.add_roles(role_)
-        if member.guild.id == 743741348578066442:
-            await open_account(member)
-            users = await get_account_data()
-            users[str(member.id)]["multiplier"]=2
-            with open(r"./bank/bank.json", 'w') as bank:
-                json.dump(users, bank, indent=4)
         
     @commands.Cog.listener()
     async def on_member_remove(self, member):
