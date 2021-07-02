@@ -37,6 +37,7 @@ class pterostats(commands.Cog):
         emb.add_field(name="Discord.py Version", value=f"`{discord.__version__}`", inline=True)
         emb.add_field(name="Servers", value=f"`{len(self.bot.guilds)}`", inline=True)
         emb.add_field(name="Members", value=f"`{member_count}`", inline=True)
+        emb.add_field(name="VCs connected", value=f"`{len(self.bot.voice_clients)}`", inline=True)
         await ctx.send(embed=emb)
 
     @commands.command(aliases=['gstats', 'guild'])
