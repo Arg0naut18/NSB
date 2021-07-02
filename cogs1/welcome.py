@@ -10,6 +10,27 @@ async def get_servers():
         servers = json.load(f)
     return servers
 
+async def open_account(user):
+    with open(r'./bank/bank.json', 'r') as f:
+        users = json.load(f)
+    if str(user.id) in users:
+        return False
+    else:
+        users[str(user.id)] = {}
+        users[str(user.id)]["wallet"] = 0
+        users[str(user.id)]["bank"] = 0
+        users[str(user.id)]["maxbank"] = 15000
+        users[str(user.id)]["safe"] = 0
+        users[str(user.id)]["multiplier"] = 1
+    with open(r'./bank/bank.json', 'w') as f:
+        json.dump(users, f, indent=4)
+    return True
+
+async def get_account_data():
+    with open(r"./bank/bank.json", 'rb') as j:
+        bank = json.load(j)
+    return bank
+
 class welcome(commands.Cog):
 
     def __init__(self, bot):
@@ -71,10 +92,15 @@ class welcome(commands.Cog):
             if role is not None:
                 role_ = discord.utils.get(member.guild.roles, id = 711447121391255602)
                 await member.add_roles(role_)
-
+        if member.guild.id == 743741348578066442:
+            await open_account(member)
+            users = await get_account_data()
+            users[str(member.id)]["multiplier"]=2
+            with open(r"./bank/bank.json", 'w') as bank:
+                json.dump(users, bank, indent=4)
+        
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        print(member.guild.id)
         if member.guild.id == 711079029624537098:
             camp_name = "Ɖɨʋɨռɛ"
             channel = discord.utils.get(member.guild.text_channels, id=848168452505075782)
@@ -82,6 +108,12 @@ class welcome(commands.Cog):
             leaveEmbed.set_author(name=f"{member.name}", icon_url=member.avatar_url)
             leaveEmbed.set_footer(text=f"Now we have {channel.guild.member_count} members left.")
             await channel.send(embed=leaveEmbed)
+        if member.guild.id == 743741348578066442:
+            await open_account(member)
+            users = await get_account_data()
+            users[str(member.id)]["multiplier"]=1
+            with open(r"./bank/bank.json", 'w') as bank:
+                json.dump(users, bank, indent=4)
     
     @commands.command()
     async def intro(self, ctx):
@@ -98,6 +130,16 @@ bot developed by {dev} to help you out or entertain you in your daily busy lives
     @commands.command()
     async def invitelink(self, ctx):
         await ctx.reply("Invite link for NSB\nhttps://discord.com/api/oauth2/authorize?client_id=743741872039657492&permissions=2130701687&scope=bot")
+
+    @commands.command()
+    @commands.is_owner()
+    async def update_multiplier(self, ctx):
+        users = await get_account_data()
+        for user in ctx.guild.members:
+            if str(user.id) in users:
+                users[str(user.id)]["multiplier"]=2
+        with open(r"./bank/bank.json", 'w') as bank:
+                json.dump(users, bank, indent=4)
 
 def setup(bot):
     bot.add_cog(welcome(bot))
