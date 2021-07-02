@@ -309,6 +309,7 @@ class economy(commands.Cog):
         users = await get_account_data()
         money = random.randrange(1, 151)
         chance = random.randrange(0,5)
+        money*=users[str(ctx.author.id)]["multiplier"]
         if money != 0 and chance==0 or chance==2 or chance== 4:
             users[str(ctx.author.id)]["wallet"] += money
             with open(r'./bank/bank.json', 'w') as f:
@@ -467,7 +468,7 @@ class economy(commands.Cog):
         if answer.content.lower().strip() == query[1]:
             is_it_correct=True
         if is_it_correct==True:
-            money = 1000
+            money = 1000*users[str(ctx.author.id)]["multiplier"]
             await update_bank_data(ctx.author, money)
             await ctx.send(f"Great job {ctx.author.mention}! Your boss just gave you <:ncoin:857167494585909279>`{money}`! Congrats <a:partygif:855108791532388422>!")
             await log_transaction(ctx.author, money, f"Received from your boss.")
@@ -590,7 +591,7 @@ class economy(commands.Cog):
             for user in responses:
                 amount=15000/len(responses)
                 amount = int(amount)
-                users[str(user.id)]["wallet"] += amount
+                users[str(user.id)]["wallet"] += amount*users[str(user.id)]["multiplier"]
                 with open(r'./bank/bank.json', 'w') as j:
                     json.dump(users, j, indent=4)
                 await ctx.send(f"{user.mention} just won <:ncoin:857167494585909279>{amount} from the coinbomb invoked by {ctx.author.name}")
@@ -626,6 +627,7 @@ class economy(commands.Cog):
             correct=[0,2,4,5,8,6,9,13,15,18,10]
             spl = [7,17]
             bad = [1]
+            money*=users[str(user.id)]["multiplier"]
             if money != 0 and chance in correct and tries[str(user.id)]<=50:
                 await update_bank_data(ctx.author, money)
                 await ctx.send(f"Found a fish ! You sold it for <:ncoin:857167494585909279>`{money}` <a:partygif:855108791532388422>.")
@@ -675,6 +677,7 @@ class economy(commands.Cog):
         if found==1:
             money = random.randrange(30, 151)
             chance = random.randrange(0,5)
+            money*=users[str(user.id)]["multiplier"]
             if money != 0 and chance==0 or chance==2 or chance== 4:
                 await update_bank_data(ctx.author, money)
                 await ctx.send(f"Found a skunk! You sold it for <:ncoin:857167494585909279>`{money}` <a:partygif:855108791532388422>.")
