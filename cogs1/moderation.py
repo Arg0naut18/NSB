@@ -4,6 +4,7 @@ from discord import TextChannel
 import random
 import asyncio
 import datetime
+import json
 
 picchannels = [801811950119157790, 711217046272344094, 753632407332192366, 711095542486269964,
                771968223797051413, 780830237512433675, 778548218110803998, 827201189439078442]
@@ -13,6 +14,27 @@ common = [753914881727660062, 753632407332192366, 818192348793798667,
 notypezone = [711087692582223873]
 blocked_words = []
 level_check = [822527895296933918]
+
+async def open_account(user):
+    with open(r'./bank/bank.json', 'r') as f:
+        users = json.load(f)
+    if str(user.id) in users:
+        return False
+    else:
+        users[str(user.id)] = {}
+        users[str(user.id)]["wallet"] = 0
+        users[str(user.id)]["bank"] = 0
+        users[str(user.id)]["maxbank"] = 15000
+        users[str(user.id)]["safe"] = 0
+        users[str(user.id)]["multiplier"] = 1
+    with open(r'./bank/bank.json', 'w') as f:
+        json.dump(users, f, indent=4)
+    return True
+
+async def get_account_data():
+    with open(r"./bank/bank.json", 'rb') as j:
+        bank = json.load(j)
+    return bank
 
 class moderation(commands.Cog):
 
@@ -29,6 +51,12 @@ class moderation(commands.Cog):
                         role = discord.utils.get(mssg.guild.roles, id=764059798719037460)
                         await mssg.author.add_roles(role)
                         await mssg.delete()
+                        member = mssg.author
+                        await open_account(member)
+                        users = await get_account_data()
+                        users[str(member.id)]["multiplier"]=2
+                        with open(r"./bank/bank.json", 'w') as bank:
+                            json.dump(users, bank, indent=4)
             if mssg.guild.id == 711079029624537098:
         # 765647163463434298 || 801811950119157790
                 if channel.id in notypezone:
