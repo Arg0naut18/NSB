@@ -25,5 +25,7 @@ class autofeed(commands.Cog):
             future += timedelta(days=1)
         await asyncio.sleep((future-now).seconds)
 
+    
+
 def setup(bot):
     bot.add_cog(autofeed(bot))
