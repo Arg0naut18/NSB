@@ -34,13 +34,13 @@ class bday(commands.Cog):
             day = int(day)
             month = int(month)
             month = calendar.month_name[month]
-            date = str(day) + ' ' +month
+            date = str(day)+' '+month
             member = await self.bot.fetch_user(user_id)
             msg = msg + (f"**{member.mention}** => **{date}**\n")
         bdayembed = discord.Embed(title=f"Birthdays of members from {server.name}", description=msg, color=0x00FF00)
         await ctx.send(embed=bdayembed)
 
-    @tasks.loop(minutes=1)
+    @tasks.loop(hours=24)
     async def check(self):
         today = date.today()
         day, month = today.day, today.month
@@ -53,14 +53,15 @@ class bday(commands.Cog):
         else:
             monthstr = month
         todaydate = daystr+'-'+monthstr
-        channel = discord.utils.get(self.bot.get_all_channels(), id=855031679281397761)
+        await self.bot.wait_until_ready()
+        channel = self.bot.get_channel(855031679281397761)
         with open(r'./bday/bdays.json', 'r') as j:
             bdays = json.load(j)
         for server_id in bdays:
-            for user_id in server_id:
-                if bdays[str(server_id)][str(user_id)] == todaydate:
-                    user = discord.utils.get(self.bot.get_all_members(), id=user_id)
+            for user_id in bdays[str(server_id)]:
+                if bdays[server_id][user_id] == todaydate:
+                    user = discord.utils.get(self.bot.get_all_members(), id=int(user_id))
                     await channel.send(f"A very big Happy Birthday to you {user.mention}.")
-
+    
 def setup(bot):
     bot.add_cog(bday(bot))

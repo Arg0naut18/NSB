@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands, tasks
 import asyncio
 from datetime import datetime, timedelta
+from pytz import timezone
 
 class autofeed(commands.Cog):
     def __init__(self, bot):
@@ -18,7 +19,7 @@ class autofeed(commands.Cog):
         hour = 13
         minute = 45
         await self.bot.wait_until_ready()
-        now = datetime.now()
+        now = datetime.now(timezone('Asia/Kolkata'))
         future = datetime(now.year, now.month, now.day, hour, minute)
         if now.hour >= hour and now.minute > minute:
             future += timedelta(days=1)
