@@ -7,6 +7,7 @@ import calendar
 class bday(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.check.start()
      
     @commands.command()
     async def setbday(self, ctx, member: discord.Member, bday):
@@ -27,7 +28,7 @@ class bday(commands.Cog):
         with open(r'./bday/bdays.json', 'r') as j:
             bdays = json.load(j)
         msg = ''
-        for user_id in bdays[str(server.id)].keys():
+        for user_id in bdays[str(server.id)]:
             date = bdays[str(server.id)][user_id]
             day, month = date.split('-')
             day = int(day)
@@ -39,27 +40,27 @@ class bday(commands.Cog):
         bdayembed = discord.Embed(title=f"Birthdays of members from {server.name}", description=msg, color=0x00FF00)
         await ctx.send(embed=bdayembed)
 
-    # @tasks.loop(minutes=1)
-    # async def check(self):
-    #     today = date.today()
-    #     day, month = today.day, today.month
-    #     if day<10:
-    #         daystr = '0'+str(day)
-    #     else:
-    #         daystr = day
-    #     if month<10:
-    #         monthstr = '0'+str(month)
-    #     else:
-    #         monthstr = month
-    #     todaydate = daystr+'-'+monthstr
-    #     channel = discord.utils.get(self.bot.get_all_channels(), id=855031679281397761)
-    #     with open(r'./bday/bdays.json', 'r') as j:
-    #         bdays = json.load(j)
-    #     for server_id in bdays:
-    #         for user_id in server_id:
-    #             if bdays[str(server_id)][str(user_id)] == todaydate:
-    #                 user = discord.utils.get(self.bot.get_all_members(), id=user_id)
-    #                 await channel.send(f"A very big Happy Birthday to you {user.mention}.")
+    @tasks.loop(minutes=1)
+    async def check(self):
+        today = date.today()
+        day, month = today.day, today.month
+        if day<10:
+            daystr = '0'+str(day)
+        else:
+            daystr = day
+        if month<10:
+            monthstr = '0'+str(month)
+        else:
+            monthstr = month
+        todaydate = daystr+'-'+monthstr
+        channel = discord.utils.get(self.bot.get_all_channels(), id=855031679281397761)
+        with open(r'./bday/bdays.json', 'r') as j:
+            bdays = json.load(j)
+        for server_id in bdays:
+            for user_id in server_id:
+                if bdays[str(server_id)][str(user_id)] == todaydate:
+                    user = discord.utils.get(self.bot.get_all_members(), id=user_id)
+                    await channel.send(f"A very big Happy Birthday to you {user.mention}.")
 
 def setup(bot):
     bot.add_cog(bday(bot))

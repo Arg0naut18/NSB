@@ -19,7 +19,7 @@ class autofeed(commands.Cog):
         minute = 45
         await self.bot.wait_until_ready()
         now = datetime.now()
-        future = datetime.datetime(now.year, now.month, now.day, hour, minute)
+        future = datetime(now.year, now.month, now.day, hour, minute)
         if now.hour >= hour and now.minute > minute:
             future += timedelta(days=1)
         await asyncio.sleep((future-now).seconds)
