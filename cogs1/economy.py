@@ -572,6 +572,10 @@ class economy(commands.Cog):
             await ctx.send("You don't own anything to use.")
             return
         found = 0
+        if item=="oolong" or item=="dartea":
+            if users[str(ctx.author.id)]["usedmulti"]!=0:
+                await ctx.send("You already are using a multiplier buff.")
+                return
         single_items = ["padlock", "coinbomb", "oolong", "dartea"]
         for index in range(len(inv)):
             if item == inv[index]["item"]:
@@ -635,9 +639,6 @@ class economy(commands.Cog):
             users[str(ctx.author.id)]["safe"] = 1
             await ctx.send(f"You just applied a padlock :lock:. Now you're safe from one robbery.")
         if found==1 and item=="oolong":
-            if users[str(ctx.author.id)]["usedmulti"]!=0:
-                await ctx.send("You already are using a multiplier buff.")
-                return
             users[str(ctx.author.id)]["multiplier"]+=1.5
             users[str(ctx.author.id)]["usedmulti"]=1
             with open(r'./bank/bank.json', 'w') as j:
@@ -649,9 +650,6 @@ class economy(commands.Cog):
             with open(r'./bank/bank.json', 'w') as j:
                 json.dump(users, j, indent=4)
         if found==1 and item=="dartea":
-            if users[str(ctx.author.id)]["usedmulti"]!=0:
-                await ctx.send("You already are using a multiplier buff.")
-                return
             users[str(ctx.author.id)]["multiplier"]+=2
             users[str(ctx.author.id)]["usedmulti"]=1
             with open(r'./bank/bank.json', 'w') as j:
