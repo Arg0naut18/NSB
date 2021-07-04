@@ -18,9 +18,6 @@ user_agent1 = vari["user_agent"]
 reddit = praw.Reddit(client_id=client_id1, client_secret=client_secret1,
                      user_agent=user_agent1, check_for_async=False)
 
-
-
-
 class meme(commands.Cog):
 
     def __init__(self, bot):
@@ -29,7 +26,7 @@ class meme(commands.Cog):
     @commands.command(aliases=['memes', 'm'])
     async def meme(self, ctx):
         meme = ['memes', 'cursedcomments', 'animememes',
-                'dankmemes', 'historymemes', 'starterpacks']
+                'dankmemes', 'historymemes']
         main_meme = meme[random.randint(0, len(meme)-1)]
         color_main = color[random.randint(0, len(color)-1)]
         memes_submissions = reddit.subreddit(main_meme).top()
@@ -54,10 +51,11 @@ class meme(commands.Cog):
         for i in range(0, post_to_pick):
             submission = next(x for x in memes_submissions if not x.stickied)
             slink = f'{submission.shortlink}'
-            headerText = f"{submission.title} [{slink}]"
+            headerText = f"{submission.title}  [{slink}]"
             mainPart = submission.url
             footerText = f'Post by u/{submission.author}  from {memes_submissions.url}'
             await ctx.send(headerText+'\n'+mainPart+'\n'+footerText)
+            break
             # if isVideo(submission.url):
             #     print("video!")
             #     slink = f'{submission.shortlink}'
