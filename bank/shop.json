@@ -1,7 +1,7 @@
 [
   {
     "display_name": "Bank Note",
-    "name" : "banknote",
+    "name": "banknote",
     "price": 10000,
     "description": "Increases the bank limit."
   },
@@ -22,6 +22,18 @@
     "name": "padlock",
     "price": 2000,
     "description": "This will defend you from getting robbed once."
+  },
+  {
+    "display_name": "Oolong Tea",
+    "name": "oolong",
+    "price": 1000,
+    "description": "Increase your multiplier by 1.5x for 3 hours."
+  },
+  {
+    "display_name": "Darjeeling Tea",
+    "name": "dartea",
+    "price": 2000,
+    "description": "Increase your multiplier by 2x for 3 hours."
   },
   {
     "display_name": "Hentai Pic",

@@ -5,6 +5,7 @@ from datetime import date
 import calendar
 import random
 import re
+import asyncio
 
 async def open_account(user):
     with open(r'./bank/bank.json', 'r') as f:
@@ -18,6 +19,7 @@ async def open_account(user):
         users[str(user.id)]["maxbank"] = 15000
         users[str(user.id)]["safe"] = 0
         users[str(user.id)]["multiplier"] = 1
+        users[str(user.id)]["usedmulti"] = 0
     with open(r'./bank/bank.json', 'w') as f:
         json.dump(users, f, indent=4)
     return True
@@ -316,7 +318,7 @@ class economy(commands.Cog):
                 json.dump(users, f, indent=4)
             begemb = discord.Embed(title="Begging successful!", description=f"Someone just gave you <:ncoin:857167494585909279>`{money}`! Congrats <a:partygif:855108791532388422>!", color=0x00FF00)
             if users[str(ctx.author.id)]["multiplier"]!=1:
-                begemb.set_footer(text=f'Multiplier {users[str(ctx.author.id)]["multiplier"]} is enabled.')
+                begemb.set_footer(text=f'Multiplier {users[str(ctx.author.id)]["multiplier"]}x is enabled.')
             await ctx.send(embed=begemb)
             await log_transaction(ctx.author, money, "From begging.")
         else:
@@ -556,12 +558,13 @@ class economy(commands.Cog):
             await ctx.send("You don't own anything to use.")
             return
         found = 0
+        single_items = ["padlock", "coinbomb", "oolong", "dartea"]
         for index in range(len(inv)):
             if item == inv[index]["item"]:
                 if amount=="max" or amount=="all":
                     amount=inv[index]["amount"]
                 amount=int(amount)
-                if item=="padlock" or item=="coinbomb":
+                if item in single_items:
                     amount=1
                 if inv[index]["amount"]-amount==0:
                     del users[str(user.id)]["bag"][index]
@@ -602,8 +605,8 @@ class economy(commands.Cog):
                 await ctx.send("Event finished!")
             for user in responses:
                 amount=15000/len(responses)
-                amount = int(amount)
-                users[str(user.id)]["wallet"] += amount*users[str(user.id)]["multiplier"]
+                amount = int(amount)*users[str(user.id)]["multiplier"]
+                users[str(user.id)]["wallet"] += amount
                 with open(r'./bank/bank.json', 'w') as j:
                     json.dump(users, j, indent=4)
                 if users[str(user.id)]["multiplier"]!=1:
@@ -617,6 +620,32 @@ class economy(commands.Cog):
                 return
             users[str(ctx.author.id)]["safe"] = 1
             await ctx.send(f"You just applied a padlock :lock:. Now you're safe from one robbery.")
+        if found==1 and item=="oolong" and users[str(ctx.author.id)]["usedmulti"]==0:
+            users[str(ctx.author.id)]["multiplier"]+=1.5
+            users[str(ctx.author.id)]["usedmulti"]=1
+            with open(r'./bank/bank.json', 'w') as j:
+                json.dump(users, j, indent=4)
+            await ctx.send(f'You drank Oolong Tea which gave u some attractive powers for 3 hours making ur multiplier {users[str(ctx.author.id)]["multiplier"]} folds!')
+            await asyncio.sleep(10800)
+            users[str(ctx.author.id)]["multiplier"]-=1.5
+            users[str(ctx.author.id)]["usedmulti"]=0
+            with open(r'./bank/bank.json', 'w') as j:
+                json.dump(users, j, indent=4)
+        else:
+            await ctx.send("You already have a multiplier running.")
+        if found==1 and item=="dartea" and users[str(ctx.author.id)]["usedmulti"]==0:
+            users[str(ctx.author.id)]["multiplier"]+=2
+            users[str(ctx.author.id)]["usedmulti"]=1
+            with open(r'./bank/bank.json', 'w') as j:
+                json.dump(users, j, indent=4)
+            await ctx.send(f'You drank Darjeeling Tea which gave u some attractive powers for 3 hours making ur multiplier {users[str(ctx.author.id)]["multiplier"]} folds!')
+            await asyncio.sleep(10800)
+            users[str(ctx.author.id)]["multiplier"]-=2
+            users[str(ctx.author.id)]["usedmulti"]=0
+            with open(r'./bank/bank.json', 'w') as j:
+                json.dump(users, j, indent=4)    
+        else:
+            await ctx.send("You already have a multiplier running.")
 
     @commands.command()
     @commands.cooldown(1, 10, commands.BucketType.user)
