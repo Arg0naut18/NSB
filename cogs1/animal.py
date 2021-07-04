@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 import random
 import httpx
-import grequests
 from bs4 import BeautifulSoup
 import asyncio
 
@@ -12,10 +11,6 @@ async def getdata(url):
     await client.aclose()
     for req in reqs:
         return req.text
-
-async def getdata(url):
-    r = grequests.get(url)
-    return r.text
 
 async def get_fox_image(url):   
     htmldata = await getdata(url) 
