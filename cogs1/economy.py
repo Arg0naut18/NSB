@@ -620,7 +620,10 @@ class economy(commands.Cog):
                 return
             users[str(ctx.author.id)]["safe"] = 1
             await ctx.send(f"You just applied a padlock :lock:. Now you're safe from one robbery.")
-        if found==1 and item=="oolong" and users[str(ctx.author.id)]["usedmulti"]==0:
+        if found==1 and item=="oolong":
+            if users[str(ctx.author.id)]["usedmulti"]!=0:
+                await ctx.send("You already are using a multiplier buff.")
+                return
             users[str(ctx.author.id)]["multiplier"]+=1.5
             users[str(ctx.author.id)]["usedmulti"]=1
             with open(r'./bank/bank.json', 'w') as j:
@@ -631,9 +634,10 @@ class economy(commands.Cog):
             users[str(ctx.author.id)]["usedmulti"]=0
             with open(r'./bank/bank.json', 'w') as j:
                 json.dump(users, j, indent=4)
-        else:
-            await ctx.send("You already have a multiplier running.")
-        if found==1 and item=="dartea" and users[str(ctx.author.id)]["usedmulti"]==0:
+        if found==1 and item=="dartea":
+            if users[str(ctx.author.id)]["usedmulti"]!=0:
+                await ctx.send("You already are using a multiplier buff.")
+                return
             users[str(ctx.author.id)]["multiplier"]+=2
             users[str(ctx.author.id)]["usedmulti"]=1
             with open(r'./bank/bank.json', 'w') as j:
@@ -643,9 +647,7 @@ class economy(commands.Cog):
             users[str(ctx.author.id)]["multiplier"]-=2
             users[str(ctx.author.id)]["usedmulti"]=0
             with open(r'./bank/bank.json', 'w') as j:
-                json.dump(users, j, indent=4)    
-        else:
-            await ctx.send("You already have a multiplier running.")
+                json.dump(users, j, indent=4)
 
     @commands.command()
     @commands.cooldown(1, 10, commands.BucketType.user)
