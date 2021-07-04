@@ -6,6 +6,7 @@ import calendar
 import random
 import re
 import asyncio
+import DiscordUtils
 
 async def open_account(user):
     with open(r'./bank/bank.json', 'r') as f:
@@ -501,17 +502,30 @@ class economy(commands.Cog):
     @commands.command()
     async def shop(self, ctx):
         mainshop = await open_shop()
-        shopembed = discord.Embed(title="NSB Shop!", color=0x00FF00)
+        shopembed1 = discord.Embed(title="NSB Shop 1!", color=0x00FF00)
+        shopembed2 = discord.Embed(title="NSB Shop 2!", color=0x00FF00)
         i=1
-        for item in mainshop:
+        for item in mainshop[:5]:
             name = item["display_name"]
             price = item["price"]
             description = item["description"]
             id = item["name"]
-            shopembed.add_field(name=f"{i}) {name}", value=f"Price: <:ncoin:857167494585909279>{price}\nDescription: {description}\nID: {id}", inline=False)
+            shopembed1.add_field(name=f"{i}) {name}", value=f"Price: <:ncoin:857167494585909279>{price}\nDescription: {description}\nID: {id}", inline=False)
             i+=1
-        shopembed.set_footer(text=f"Pro Tip: You can interact with the items in the shop using it's ID rather than it's Name.")
-        await ctx.send(embed=shopembed)
+        for item in mainshop[6:]:
+            name = item["display_name"]
+            price = item["price"]
+            description = item["description"]
+            id = item["name"]
+            shopembed2.add_field(name=f"{i}) {name}", value=f"Price: <:ncoin:857167494585909279>{price}\nDescription: {description}\nID: {id}", inline=False)
+            i+=1
+        shopembed1.set_footer(text=f"Pro Tip: You can interact with the items in the shop using it's ID rather than it's Name.")
+        shopembed2.set_footer(text=f"Pro Tip: You can interact with the items in the shop using it's ID rather than it's Name.")
+        paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
+        embeds = [shopembed1,shopembed2]
+        paginator.add_reaction('⏪', "back")
+        paginator.add_reaction('⏩', "next")
+        await paginator.run(embeds)
 
     @commands.command()
     async def buy(self, ctx, item, amount=1):
