@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-import random
 import DiscordUtils
 from youtube_title_parse import get_artist_title
 import asyncio
@@ -9,11 +8,11 @@ import json
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from pytube import Playlist
+import re
+import urllib.request
+from bs4 import BeautifulSoup
+import azapi
 import datetime
-# import re
-# import urllib.request
-# from bs4 import BeautifulSoup
-# import azapi
 
 m = DiscordUtils.Music()
 
@@ -22,32 +21,8 @@ vari = json.load(j_file)
 j_file.close()
 cid = vari["spotipyid"]
 ctoken = vari["spotipytoken"]
-apikey = vari["musixmatchkey"]
+apikey = vari['musixmatchkey']
 client_cred = SpotifyClientCredentials(client_id=cid, client_secret=ctoken)
-
-# def get_lyrics(artist,song_title): 
-#     artist = artist.lower() 
-#     song_title = song_title.lower() 
-#     # remove all except alphanumeric characters from artist and song_title 
-#     artist = re.sub('[^A-Za-z0-9]+', "", artist) 
-#     song_title = re.sub('[^A-Za-z0-9]+', "", song_title) 
-#     if artist.startswith("the"):    # remove starting 'the' from artist e.g. the who -> who 
-#         artist = artist[3:] 
-#     url = "http://azlyrics.com/lyrics/"+artist+"/"+song_title+".html" 
-     
-#     try: 
-#         content = urllib.request.urlopen(url).read() 
-#         soup = BeautifulSoup(content, 'html.parser') 
-#         lyrics = str(soup) 
-#         # lyrics lies between up_partition and down_partition 
-#         up_partition = '<!-- Usage of azlyrics.com content by any third-party lyrics provider is prohibited by our licensing agreement. Sorry about that. -->' 
-#         down_partition = '<!-- MxM banner -->' 
-#         lyrics = lyrics.split(up_partition)[1] 
-#         lyrics = lyrics.split(down_partition)[0] 
-#         lyrics = lyrics.replace('<br>','').replace('</br>','').replace('</div>','').strip().replace('<br/>','')
-#         return lyrics 
-#     except Exception as e: 
-#         return "Exception occurred \n" +str(e)
 
 class music(commands.Cog):
 
@@ -59,7 +34,9 @@ class music(commands.Cog):
         try:
             await ctx.author.voice.channel.connect()
         except:
-            await ctx.send("`You need to be connected to the vc!`")
+            msg=await ctx.send("You need to be connected to the vc!")
+            await asyncio.sleep(5)
+            await msg.delete()
         await ctx.guild.change_voice_state(channel=ctx.author.voice.channel, self_deaf=True)
 
     @commands.command(aliases=['dc', 'disconnect'])
@@ -119,51 +96,59 @@ class music(commands.Cog):
             npsong = await ctx.send(embed=emb)
             await asyncio.sleep(song.duration)
             await npsong.delete()
-        sp = spotipy.Spotify(client_credentials_manager=client_cred)
         if 'spotify.com/track' in url:
-            # sp = spotipy.Spotify(client_credentials_manager=client_cred)
             urn, idextra = url.split('track/')
             id, extra = idextra.split('?')
             newurn = f'spotify:track:{id}'
+            sp = spotipy.Spotify(client_credentials_manager=client_cred)
             song = sp.track(newurn)
             name = song['name']
             artist = song['album']['artists'][0]['name']
-            url = f"{name} lyrics {artist}"
+            url = f"{name} official {artist}"
         if 'youtube.com/playlist?' in url:
             play_list = Playlist(url)
             for video in play_list.videos:
                 name = video.title
                 artist = video.author
                 newtitle = f"{name} {artist}"
-                await player.queue(newtitle, search=True)
-            await player.remove_from_queue(len(player.current_queue()-1))
+                try:
+                    await player.queue(newtitle, search=True)
+                except:
+                    pass
+            await player.remove_from_queue(len(player.current_queue())-1)   
             await ctx.send(f"Added `{len(play_list.videos)}` songs to the queue!")
-        if 'spotify.com/album' in url:
-            urn, idextra = url.split('album/')
-            id, extra = idextra.split('?')
-            newurn = f'spotify:album:{id}'
-            # sp = spotipy.Spotify(client_credentials_manager=client_cred)
-            album = sp.album(newurn)
-            for i in range(len(album['tracks']['items'])):
-                name = album['tracks']['items'][i]['name']
-                artist = album['artists'][0]['name']
-                url = f"{name} lyrics {artist}"
-                await player.queue(url, search=True)
-            await player.remove_from_queue(len(player.current_queue()-1))
-            await ctx.send(f"Added `{len(album['tracks']['items'])}` songs to the queue!")
         if 'spotify.com/playlist' in url:
             urn, idextra = url.split('playlist/')
             id, extra = idextra.split('?')
             newurn = f'spotify:playlist:{id}'
-            # sp = spotipy.Spotify(client_credentials_manager=client_cred)
+            sp = spotipy.Spotify(client_credentials_manager=client_cred)
             playlist = sp.playlist(newurn)
             for i in range(len(playlist['tracks']['items'])):
                 name = playlist['tracks']['items'][i]['track']['name']
                 artist = playlist['tracks']['items'][i]['track']['artists'][0]['name']
-                url = f"{name} lyrics {artist}"
-                await player.queue(url, search=True)
-            await player.remove_from_queue(len(player.current_queue()-1))
-            await ctx.send(f"Added `{len(playlist['tracks']['items'])}` songs to the queue!")
+                url = f"{name} official {artist}"
+                try:
+                    await player.queue(url, search=True)
+                except:
+                    pass
+            await player.remove_from_queue(len(player.current_queue())-1)
+            await ctx.send(f"Added `{len(playlist['tracks']['items'])}` songs to the queue!")    
+        if 'spotify.com/album' in url:
+            urn, idextra = url.split('album/')
+            id, extra = idextra.split('?')
+            newurn = f'spotify:album:{id}'
+            sp = spotipy.Spotify(client_credentials_manager=client_cred)
+            album = sp.album(newurn)
+            for i in range(len(album['tracks']['items'])):
+                name = album['tracks']['items'][i]['name']
+                artist = album['artists'][0]['name']
+                url = f"{name} official {artist}"
+                try:
+                    await player.queue(url, search=True)
+                except:
+                    pass
+            await player.remove_from_queue(len(player.current_queue())-1)
+            await ctx.send(f"Added `{len(album['tracks']['items'])}` songs to the queue!")    
         if ctx.voice_client.is_paused() and url==None:
             try:
                 await player.resume()
@@ -173,25 +158,6 @@ class music(commands.Cog):
         if not ctx.voice_client.is_playing() and not ctx.voice_client.is_paused():
             await player.queue(url, search=True)
             song = await player.play()
-            try:
-                artist, title = get_artist_title(f"{song.name}")
-            except:
-                title = song.name
-                artist = song.channel
-            if song.duration % 60 >= 10:
-                dura = f"{song.duration//60}:{song.duration%60}"
-            else:
-                secs = '0' + str(song.duration%60)
-                dura = f"{song.duration//60}:{secs}"
-            emb = discord.Embed(title="Now Playing!",color=0x00FF00)
-            emb.add_field(name="Title", value=f"[{title}]({song.url})", inline=True)
-            emb.add_field(name="Duration", value=f"`{dura}`", inline=True)
-            try:
-                emb.add_field(name="Artist", value=f"`{artist}`", inline=False)
-            except:
-                pass
-            await ctx.send(embed=emb)
-
         else:
             song = await player.queue(url, search=True)
             try:
@@ -210,7 +176,7 @@ class music(commands.Cog):
                 emb.add_field(name="Artist", value=f"`{artist}`", inline=False)
             except:
                 pass
-            emb.set_footer(text=f"Song added at index position {len(player.current_queue())}")
+            emb.set_footer(text=f"Position: {len(player.current_queue())}")
             await ctx.send(embed=emb)
 
     @commands.command()
@@ -274,41 +240,6 @@ class music(commands.Cog):
         durafoot = str(datetime.timedelta(seconds = total_duration))
         if durafoot.startswith("0:"):
             durafoot = durafoot.replace("0:", "", 1)
-        # try:   
-        #     for song in player.current_queue():
-        #         total_duration += song.duration
-        #         if song.duration % 60 != 0:
-        #             dura = f"{song.duration//60}:{song.duration%60}"
-        #         else:
-        #             secs = '0' + str(song.duration%60)
-        #             dura = f"{song.duration//60}:{secs}"
-        #         duralist.append(dura)
-        #     if total_duration % 60 != 10:
-        #         if total_duration >= 3600:
-        #             hours=total_duration//3600
-        #             mins = (total_duration//60) - 60*hours
-        #             secs = total_duration%60
-        #             if mins<10:
-        #                 minu = '0'+str(mins)
-        #                 durafoot = f"{hours}:{minu}:{secs}"
-        #             else:
-        #                 durafoot = f"{hours}:{mins}:{secs}"
-        #         else:
-        #             durafoot = f"{total_duration//60}:{secs}"
-        #     else:
-        #         secs = '0' + str(total_duration%60)
-        #         if total_duration >= 3600:
-        #             hours=total_duration//3600
-        #             mins = (total_duration//60) - 60
-        #             if mins<10:
-        #                 minu = '0'+str(mins)
-        #                 durafoot = f"{hours}:{minu}:{secs}"
-        #             else:
-        #                 durafoot = f"{hours}:{mins}:{secs}"
-        #         else:
-        #             durafoot = f"{total_duration//60}:{secs}"
-        # except Exception as error:
-        #     pass
         paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
         msg1=''
         try:
@@ -320,7 +251,7 @@ class music(commands.Cog):
             await ctx.send(embed=emptymessg)
         else:
             msg1 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[1:15]])
-            mainmsg = f"**Now Playing**:\n```yaml\n1) {player.now_playing().name} -> ({duralist[player.current_queue().index(player.current_queue())[0]]}\n```\n**Queue**:\n{msg1}"
+            mainmsg = f"**Now Playing**:\n```yaml\n1) {player.now_playing().name} -> ({duralist[player.current_queue().index(player.current_queue()[0])]})\n```\n**Queue**:\n{msg1}"
         msg2 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[15:30]])
         msg3 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[30:45]])
         msg4 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[45:60]])
@@ -359,7 +290,7 @@ class music(commands.Cog):
             pass
         await paginator.run(embeds)
 
-    @commands.command(aliases=["now"])
+    @commands.command()
     async def np(self, ctx):
         player = m.get_player(guild_id=ctx.guild.id)
         song = player.now_playing()
@@ -413,7 +344,7 @@ class music(commands.Cog):
         else:
             song = await player.remove_from_queue(int(index)-1)
         await ctx.send(f"Removed `{song.name}` from queue")
-
+    
     @commands.command()
     async def lyrics(self,ctx, *, songname=None):
         api = "&apikey="+apikey
@@ -451,10 +382,9 @@ class music(commands.Cog):
             data = data['message']['body']
             lyrics = data['lyrics']['lyrics_body']
         try:
-            async with ctx.typing():
-                lyric = lyrics
-                lyr = discord.Embed(title=f"{title}".title(), description=lyric, color=0x00FF00)
-                await ctx.send(embed=lyr)
+            lyric = lyrics
+            lyr = discord.Embed(title=f"{title}".title(), description=lyric, color=0x00FF00)
+            await ctx.send(embed=lyr)
         except:
             await ctx.send(f'`Lyrics not found.`')
     
@@ -472,12 +402,12 @@ class music(commands.Cog):
             print(error)
             await asyncio.sleep(15)
             await msg.delete()
-
+    
     @queue.error
     async def emptyqueue(self, ctx, error):
         if isinstance(error, commands.CommandInvokeError):
             print(error)
-
+    
     @lyrics.error
     async def nolyricsfound(self, ctx, error):
         if isinstance(error, commands.CommandInvokeError):
