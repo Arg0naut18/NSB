@@ -1,22 +1,27 @@
 import discord
 from discord.ext import commands
 import random
-import requests 
-from bs4 import BeautifulSoup 
-    
-def getdata(url): 
-    r = requests.get(url) 
-    return r.text 
+import requests
+import httpx
+from bs4 import BeautifulSoup
+import asyncio
+
+async def getdata(url):
+    client = httpx.AsyncClient()
+    reqs=await asyncio.gather(*[client.get(url)])
+    await client.aclose()
+    for req in reqs:
+        return req.text
 
 async def get_fox_image(url):   
-    htmldata = getdata(url) 
+    htmldata = await getdata(url) 
     soup = BeautifulSoup(htmldata, 'html.parser') 
     # for item in soup.find_all('img'):
     #     return item['src']
     return soup.find_all('img')[1]['src']
 
 async def get_image(url):   
-    htmldata = getdata(url) 
+    htmldata = await getdata(url) 
     soup = BeautifulSoup(htmldata, 'html.parser') 
     image_srcs = []
     for item in soup.find_all('img'):
