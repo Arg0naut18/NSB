@@ -4,6 +4,7 @@ import random
 import httpx
 from bs4 import BeautifulSoup
 import asyncio
+import json
 
 async def getdata(url):
     client = httpx.AsyncClient()
@@ -12,11 +13,14 @@ async def getdata(url):
     for req in reqs:
         return req.text
 
+async def get_wolf_images():
+    with open('./wolfimages.json', 'r') as f:
+        wolf_list = json.load(f)
+    return random.choice(wolf_list)
+
 async def get_fox_image(url):   
-    htmldata = await getdata(url) 
-    soup = BeautifulSoup(htmldata, 'html.parser') 
-    # for item in soup.find_all('img'):
-    #     return item['src']
+    htmldata = await getdata(url)
+    soup = BeautifulSoup(htmldata, 'html.parser')
     return soup.find_all('img')[1]['src']
 
 async def get_image(url):   
@@ -42,9 +46,8 @@ class animals(commands.Cog):
     
     @commands.command()
     async def wolf(self, ctx):
-        q = random.randint(1,123)
         foxembed = discord.Embed(title="Here is a wolf for you!", color=0x00FF00)
-        url = await get_image(f"https://source.unsplash.com/1600x900/?wolf")
+        url = await get_wolf_images()
         foxembed.set_image(url=url)
         foxembed.set_footer(text=f"Invoked by {ctx.author}", icon_url=ctx.author.avatar_url)
         await ctx.send(embed=foxembed)
