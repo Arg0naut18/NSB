@@ -833,7 +833,7 @@ class Economy(commands.Cog):
         if found:
             notif = await get_notifs()
             try:
-                msg = "".join(("-> "+n["notification"]+"\n") for n in notif[str(ctx.author.id)])
+                msg = "".join(f'-> {n["notification"]}\n' for n in notif[str(ctx.author.id)])
                 notifembed = discord.Embed(title=f"{ctx.author.display_name}'s Notifications", description=msg, color=0x00ff00)
                 await ctx.send(embed=notifembed)
             except Exception as e:
