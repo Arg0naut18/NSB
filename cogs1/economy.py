@@ -270,6 +270,32 @@ async def start_log_transaction(user):
     return True
 
 
+async def start_notifs(user):
+    with open(r'./bank/notifs.json', 'r') as f:
+        phone_data = json.load(f)
+    if user in phone_data:
+        return
+    else:
+        phone_data[str(user.id)] = []
+    with open(r'./bank/notifs.json', 'w') as f:
+        json.dump(phone_data, f, indent=4)
+    return True
+
+
+async def get_notifs():
+    with open(r'./bank/notifs.json', 'r') as f:
+        notifs = json.load(f)
+    return notifs
+
+
+async def update_notif(user, notification):
+    await start_notifs(user)
+    phone_data = await get_notifs()
+    phone_data[str(user.id)].append({"notification": notification})
+    with open(r'./bank/notifs.json', 'w') as f:
+        json.dump(phone_data, f, indent=4)
+
+
 async def get_transactions():
     with open(r'./bank/transactions.json', 'r') as f:
         transactions = json.load(f)
@@ -456,6 +482,10 @@ class Economy(commands.Cog):
             await update_bank_data(member, -1 * int(amount))
             await update_bank_data(ctx.author, int(amount))
             await ctx.send(f"You just robbed <:ncoin:857167494585909279>{amount} from {member.mention}! Poor lad.")
+            await start_notifs(ctx.author)
+            await start_notifs(member)
+            await update_notif(ctx.author, f"Robbed {member.display_name} and received {amount}.")
+            await update_notif(member, f"Got robbed by {ctx.author.display_name} and lost {amount}.")
         elif users[str(member.id)]["safe"] == 1:
             users[str(member.id)]["safe"] = 0
             await ctx.send(
@@ -554,7 +584,7 @@ class Economy(commands.Cog):
                                  value=f"Price: <:ncoin:857167494585909279>{price}\nDescription: {description}\nID: {id}",
                                  inline=False)
             i += 1
-        for item in mainshop[6:]:
+        for item in mainshop[5:]:
             name = item["display_name"]
             price = item["price"]
             description = item["description"]
@@ -783,6 +813,34 @@ class Economy(commands.Cog):
                 return
         else:
             await ctx.send("You don't own a fishing rod to begin with!")
+
+    @commands.group()
+    async def phone(self, ctx):
+        if ctx.invoked_subcommand is None:
+            pass
+
+    @phone.command()
+    async def text(self, ctx, member:discord.Member = None, *, message=None):
+        if message is None:
+            return
+        with open(r'./bank/notifs.json', 'r') as f:
+            phone = json.load(f)
+        await update_notif(member, f"{ctx.author.name}: {message}")
+
+    @commands.command(aliases=["notifs"])
+    async def notifications(self, ctx):
+        found = await is_in_inventory(ctx.author, "phone")
+        if found:
+            notif = await get_notifs()
+            try:
+                msg = "".join(("-> "+n["notification"]+"\n") for n in notif[str(ctx.author.id)])
+                notifembed = discord.Embed(title=f"{ctx.author.display_name}'s Notifications", description=msg, color=0x00ff00)
+                await ctx.send(embed=notifembed)
+            except Exception as e:
+                await ctx.send("You don't have any notifications.")
+                print(e)
+        else:
+            await ctx.send("You don't own a mobile phone to view your notifications.")
 
     @commands.command()
     @commands.cooldown(1, 30, commands.BucketType.user)

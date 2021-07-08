@@ -14,12 +14,14 @@ user_agent1 = vari["user_agent"]
 reddit = praw.Reddit(client_id=client_id1, client_secret=client_secret1,
                      user_agent=user_agent1, check_for_async=False)
 
+
 async def get_account_data():
     with open(r'./bank/bank.json', 'r') as j:
         users = json.load(j)
     return users
 
-class nsfw(commands.Cog):
+
+class Nsfw(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
@@ -39,15 +41,15 @@ class nsfw(commands.Cog):
         found = 0
         for index in range(len(inv)):
             if item == inv[index]["item"]:
-                if inv[index]["amount"]-amount==0:
+                if inv[index]["amount"] - amount == 0:
                     del inv[index]
                     found = 1
                     break
                 else:
-                    inv[index]["amount"]-=amount
+                    inv[index]["amount"] -= amount
                     found = 1
                     break
-        if found==1 and item=="hentaipic":
+        if found == 1 and item == "hentaipic":
             meme = ['Hentai', 'AnimeMILFS', 'Paizuri']
             main_meme = meme[random.randint(0, len(meme)-1)]
             color_main = color[random.randint(0, len(color)-1)]
@@ -67,5 +69,6 @@ class nsfw(commands.Cog):
         with open(r'./bank/bank.json',"w") as f:
             json.dump(users, f)
 
+
 def setup(bot):
-    bot.add_cog(nsfw(bot))
+    bot.add_cog(Nsfw(bot))
