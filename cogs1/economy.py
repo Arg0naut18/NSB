@@ -823,9 +823,12 @@ class Economy(commands.Cog):
     async def text(self, ctx, member:discord.Member = None, *, message=None):
         if message is None:
             return
-        with open(r'./bank/notifs.json', 'r') as f:
-            phone = json.load(f)
-        await update_notif(member, f"{ctx.author.name}: {message}")
+        found = await is_in_inventory(ctx.author, "phone")
+        if found:
+            await start_notifs(member)
+            await update_notif(member, f"{ctx.author.name}-> {message}")
+        else:
+            await ctx.send("You don't own a Mobile Phone.")
 
     @commands.command(aliases=["notifs"])
     async def notifications(self, ctx):
