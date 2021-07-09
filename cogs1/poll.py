@@ -3,6 +3,7 @@ from discord.ext import commands
 import asyncio
 from num2words import num2words
 
+
 def timefinder(time):
     units = ["s", "m", "h"]
     unitdict = {"s": 1, "m": 60, "h": 3600}
@@ -15,11 +16,12 @@ def timefinder(time):
         return -2
     return val*unitdict[unit]
 
+
 class poll(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['vote'])
+    @commands.command()
     @commands.has_permissions(administrator=True)
     async def poll(self, ctx, channel: discord.TextChannel = None):
         channel = channel or ctx.channel
