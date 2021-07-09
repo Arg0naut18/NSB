@@ -19,7 +19,7 @@ class poll(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(aliases=['vote'])
     @commands.has_permissions(administrator=True)
     async def poll(self, ctx, channel: discord.TextChannel = None):
         channel = channel or ctx.channel
@@ -81,22 +81,22 @@ class poll(commands.Cog):
             number+=1
         ever = await channel.send("@everyone")
         pollembed = await channel.send(embed=pollEmb)
-        #emojiid = [858380597268840491, 858381328898064386, 858381381829394493, 858381428512129025, 858381480673935370, 858381553414963230, 858381600748339211, 858381640417673266, 858381679071592469]
+        # emojiid = [858380597268840491, 858381328898064386, 858381381829394493, 858381428512129025, 858381480673935370, 858381553414963230, 858381600748339211, 858381640417673266, 858381679071592469]
         for i in range(entries):
-            #emoji = discord.utils.get(ctx.message.guild.emojis, id=emojiid[i])
+            # emoji = discord.utils.get(ctx.message.guild.emojis, id=emojiid[i])
             await pollembed.add_reaction(emojiid[i])
 
         await asyncio.sleep(time)
 
         embedreact = await channel.fetch_message(pollembed.id)
 
-        i=0
+        i = 0
         total_reactions = 0
         for entry in entry_list:
             users = embedreact.reactions[i].count
             total_reactions += users-1
             poll_entries[f"{entry}"] = users-1
-            i+=1
+            i += 1
         
         sorteddict = dict(sorted(poll_entries.items(), key=lambda item: item[1], reverse=True))
         winner = list(sorteddict.keys())[0]
@@ -109,6 +109,7 @@ class poll(commands.Cog):
         winnerembed.add_field(name="Winner", value=winner, inline=False)
         winnerembed.add_field(name="Win Percentage", value=f"`{winpercent}`", inline=False)
         await channel.send(embed=winnerembed)
+
 
 def setup(bot):
     bot.add_cog(poll(bot))
