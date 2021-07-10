@@ -2,12 +2,13 @@ import discord
 from discord.ext import commands
 import random
 
-class fun(commands.Cog):
+
+class Fun(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases = ['8ball'])
+    @commands.command(aliases=['8ball'])
     async def _8ball(self, ctx, *, question):
         responses = ['It is certain.',
                      'It is decidedly so.',
@@ -36,5 +37,6 @@ class fun(commands.Cog):
         options = ['1', '2', '3', '4', '5', '6']
         await ctx.send(f'{random.choice(options)}')
 
+
 def setup(bot):
-    bot.add_cog(fun(bot))
+    bot.add_cog(Fun(bot))
