@@ -3,7 +3,6 @@ from discord.ext import commands
 import random
 import praw
 import json
-import urllib.request
 from PIL import Image, ImageFont, ImageDraw
 from io import BytesIO
 import textwrap
@@ -84,6 +83,19 @@ class meme(commands.Cog):
         wanted.save(r"./meme_templates/wantprof.jpg")
         await ctx.send(file=discord.File(r"./meme_templates/wantprof.jpg"))
 
+    @commands.command()
+    async def delete(self, ctx, member: discord.Member = None):
+        member = ctx.author if not member else member
+        garb = Image.open(r"./meme_templates/garbage.jpg").convert('RGB')
+        # 216,278  186,251
+        asset = member.avatar_url_as(size=128)
+        data = BytesIO(await asset.read())
+        pfp = Image.open(data)
+        pfp = pfp.resize((79, 78))
+        garb.paste(pfp, (48, 54))
+        garb.save(r"./meme_templates/garbagedit.jpg")
+        await ctx.send(file=discord.File(r"./meme_templates/garbagedit.jpg"))    
+        
     @commands.command()
     async def suntzu(self, ctx, *, msg):
         img = Image.open(r"./meme_templates/suntzu.jpg")
