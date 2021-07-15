@@ -3,6 +3,16 @@ from discord.ext import commands, tasks
 import asyncio
 from datetime import datetime, timedelta
 from pytz import timezone
+import json
+
+
+async def open_server_autofeeds(user):
+    with open(r'./autofeeds/autofeeds.json', 'r') as f:
+        autofeeds = json.load(f)
+    if str(user.guild.id) in autofeeds:
+        return
+    autofeeds[str(user.guild.id)] = []
+
 
 class autofeed(commands.Cog):
     def __init__(self, bot):
@@ -25,7 +35,15 @@ class autofeed(commands.Cog):
             future += timedelta(days=1)
         await asyncio.sleep((future-now).seconds)
 
-    
+    @commands.command()
+    async def setautofeed(self, ctx, channel: discord.TextChannel, time, *, msg):
+        await open_server_autofeeds(ctx.author)
+        with open(r'./autofeeds/autofeeds.json', 'r') as f:
+            autofeeds = json.load(f)
+        hour, minute = time.split(":")
+        autofeeds[str(ctx.guild.id)].append({"channel": channel.id, "hour": hour, "minute": minute, "message": msg})
+        with open(r'./autofeeds/autofeeds.json', 'w') as f:
+            json.dump(autofeeds, f, indent=4)
 
 def setup(bot):
     bot.add_cog(autofeed(bot))
