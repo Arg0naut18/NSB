@@ -27,18 +27,33 @@ class emotes(commands.Cog):
     async def hug(self, ctx, member: discord.Member = None):
         if member is None:
             await ctx.send("You can't hug yourself! lol")
-        else:
-            urls = ['https://media.tenor.com/images/4d5a77b99ab86fc5e9581e15ffe34b5e/tenor.gif',
-                    'https://media1.tenor.com/images/11b756289eec236b3cd8522986bc23dd/tenor.gif?itemid=10592083',
-                    'https://media1.tenor.com/images/452bf03f209ca23c668826ffa07ea6a7/tenor.gif?itemid=15965620',
-                    'https://media1.tenor.com/images/fd47e55dfb49ae1d39675d6eff34a729/tenor.gif?itemid=12687187',
-                    'https://media1.tenor.com/images/f3ffd3669c13ee8d091a6b583976efe9/tenor.gif?itemid=9322908',
-                    'https://cdn.weeb.sh/images/BysjuO7D-.gif',
-                    'https://media1.tenor.com/images/1d94b18b89f600cbb420cce85558b493/tenor.gif?itemid=15942846',
-                    'https://media1.tenor.com/images/1069921ddcf38ff722125c8f65401c28/tenor.gif?itemid=11074788']
-            embed = discord.Embed(title=(f'__***{ctx.author.name}***__ just hugged __***{member.name}***__') ,color=random.randint(0x000000, 0xFFFFFF))
-            embed.set_image(url=urls[random.randint(0, len(urls)-1)])
-            await ctx.send(embed=embed)
+            return
+        urls = ['https://media.tenor.com/images/4d5a77b99ab86fc5e9581e15ffe34b5e/tenor.gif',
+                'https://media1.tenor.com/images/11b756289eec236b3cd8522986bc23dd/tenor.gif?itemid=10592083',
+                'https://media1.tenor.com/images/452bf03f209ca23c668826ffa07ea6a7/tenor.gif?itemid=15965620',
+                'https://media1.tenor.com/images/fd47e55dfb49ae1d39675d6eff34a729/tenor.gif?itemid=12687187',
+                'https://media1.tenor.com/images/f3ffd3669c13ee8d091a6b583976efe9/tenor.gif?itemid=9322908',
+                'https://cdn.weeb.sh/images/BysjuO7D-.gif',
+                'https://media1.tenor.com/images/1d94b18b89f600cbb420cce85558b493/tenor.gif?itemid=15942846',
+                'https://media1.tenor.com/images/1069921ddcf38ff722125c8f65401c28/tenor.gif?itemid=11074788']
+        embed = discord.Embed(title=(f'__***{ctx.author.name}***__ just hugged __***{member.name}***__') ,color=random.randint(0x000000, 0xFFFFFF))
+        embed.set_image(url=random.choice(urls))
+        await ctx.send(embed=embed)
+
+    @commands.command()
+    async def spank(self, ctx, member: discord.Member = None):
+        if member is None:
+            await ctx.send("Uhh that's a weird fetish to spank yourself.")
+            return
+        urls = ['https://media1.tenor.com/images/3c161bd7d6c6fba17bb3e5c5ecc8493e/tenor.gif?itemid=5196956',
+                'https://media1.tenor.com/images/d40977fe97c6c94215a9b84f990357f7/tenor.gif?itemid=7391212',
+                'https://media.tenor.com/images/5013920fb05e45636900276eea66471f/tenor.gif',
+                'https://media.tenor.com/images/899d52015a05c0cdac511090d50f743a/tenor.gif',
+                'https://media1.tenor.com/images/a227b6044bd7dc0b21bb1c3fe4a536a5/tenor.gif?itemid=5648461',
+                'https://media1.tenor.com/images/948e076842485d38b69431fbcb5c14d2/tenor.gif?itemid=13008163']
+        embed = discord.Embed(title=(f'__***{ctx.author.name}***__ just spanked __***{member.name}***_'), color=random.randint(0x000000, 0xFFFFFF))
+        embed.set_image(url=random.choice(urls))
+        await ctx.send(embed=embed)
 
     @commands.command(aliases = ['hbd'])
     async def bdaywish(self, ctx, member: discord.Member):
@@ -49,7 +64,7 @@ class emotes(commands.Cog):
                 'https://media.tenor.com/images/25d627f3e0f09fe712f8b9fd4bd675cb/tenor.gif',
                 'https://media.tenor.com/images/0b6f0b738d777f1f393492918ef94eda/tenor.gif']
         embed = discord.Embed(title=(f'__***{ctx.author.name} and NotSoBasicBot***__ are wishing **Happy Birthday** to __***{member.name}***__') ,color=random.randint(0x000000, 0xFFFFFF))
-        embed.set_image(url=urls[random.randint(0, len(urls)-1)])
+        embed.set_image(url=random.choice(urls))
         await ctx.send(embed=embed)
 
     @commands.command()
@@ -64,7 +79,7 @@ class emotes(commands.Cog):
             'https://media3.giphy.com/media/GoN89WuFFqb2U/giphy.gif?cid=ecf05e47newmpccn5poukaf496q8dx12fazspr7v86owyic6&rid=giphy.gif',
             'https://media3.giphy.com/media/RkLaH1ptACyAzQ1dWj/giphy.gif?cid=ecf05e47b99bf549bf0f9d706d40d906ae4686eddd55d337&rid=giphy.gif']
             embed = discord.Embed(title=(f'__***{ctx.author.name}***__ just punched __***{member.name}***__') ,color=random.randint(0x000000, 0xFFFFFF))
-            embed.set_image(url=urls[random.randint(0, len(urls)-1)])
+            embed.set_image(url=random.choice(urls))
             await ctx.send(embed=embed)
 
     @commands.command()
@@ -74,7 +89,7 @@ class emotes(commands.Cog):
             'https://media2.giphy.com/media/2nGfl4QfpCtW/giphy.gif?cid=ecf05e477iprb3tp8c173xvxsym9geky10acmpx69zojufir&rid=giphy.gif',
             'https://media1.giphy.com/media/q8AiNhQJVyDoQ/giphy.gif?cid=ecf05e47df40091nuwwrqdo8nbw6cy2r2xbi0ot2a4vwx7rs&rid=giphy.gif']
             embed = discord.Embed(title=(f'__***{ctx.author.name}***__ just slapped themselves. Wierd!') ,color=random.randint(0x000000, 0xFFFFFF))
-            embed.set_image(url=urls[random.randint(0, len(urls)-1)])
+            embed.set_image(url=random.choice(urls))
             await ctx.send(embed=embed)
         else:
             urls = ['https://media4.giphy.com/media/Gf3AUz3eBNbTW/giphy.gif?cid=ecf05e470ab7ia5vgss64ntvnmwj2v0b6dg8q2yxyft5uyjy&rid=giphy.gif',
@@ -84,7 +99,7 @@ class emotes(commands.Cog):
             'https://media0.giphy.com/media/htiVRuP7N0XK/giphy.gif?cid=ecf05e477dd392a9f80fc10b58ae47c3af36eea496449063&rid=giphy.gif',
             'https://media2.giphy.com/media/3o752gPI09ZLYk84Ok/giphy.gif?cid=ecf05e47ead92fdffe9293b39f8d43042e4eeb13b5bbb84f&rid=giphy.gif']
             embed = discord.Embed(title=(f'__***{ctx.author.name}***__ just slapped __***{member.name}***__') ,color=random.randint(0x000000, 0xFFFFFF))
-            embed.set_image(url=urls[random.randint(0, len(urls)-1)])
+            embed.set_image(url=random.choice(urls))
             await ctx.send(embed=embed)
 
     @commands.command()
@@ -100,7 +115,7 @@ class emotes(commands.Cog):
             'https://media.tenor.com/images/557bcc935fe237761da4963e3213bd2e/tenor.gif']
             
             embed = discord.Embed(title=(f'__***{ctx.author.name}***__ just killed __***{member.name}***__') ,color=random.randint(0x000000, 0xFFFFFF))
-            embed.set_image(url=urls[random.randint(0, len(urls)-1)])
+            embed.set_image(url=random.choice(urls))
             embed.set_footer(text=f"But with my divine powers I resurrect {member.name} to get killed again!")
             await ctx.send(embed=embed)
 
@@ -117,7 +132,7 @@ class emotes(commands.Cog):
             'https://media.tenor.com/images/f9bba4a32a2f9bde7faa8c334aeaa4e5/tenor.gif']
             
             embed = discord.Embed(title=(f'__***{ctx.author.name}***__ just nommed __***{member.name}***__') ,color=random.randint(0x000000, 0xFFFFFF))
-            embed.set_image(url=urls[random.randint(0, len(urls)-1)])
+            embed.set_image(url=random.choice(urls))
             await ctx.send(embed=embed)
 
     @commands.command()
@@ -133,7 +148,7 @@ class emotes(commands.Cog):
             'https://media.tenor.com/images/0be5d465674b432bcf0bae0056f5621f/tenor.gif']
             
             embed = discord.Embed(title=(f'__***{ctx.author.name}***__ just patted __***{member.name}***__') ,color=random.randint(0x000000, 0xFFFFFF))
-            embed.set_image(url=urls[random.randint(0, len(urls)-1)])
+            embed.set_image(url=random.choice(urls))
             await ctx.send(embed=embed)
 
     @commands.command()
@@ -146,7 +161,7 @@ class emotes(commands.Cog):
             'https://media.tenor.com/images/4fd49de4149a6d348e04f2465a3970af/tenor.gif']
             
             embed = discord.Embed(title=(f'__***{ctx.author.name}***__ is dancing.') ,color=random.randint(0x000000, 0xFFFFFF))
-            embed.set_image(url=urls[random.randint(0, len(urls)-1)])
+            embed.set_image(url=random.choice(urls))
             await ctx.send(embed=embed)
         else:
             urls = ['https://media1.giphy.com/media/gCy8PslyGfBu0/giphy.gif?cid=ecf05e47xpjyr0upvq7tex2zj2hwp90md5g7hrn9bsj78dsv&rid=giphy.gif',
@@ -157,7 +172,7 @@ class emotes(commands.Cog):
             # 'https://media.tenor.com/images/557bcc935fe237761da4963e3213bd2e/tenor.gif']
             
             embed = discord.Embed(title=(f'__***{ctx.author.name}***__ is dancing with __***{member.name}***__') ,color=random.randint(0x000000, 0xFFFFFF))
-            embed.set_image(url=urls[random.randint(0, len(urls)-1)])
+            embed.set_image(url=random.choice(urls))
             await ctx.send(embed=embed)
 
 def setup(bot):
