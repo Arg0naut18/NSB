@@ -26,5 +26,13 @@ class splEmotes(commands.Cog):
     #     emoteId.roles[""]
     #     await ctx.send(f"Unlocked {emoteId} for this server!")
 
+    @commands.command()
+    @commands.is_owner()
+    async def changepresence(self, ctx, mssg=None):
+        if mssg is None:
+            await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"{len(self.bot.guilds)} guilds and {len(self.bot.users)} members."))
+        else:
+            await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"{mssg}"))
+
 def setup(bot):
     bot.add_cog(splEmotes(bot))
