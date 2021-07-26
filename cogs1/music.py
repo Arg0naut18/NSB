@@ -19,6 +19,7 @@ cid = vari["spotipyid"]
 ctoken = vari["spotipytoken"]
 apikey = vari['musixmatchkey']
 client_cred = SpotifyClientCredentials(client_id=cid, client_secret=ctoken)
+queue_looping = False
 
 async def get_queue(user):
     with open("./music/queue.json", 'r') as f:
@@ -244,28 +245,38 @@ class music(commands.Cog):
         await clear_queue(ctx.author)
 
     @commands.command()
-    async def loop(self, ctx):
+    async def loop(self, ctx, term=None):
         try:
             vc = ctx.author.voice.channel
         except:
             await ctx.send("`You need to be connected to the vc!`")
             return
         player = m.get_player(guild_id=ctx.guild.id)
-        song = await player.toggle_song_loop()
-        if song.is_looping:
-            await ctx.send(f"Enabled loop for `{song.name}`")
+        if term is not "queue":
+            song = await player.toggle_song_loop()
+            if song.is_looping:
+                await ctx.send(f"Enabled loop for `{song.name}`")
+            else:
+                await ctx.send(f"Disabled loop for `{song.name}`")
         else:
-            await ctx.send(f"Disabled loop for `{song.name}`")
+            past_q = await get_queue(ctx.author)
+            total_queue = list(set(past_q))[:-1] + [songs.name+" "+songs.channel for songs in player.current_queue()]
+            print(*total_queue)
+            for song in total_queue:
+                await player.queue(song, search=True)
+            await ctx.send("Now the Queue is looping. It will loop only once.")
+        
 
-    @commands.command(aliases=['prev'])
-    async def previous(self, ctx):
-        with open('./music/queue.json', 'r') as f:
-            prev_queue = json.load(f)
-        if len(prev_queue[str(ctx.guild.id)]) == 0:
-            await ctx.send("There was no previous song!")
-            return
-        player = m.get_player(guild_id=ctx.guild.id)
-        await player.queue(prev_queue[str(ctx.author.guild.id)][-1])
+    # @commands.command(aliases=['prev'])
+    # async def previous(self, ctx):
+    #     with open('./music/queue.json', 'r') as f:
+    #         prev_queue = json.load(f)
+    #     if len(prev_queue[str(ctx.guild.id)]) == 0:
+    #         await ctx.send("There was no previous song!")
+    #         return
+    #     player = m.get_player(guild_id=ctx.guild.id)
+    #     total_queue = prev_queue + player.current_queue()[1:]
+    #     await player.queue(prev_queue[str(ctx.author.guild.id)][-2])
 
     @commands.command(aliases = ['q'])
     async def queue(self, ctx):
@@ -284,18 +295,18 @@ class music(commands.Cog):
         paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
         msg1=''
         try:
-            msg1 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[:15]])
+            msg1 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in list(set(player.current_queue()))[:15]])
         except:
             pass
         if msg1 == '':
             emptymessg = discord.Embed(title="Queue", description="Queue is empty! Add some songs.", color=0x00FF00)
             await ctx.send(embed=emptymessg)
         else:
-            msg1 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[1:15]])
+            msg1 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in list(set(player.current_queue()))[1:15]])
             mainmsg = f"**Now Playing**:\n```yaml\n1) {player.now_playing().name} -> ({duralist[player.current_queue().index(player.current_queue()[0])]})\n```\n**Queue**:\n{msg1}"
-        msg2 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[15:30]])
-        msg3 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[30:45]])
-        msg4 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in player.current_queue()[45:60]])
+        msg2 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in list(set(player.current_queue()))[15:30]])
+        msg3 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in list(set(player.current_queue()))[30:45]])
+        msg4 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in list(set(player.current_queue()))[45:60]])
         q1 = discord.Embed(title="Queue", description=mainmsg, color=0x00FF00)
         q1.set_footer(text=f"{len(player.current_queue())} songs -> ({durafoot}) duration")
         if msg2!='':
