@@ -20,6 +20,37 @@ ctoken = vari["spotipytoken"]
 apikey = vari['musixmatchkey']
 client_cred = SpotifyClientCredentials(client_id=cid, client_secret=ctoken)
 
+async def get_queue(user):
+    with open("./music/queue.json", 'r') as f:
+        past_queue = json.load(f)
+    return past_queue[str(user.guild.id)]
+
+async def make_queue(user):
+    with open("./music/queue.json", 'r') as f:
+        past_queue = json.load(f)
+    if user.guild.id in past_queue:
+        return False
+    past_queue[str(user.guild.id)] = []
+    with open("./music/queue.json", 'w') as f:
+        json.dump(past_queue, f, indent=4)
+    return True
+
+async def add_queue(user, name):
+    await make_queue(user)
+    with open("./music/queue.json", 'r') as f:
+        past_queue = json.load(f)
+    past_queue[str(user.guild.id)].append(name)
+    with open("./music/queue.json", 'w') as f:
+        json.dump(past_queue, f, indent=4)
+
+async def clear_queue(user):
+    await make_queue(user)
+    with open("./music/queue.json", 'r') as f:
+        past_queue = json.load(f)
+    past_queue[str(user.guild.id)] = []
+    with open("./music/queue.json", 'w') as f:
+        json.dump(past_queue, f, indent=4)
+
 class music(commands.Cog):
 
     def __init__(self, bot):
@@ -53,6 +84,7 @@ class music(commands.Cog):
         await ctx.message.add_reaction("👋")
         await player.stop()
         await ctx.voice_client.disconnect()
+        await clear_queue(ctx.author)
 
     @commands.command(aliases=['p'])
     async def play(self, ctx, *, url=None):
@@ -77,6 +109,8 @@ class music(commands.Cog):
             except:
                 title = song.name
                 artist = song.channel
+            sname = title + " " + artist
+            await add_queue(ctx.author, sname)
             if song.duration % 60 >= 10:
                 dura = f"{song.duration//60}:{song.duration%60}"
             else:
@@ -207,6 +241,7 @@ class music(commands.Cog):
         player = m.get_player(guild_id=ctx.guild.id)
         await player.stop()
         await ctx.message.add_reaction("🛑")
+        await clear_queue(ctx.author)
 
     @commands.command()
     async def loop(self, ctx):
@@ -221,6 +256,16 @@ class music(commands.Cog):
             await ctx.send(f"Enabled loop for `{song.name}`")
         else:
             await ctx.send(f"Disabled loop for `{song.name}`")
+
+    @commands.command(aliases=['prev'])
+    async def previous(self, ctx):
+        with open('./music/queue.json', 'r') as f:
+            prev_queue = json.load(f)
+        if len(prev_queue[str(ctx.guild.id)]) == 0:
+            await ctx.send("There was no previous song!")
+            return
+        player = m.get_player(guild_id=ctx.guild.id)
+        await player.queue(prev_queue[str(ctx.author.guild.id)][-1])
 
     @commands.command(aliases = ['q'])
     async def queue(self, ctx):
