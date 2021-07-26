@@ -3,8 +3,7 @@ from discord.ext import commands
 import DiscordUtils
 from youtube_title_parse import get_artist_title
 import asyncio
-import grequests
-import httpx
+import requests
 import json
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
@@ -368,13 +367,13 @@ class music(commands.Cog):
                 title += char
         try:
             api_call = base_url + lyrics_matcher + format_url + artist_search_parameter + artist + track_search_parameter + title + api
-            request = grequests.get(api_call)
+            request = requests.get(api_call)
             data = request.json()
             data = data['message']['body']
             lyrics = data['lyrics']['lyrics_body']
         except:
             api_call = base_url + lyrics_matcher + format_url + track_search_parameter + title + api
-            request = grequests.get(api_call)
+            request = requests.get(api_call)
             data = request.json()
             data = data['message']['body']
             lyrics = data['lyrics']['lyrics_body']
