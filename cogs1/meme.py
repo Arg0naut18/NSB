@@ -25,9 +25,9 @@ class meme(commands.Cog):
     @commands.command(aliases=['memes', 'm'])
     async def meme(self, ctx):
         meme = ['memes', 'cursedcomments', 'animememes',
-                'dankmemes', 'historymemes']
-        main_meme = meme[random.randint(0, len(meme)-1)]
-        color_main = color[random.randint(0, len(color)-1)]
+                'dankmemes']
+        main_meme = random.choice(meme)
+        color_main = random.choice(color)
         memes_submissions = reddit.subreddit(main_meme).top()
         post_to_pick = random.randint(1, 100)
         for i in range(0, post_to_pick):
@@ -37,7 +37,7 @@ class meme(commands.Cog):
             title=f"__{submission.title}__", color=color_main, url=slink)
         embed.set_image(url=submission.url)
         embed.set_footer(
-            text=f'meme by u/{submission.author}  from {memes_submissions.url}')
+            text=f'👍 {submission.score} | meme by u/{submission.author}  from {memes_submissions.url}')
         await ctx.reply(embed=embed)
 
     @commands.command(aliases=['awww'])
