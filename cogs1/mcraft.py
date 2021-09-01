@@ -18,28 +18,38 @@ class mcraft(commands.Cog):
                 q = query.replace(" ", "_")
             else:
                 q = query
-            r = urllib.request.urlopen(f"https://ice-and-fire-mod.fandom.com/wiki/{q.title()}")
+            link = f"https://ice-and-fire-mod.fandom.com/wiki/{q.title()}"    
+            r = urllib.request.urlopen(link)
         except Exception as e:
             await ctx.send("`Entity not found!`")
             print(e)
             return
-        soup = BeautifulSoup(r, "html.parser")
+        soup = BeautifulSoup(r, "lxml")
         description = soup.find(property="og:description")
         desc = description.prettify()[15:-29]
         Description = desc.split(".")[0]+"."
-        tameembed = discord.Embed(title=f"{query.title()}", color=0x00ff00)
+        tameembed = discord.Embed(title=f"__**{query.title()}**__", color=0x00ff00)
+        imageurl = soup.find("a", class_="image image-thumbnail").img['src']
+        tameembed.set_image(url=imageurl)
         tameembed.add_field(name="Description", value=Description, inline=False)
         try:
-            taming = soup.find_all("p", string=lambda text: text and ("tamed" in text.lower() or "befriended" in text.lower()))
-            tame = str(taming[0])[3:-4]
+            #text2 = "spawn"
+            spawn = soup.find_all(lambda tag: tag.name == "p" and "spawn" in tag.text.lower())[1].text
+            tameembed.add_field(name="Spawning", value=spawn, inline=False)
+        except:
+            tameembed.add_field(name="Spawning", value="This entity cannot be spawned.", inline=False)
+        try:
+            #text1 = "tame"
+            tame = soup.find_all(lambda tag: tag.name == "p" and ("tame" in tag.text.lower() or "befriend" in tag.text.lower()))[0].text
             tameembed.add_field(name="Taming", value=tame, inline=False)
         except:
-            pass
-        imagethumb = soup.find("a", class_="image image-thumbnail")
-        imageurlstart = str(imagethumb).find("href=")
-        imageurlend = str(imagethumb).find(" title")
-        imageurl = str(imagethumb)[imageurlstart+6:imageurlend-1]
-        tameembed.set_image(url=imageurl)
+            tameembed.add_field(name="Taming", value="This entity cannot be tamed.", inline=False)
+        try:
+            breed = soup.find_all(lambda tag: tag.name == "p" and "breed" in tag.text.lower())[0].text
+            tameembed.add_field(name="Breeding", value=breed, inline=False)
+        except:
+            tameembed.add_field(name="Breeding", value="This entity cannot be bred.", inline=False)
+        tameembed.add_field(name="Further Info", value=link, inline=False)    
         await ctx.send(embed=tameembed)
         
     @commands.command(aliases=['minecraftwiki', 'mcraftwiki'])
@@ -51,28 +61,41 @@ class mcraft(commands.Cog):
                 q = query.replace(" ", "_")
             else:
                 q = query
-            r = urllib.request.urlopen(f"https://minecraft.fandom.com/wiki/{q.title()}")
+            link = f"https://minecraft.fandom.com/wiki/{q.title()}"    
+            r = urllib.request.urlopen(link)
         except Exception as e:
             await ctx.send("`Entity not found!`")
             print(e)
             return
-        soup = BeautifulSoup(r, "html.parser")
+        soup = BeautifulSoup(r, "lxml")
         description = soup.find(property="og:description")
         desc = description.prettify()[15:-29]
         Description = desc.split(".")[0]+"."
-        tameembed = discord.Embed(title=f"{query.title()}", color=0x00ff00)
+        tameembed = discord.Embed(title=f"__**{query.title()}**__", color=0x00ff00)
+        try:
+            imageurl = soup.find("a", class_="image").img['data-src']
+        except:
+            imageurl = soup.find("a", class_="image").img['src']
+        tameembed.set_image(url=imageurl)
         tameembed.add_field(name="Description", value=Description, inline=False)
         try:
-            taming = soup.find_all("p", string=lambda text: text and ("tamed" in text.lower() or "befriended" in text.lower()))
-            tame = str(taming[0])[3:-4]
+            #text2 = "spawn"
+            spawn = soup.find_all(lambda tag: tag.name == "p" and "spawn" in tag.text.lower())[1].text
+            tameembed.add_field(name="Spawning", value=spawn, inline=False)
+        except:
+            tameembed.add_field(name="Spawning", value="This entity cannot be spawned.", inline=False)
+        try:
+            #text1 = "tame"
+            tame = soup.find_all(lambda tag: tag.name == "p" and ("tame" in tag.text.lower() or "befriend" in tag.text.lower()))[0].text
             tameembed.add_field(name="Taming", value=tame, inline=False)
         except:
-            pass
-        imagethumb = soup.find("a", class_="image")
-        imageurlstart = str(imagethumb).find("href=")
-        imageurlend = str(imagethumb).find(" title")
-        imageurl = str(imagethumb)[imageurlstart+6:imageurlend-1]
-        tameembed.set_image(url=imageurl)
+            tameembed.add_field(name="Taming", value="This entity cannot be tamed.", inline=False)
+        try:
+            breed = soup.find_all(lambda tag: tag.name == "p" and "breed" in tag.text.lower())[0].text
+            tameembed.add_field(name="Breeding", value=breed, inline=False)
+        except:
+            tameembed.add_field(name="Breeding", value="This entity cannot be bred.", inline=False)
+        tameembed.add_field(name="Further Info", value=link, inline=False)
         await ctx.send(embed=tameembed)
             
 def setup(bot):
