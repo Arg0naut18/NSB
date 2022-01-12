@@ -252,16 +252,15 @@ class music(commands.Cog):
             await ctx.send("`You need to be connected to the vc!`")
             return
         player = m.get_player(guild_id=ctx.guild.id)
-        if term is not "queue":
+        if term != "queue":
             song = await player.toggle_song_loop()
             if song.is_looping:
                 await ctx.send(f"Enabled loop for `{song.name}`")
             else:
                 await ctx.send(f"Disabled loop for `{song.name}`")
-        else:
+        elif term == "queue":
             past_q = await get_queue(ctx.author)
             total_queue = list(set(past_q))[:-1] + [songs.name+" "+songs.channel for songs in player.current_queue()]
-            print(*total_queue)
             for song in total_queue:
                 await player.queue(song, search=True)
             await ctx.send("Now the Queue is looping. It will loop only once.")
@@ -293,20 +292,21 @@ class music(commands.Cog):
         if durafoot.startswith("0:"):
             durafoot = durafoot.replace("0:", "", 1)
         paginator = DiscordUtils.Pagination.CustomEmbedPaginator(ctx, remove_reactions=True)
+        total_queue_list = list(dict.fromkeys(player.current_queue()))
         msg1=''
         try:
-            msg1 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in list(set(player.current_queue()))[:15]])
+            msg1 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in total_queue_list[:15]])
         except:
             pass
         if msg1 == '':
             emptymessg = discord.Embed(title="Queue", description="Queue is empty! Add some songs.", color=0x00FF00)
             await ctx.send(embed=emptymessg)
         else:
-            msg1 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in list(set(player.current_queue()))[1:15]])
+            msg1 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in total_queue_list[1:15]])
             mainmsg = f"**Now Playing**:\n```yaml\n1) {player.now_playing().name} -> ({duralist[player.current_queue().index(player.current_queue()[0])]})\n```\n**Queue**:\n{msg1}"
-        msg2 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in list(set(player.current_queue()))[15:30]])
-        msg3 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in list(set(player.current_queue()))[30:45]])
-        msg4 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in list(set(player.current_queue()))[45:60]])
+        msg2 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in total_queue_list[15:30]])
+        msg3 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in total_queue_list[30:45]])
+        msg4 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in total_queue_list[45:60]])
         q1 = discord.Embed(title="Queue", description=mainmsg, color=0x00FF00)
         q1.set_footer(text=f"{len(player.current_queue())} songs -> ({durafoot}) duration")
         if msg2!='':
@@ -451,9 +451,9 @@ class music(commands.Cog):
     async def songcouldntbeplayed(self, ctx, error):
         if isinstance(error, commands.CommandInvokeError):
             msg = await ctx.send(f"Check your arguments. Currently only youtube and spotify urls are supported. Sorry for the inconvenience.\nUse **resume** command instead of this to resume paused song.\nIf you think you didn't do any of these errors, disconnect the bot and use **r music** command to refresh the music commands.")
-            print(error)
             await asyncio.sleep(15)
             await msg.delete()
+            raise(error)
     
     @queue.error
     async def emptyqueue(self, ctx, error):
