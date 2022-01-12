@@ -102,31 +102,6 @@ class music(commands.Cog):
         player = m.get_player(guild_id=ctx.guild.id)
         if not player:
             player = m.create_player(ctx, ffmpeg_error_betterfix=True)
-        @player.on_play
-        async def on_play(ctx, song):
-            # emb = discord.Embed(title="Now Playing!", description=f"[{song.name}]({song.url})", color=0x00FF00)
-            try:
-                artist, title = get_artist_title(f"{song.name}")
-            except:
-                title = song.name
-                artist = song.channel
-            sname = title + " " + artist
-            await add_queue(ctx.author, sname)
-            if song.duration % 60 >= 10:
-                dura = f"{song.duration//60}:{song.duration%60}"
-            else:
-                secs = '0' + str(song.duration%60)
-                dura = f"{song.duration//60}:{secs}"
-            emb = discord.Embed(title="Now Playing!",color=0x00FF00)
-            emb.add_field(name="Title", value=f"[{title}]({song.url})", inline=True)
-            emb.add_field(name="Duration", value=f"`{dura}`", inline=True)
-            try:
-                emb.add_field(name="Artist", value=f"`{artist}`", inline=False)
-            except:
-                pass
-            npsong = await ctx.send(embed=emb)
-            await asyncio.sleep(song.duration)
-            await npsong.delete()
         if 'spotify.com/track' in url:
             urn, idextra = url.split('track/')
             id, extra = idextra.split('?')
@@ -163,7 +138,7 @@ class music(commands.Cog):
                 except:
                     pass
             await player.remove_from_queue(len(player.current_queue())-1)
-            await ctx.send(f"Added `{len(playlist['tracks']['items'])}` songs to the queue!")    
+            await ctx.send(f"Added `{len(playlist['tracks']['items'])}` songs to the queue!")
         if 'spotify.com/album' in url:
             urn, idextra = url.split('album/')
             id, extra = idextra.split('?')
@@ -176,10 +151,36 @@ class music(commands.Cog):
                 url = f"{name} official {artist}"
                 try:
                     await player.queue(url, search=True)
+                    asyncio.sleep(1)
                 except:
                     pass
             await player.remove_from_queue(len(player.current_queue())-1)
-            await ctx.send(f"Added `{len(album['tracks']['items'])}` songs to the queue!")    
+            await ctx.send(f"Added `{len(album['tracks']['items'])}` songs to the queue!")
+        @player.on_play
+        async def on_play(ctx, song):
+            # emb = discord.Embed(title="Now Playing!", description=f"[{song.name}]({song.url})", color=0x00FF00)
+            try:
+                artist, title = get_artist_title(f"{song.name}")
+            except:
+                title = song.name
+                artist = song.channel
+            sname = title + " " + artist
+            await add_queue(ctx.author, sname)
+            if song.duration % 60 >= 10:
+                dura = f"{song.duration//60}:{song.duration%60}"
+            else:
+                secs = '0' + str(song.duration%60)
+                dura = f"{song.duration//60}:{secs}"
+            emb = discord.Embed(title="Now Playing!",color=0x00FF00)
+            emb.add_field(name="Title", value=f"[{title}]({song.url})", inline=True)
+            emb.add_field(name="Duration", value=f"`{dura}`", inline=True)
+            try:
+                emb.add_field(name="Artist", value=f"`{artist}`", inline=False)
+            except:
+                pass
+            npsong = await ctx.send(embed=emb)
+            await asyncio.sleep(song.duration)
+            await npsong.delete() 
         if ctx.voice_client.is_paused() and url==None:
             try:
                 await player.resume()
