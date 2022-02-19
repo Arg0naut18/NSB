@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 import urllib.request
 from bs4 import BeautifulSoup
+from python_aternos import Client
 
 class mcraft(commands.Cog):
     def __init__(self, bot):
@@ -97,6 +98,16 @@ class mcraft(commands.Cog):
             tameembed.add_field(name="Breeding", value="This entity cannot be bred.", inline=False)
         tameembed.add_field(name="Further Info", value=link, inline=False)
         await ctx.send(embed=tameembed)
+
+    @commands.command()
+    async def startserver(self, ctx, username, passd, server_number=0):
+        aternos = Client(username, password=passd)
+        servers = aternos.servers
+        main_server = servers[server_number]
+        main_server.start()
+        await ctx.send(f"Starting {main_server.address}")
+    
+
             
 def setup(bot):
     bot.add_cog(mcraft(bot))
