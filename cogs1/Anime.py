@@ -38,7 +38,7 @@ async def toCorrectDateFormat(date):
     month, day, year = date.split('/')
     return f'`{day}/{month}/{year}`'
 
-class trans(commands.Cog):
+class Anime(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
@@ -134,4 +134,4 @@ class trans(commands.Cog):
         await ctx.send(embed=embed)
 
 def setup(bot):
-    bot.add_cog(trans(bot))
+    bot.add_cog(Anime(bot))
