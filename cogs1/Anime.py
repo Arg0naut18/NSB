@@ -107,7 +107,7 @@ class trans(commands.Cog):
         for i in range(min(10, len(l))):
             embed.add_field(name='\u200b', value=f"{str(i+1)} -> [{l[i]}](https://anilist.co/anime/{anilist.get_anime_id(l[i])})", inline=False)
         embed.add_field(name="Source", value=f"Data from [anilist.co]({url})", inline=False)
-        await ctx.reply(embed=embed)
+        msg = await ctx.send(embed=embed)
 
 def setup(bot):
     bot.add_cog(trans(bot))
