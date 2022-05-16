@@ -65,5 +65,29 @@ class trans(commands.Cog):
             pass
         await ctx.reply(embed=embed)
 
+    @commands.command(aliases=["manganame"])
+    async def manga(self, ctx, *, name):
+        anilist = Anilist()
+        anime = anilist.get_manga(name)
+        if(anime==None):
+            await ctx.reply("Manga not found!")
+            return
+        color_main = color[random.randint(0, len(color)-1)]
+        embed = discord.Embed(title=f"{anime['name_english']}", color=color_main, description=f"{(await cleanText(anime['desc']))[:500]+'...'}", url=f'https://anilist.co/manga/{anilist.get_manga_id(anime["name_romaji"])}')
+        embed.set_thumbnail(url=anime['cover_image'])
+        embed.add_field(name="Original/Japanese Name", value="`"+anime["name_romaji"]+"`", inline = False)
+        embed.add_field(name="Score", value="`"+str(anime['average_score'])+"`", inline=True)
+        embed.add_field(name="Genre", value=await listToStr(anime['genres']), inline=True)
+        embed.add_field(name="Started Publishing", value = await toCorrectDateFormat(anime['starting_time']), inline=False)
+        embed.add_field(name="Last Publishing", value = await toCorrectDateFormat(anime['ending_time']), inline=False)
+        embed.add_field(name="Chapters", value = "`"+str(anime['chapters'])+"`", inline=False)
+        embed.add_field(name="Volumes", value = "`"+str(anime['volumes'])+"`", inline=False)
+        embed.add_field(name="Status", value = "`"+str(anime['release_status'])+"`", inline=True)
+        try:
+            embed.set_image(url=anime['banner_image'])
+        except:
+            pass
+        await ctx.reply(embed=embed)
+
 def setup(bot):
     bot.add_cog(trans(bot))
