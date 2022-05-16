@@ -98,14 +98,16 @@ class trans(commands.Cog):
         color_main = color[random.randint(0, len(color)-1)]
         soup = BeautifulSoup(site.content, "html.parser")
         dict = soup.find_all('a', class_="title")
-        embed = discord.Embed(title=f"Top 10 Trending Anime", color=color_main, url=url)
+        embed = discord.Embed(title=f"Top 10 Trending Anime", color=color_main)
         l = []
         for link in dict:
             name = link.text
             name = name.replace("\n", "")
             l.append(name)
         for i in range(min(10, len(l))):
-            embed.add_field(name='\u200b', value=f"[{str(i+1)} -> {l[i]}](https://anilist.co/anime/{anilist.get_anime_id(l[i])})", inline=False)
+            embed.add_field(name='\u200b', value=f"{str(i+1)} -> [{l[i]}](https://anilist.co/anime/{anilist.get_anime_id(l[i])})", inline=False)
+        embed.add_field(name="Source", value=f"Data from [anilist.co]({url})", inline=False)
+        await ctx.reply(embed=embed)
 
 def setup(bot):
     bot.add_cog(trans(bot))
