@@ -97,17 +97,41 @@ class trans(commands.Cog):
         site = requests.get(url)
         color_main = color[random.randint(0, len(color)-1)]
         soup = BeautifulSoup(site.content, "html.parser")
-        dict = soup.find_all('a', class_="title")
+        dict = soup.find_all('a', class_="title", limit=10)
         embed = discord.Embed(title=f"Top 10 Trending Anime", color=color_main)
-        l = []
+        #l = []
+        i=0
+        digemoji = {
+            '1':"<:digital1:975657333646561300>",
+            '2':"<:digital2:975657333541707807>",
+            '3':"<:digital3:975657333558501396>",
+            '4':"<:digital4:975657333642371082>",
+            '5':"<:digital5:975657333524938764>",
+            '6':"<:digital6:975657333650751508>",
+            '7':"<:digital7:975657333298458655>",
+            '8':"<:digital8:975657333671751700>",
+            '9':"<:digital9:975657333772410881>",
+            '10':"<:digital1:975657333646561300><:digital0:975661653913911317>",
+        }
+        purpemoji={
+            '1' : "<:purple1:975657279653306409>",
+            '2' : "<:purple2:975657279674261605>",
+            '3' : "<:purple3:975657279783317534>",
+            '4' : "<:purple4:975657279904940113>",
+            '5' : "<:purple5:975657280156598273>",
+            '6' : "<:purple6:975657280013996143>",
+            '7' : "<:purple7:975657280219541587>",
+            '8' : "<:purple8:975657280240504832>",
+            '9' : "<:purple9:975657280597024828>",
+            '10' : "<:purple1:975657279653306409><:purple0:975657279858806784>"
+        }
         for link in dict:
             name = link.text
             name = name.replace("\n", "")
-            l.append(name)
-        for i in range(min(10, len(l))):
-            embed.add_field(name='\u200b', value=f"{str(i+1)} -> [{l[i]}](https://anilist.co/anime/{anilist.get_anime_id(l[i])})", inline=False)
-        embed.add_field(name="Source", value=f"Data from [anilist.co]({url})", inline=False)
-        msg = await ctx.send(embed=embed)
+            embed.add_field(name='\u200b', value=f"{purpemoji[str(i+1)]} -> [{name}](https://anilist.co/anime/{anilist.get_anime_id(name)})", inline=False)
+            i+=1
+        embed.add_field(name="\u200b", value=f"Data from [anilist.co]({url})", inline=False)
+        await ctx.send(embed=embed)
 
 def setup(bot):
     bot.add_cog(trans(bot))
