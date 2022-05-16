@@ -2,7 +2,11 @@ import discord
 from discord.ext import commands
 import random
 from .Main.__init__ import Anilist
+anilist = Anilist()
 import re
+import requests
+from bs4 import BeautifulSoup
+
 CLEANR = re.compile('<.*?>') 
 
 color = [15158332, 3066993, 10181046, 3447003, 1752220, 15844367]
@@ -41,7 +45,6 @@ class trans(commands.Cog):
 
     @commands.command(aliases=["animename"])
     async def anime(self, ctx, *, name):
-        anilist = Anilist()
         anime = anilist.get_anime(name)
         if(anime==None):
             await ctx.reply("Anime not found!")
@@ -67,7 +70,6 @@ class trans(commands.Cog):
 
     @commands.command(aliases=["manganame"])
     async def manga(self, ctx, *, name):
-        anilist = Anilist()
         anime = anilist.get_manga(name)
         if(anime==None):
             await ctx.reply("Manga not found!")
@@ -88,6 +90,22 @@ class trans(commands.Cog):
         except:
             pass
         await ctx.reply(embed=embed)
+
+    @commands.command(aliases=["animeranks"])
+    async def anime_rank(self, ctx):
+        url = 'https://anilist.co/search/anime/trending'
+        site = requests.get(url)
+        color_main = color[random.randint(0, len(color)-1)]
+        soup = BeautifulSoup(site.content, "html.parser")
+        dict = soup.find_all('a', class_="title")
+        embed = discord.Embed(title=f"Top 10 Trending Anime", color=color_main, url=url)
+        l = []
+        for link in dict:
+            name = link.text
+            name = name.replace("\n", "")
+            l.append(name)
+        for i in range(min(10, len(l))):
+            embed.add_field(name='\u200b', value=f"[{str(i+1)} -> {l[i]}](https://anilist.co/anime/{anilist.get_anime_id(l[i])})", inline=False)
 
 def setup(bot):
     bot.add_cog(trans(bot))
