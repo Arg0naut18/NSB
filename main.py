@@ -149,6 +149,7 @@ async def help(ctx, category = None):
         emb.add_field(name=":hugging: Emotes", value=f"`{prefix[2]}help emotes`", inline=True)
         emb.add_field(name=":man_zombie: Lifeafter", value=f"`{prefix[2]}help la`", inline=True)
         emb.add_field(name=":money_with_wings: Economy", value=f"`{prefix[2]}help economy`", inline=True)
+        emb.add_field(name="<:creeper:979757929769103431> Minecraft", value=f"`{prefix[2]}help minecraft`", inline=True)
         emb.set_thumbnail(url=bot.user.avatar_url)
         emb.set_footer(text=f"Invoked by {ctx.author.display_name}",icon_url=ctx.author.avatar_url)
         emb.timestamp = datetime.datetime.now()
