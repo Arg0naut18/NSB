@@ -17,6 +17,7 @@ class csvbank(commands.Cog):
 
     @commands.hybrid_command(description="Get all your transactions")
     async def bank(self, ctx: commands.Context):
+        ctx.defer(ephemeral=True)
         bank_data = await get_bank_data(ctx.author)
         data_file = open('./bank/bankdata.csv', 'w', newline='')
         columns = ["wallet", "bank", "banknote", "huntinggun", "fishingrod", "coinbomb", "padlock", "hpic"]
@@ -33,13 +34,13 @@ class csvbank(commands.Cog):
     @commands.hybrid_command(description="Get the csv file of the entire bank")
     @commands.has_permissions(administrator=True)
     async def totalbank(self, ctx):
+        ctx.defer(ephemeral=True)
         bank_data = await get_bank_data()
         # bank_data = ast.literal_eval(bank_data)
         data_file = open('./bank/bankdata.csv', 'w', newline='')
         csv_writer = csv.writer(data_file)
         count = 1
         for data_id in bank_data:
-            print(data_id)
             data = bank_data[str(data_id)]
             csv_writer.writerow(["ID"])
             csv_writer.writerow([str(data_id)])
