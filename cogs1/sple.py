@@ -46,7 +46,7 @@ class splEmotes(commands.Cog):
         c = Currency_convertor(url)
         await ctx.reply(c.convert(CurrFrom, CurrTo, money))
 
-    @commands.hybrid_command(description="Converts INR to USD", with_app_command=True)
+    @commands.hybrid_command(name="convert-to-usd-from-inr", description="Converts INR to USD", with_app_command=True)
     async def convertToUSDFromINR(self, ctx: commands.Context, money: int):
         CurrTo = "INR"
         CurrFrom = "USD"
@@ -54,7 +54,7 @@ class splEmotes(commands.Cog):
         c = Currency_convertor(url)
         await ctx.reply(c.convert(CurrFrom, CurrTo, money))
 
-    @commands.hybrid_command(description="Converts USD to INR", with_app_command=True)
+    @commands.hybrid_command(name="convert-to-inr-from-usd", description="Converts USD to INR", with_app_command=True)
     async def convertToINRFromUSD(self, ctx: commands.Context, money: int):
         CurrTo = "USD"
         CurrFrom = "INR"
