@@ -15,8 +15,8 @@ class csvbank(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    async def bank(self, ctx):
+    @commands.hybrid_command(description="Get all your transactions")
+    async def bank(self, ctx: commands.Context):
         bank_data = await get_bank_data(ctx.author)
         data_file = open('./bank/bankdata.csv', 'w', newline='')
         columns = ["wallet", "bank", "banknote", "huntinggun", "fishingrod", "coinbomb", "padlock", "hpic"]
