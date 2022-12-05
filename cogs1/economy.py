@@ -1,5 +1,7 @@
 import discord
 from discord.ext import commands
+from discord import app_commands
+from typing import Optional
 import json
 import random
 import re
@@ -315,6 +317,14 @@ async def log_transaction(user, amount, string):
 class Economy(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        
+    @commands.hybrid_command(name="synceco", description="Sync economy cog")
+    @commands.is_owner()
+    async def syncEco(self, ctx: commands.Context):
+        await ctx.bot.tree.sync()
+        msg = await ctx.reply("Done!")
+        await asyncio.sleep(5)
+        await msg.delete()
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -333,8 +343,8 @@ class Economy(commands.Cog):
             await user.send(embed=voteembed)
             await log_transaction(user, 5000, "For voting NSB.")
 
-    @commands.command(aliases=['bal'])
-    async def balance(self, ctx, member: discord.Member = None):
+    @commands.hybrid_command(description="Show your NCoin balance", aliases=['bal'])
+    async def balance(self, ctx, member: Optional[discord.Member] = None):
         member = ctx.author if not member else member
         await open_account(member)
         users = await get_account_data()
@@ -351,9 +361,9 @@ class Economy(commands.Cog):
             emb.set_footer(text=f"Invoked by: {ctx.author.name}", icon_url=ctx.author.avatar_url)
         await ctx.send(embed=emb)
 
-    @commands.command()
+    @commands.hybrid_command(description="Beg for some NCoins")
     @commands.cooldown(1, 15, commands.BucketType.user)
-    async def beg(self, ctx):
+    async def beg(self, ctx: commands.Context):
         responses = ["You got shooed away! Better luck next time. <:sadcrypeace:855109649962369054>",
                      "Mr. Selfish said he doesn't have time. Don't worry. Try again. <:aqua_thumbsup:856058717119447040>",
                      "Mrs. Idon'tcare said she doesn't trust you coz you're poor! Yea she's a nitwit. Don't worry. Try again! <:aqua_thumbsup:856058717119447040>",
@@ -380,7 +390,7 @@ class Economy(commands.Cog):
                                    color=0xff0000)
             await ctx.send(embed=begemb)
 
-    @commands.command(aliases=['dep'])
+    @commands.hybrid_command(description="Deposit all NCoins in wallet", aliases=['dep'])
     async def deposit(self, ctx, amount=None):
         if amount is None:
             await ctx.send("You need to mention the amount you wanna deposit.")
@@ -412,7 +422,7 @@ class Economy(commands.Cog):
         else:
             await ctx.send("Your bank is full. Use Bank note to get more bank storage.")
 
-    @commands.command(aliases=['with'])
+    @commands.hybrid_command(description="Withdraw NCoins to wallet from bank", aliases=['with'])
     async def withdraw(self, ctx, amount=None):
         if amount is None:
             await ctx.send("You need to mention the amount you wanna deposit.")
@@ -433,7 +443,7 @@ class Economy(commands.Cog):
         await ctx.send(f"You just withdrew <:ncoin:857167494585909279>{amount}!")
         await log_transaction(ctx.author, amount, f"Withdrew from bank.")
 
-    @commands.command()
+    @commands.hybrid_command(description="Give some NCoins to friends")
     async def give(self, ctx, member: discord.Member = None, amount=None):
         if amount is None:
             await ctx.send("You need to mention the amount you wanna deposit.")
@@ -459,7 +469,7 @@ class Economy(commands.Cog):
         await log_transaction(ctx.author, -amount, f"Gave to {member.display_name}.")
         await log_transaction(member, amount, f"Received from {ctx.author.display_name}")
 
-    @commands.command()
+    @commands.hybrid_command(description="Rob a naive friend")
     @commands.cooldown(1, 60, commands.BucketType.user)
     async def rob(self, ctx, member: discord.Member = None):
         if member is None:
@@ -496,7 +506,7 @@ class Economy(commands.Cog):
             await update_bank_data(ctx.author, -50)
             await ctx.send(f"Failed to rob {member.mention}. You lost <:ncoin:857167494585909279>50!")
 
-    @commands.command(aliases=['ranks'])
+    @commands.hybrid_command(description="Check NCoin leaderboard in the guild", aliases=['ranks'])
     async def leaderboard(self, ctx):
         users = await get_account_data()
         total_list = {}
@@ -515,7 +525,7 @@ class Economy(commands.Cog):
         lb.set_footer(text=f"Invoked by: {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
         await ctx.send(embed=lb)
 
-    @commands.command()
+    @commands.hybrid_command(description="Get a job for NCoins")
     @commands.cooldown(1, 3600, commands.BucketType.user)
     async def work(self, ctx):
         await open_account(ctx.author)
@@ -553,7 +563,7 @@ class Economy(commands.Cog):
             workemb = discord.Embed(title="Work Unsuccessful!", description=f"{msg}", color=0xff0000)
             await ctx.send(embed=workemb)
 
-    @commands.command()
+    @commands.hybrid_command(description="Be generous enough to vote the bot")
     async def vote(self, ctx):
         vembed = discord.Embed(title="Thank you for choosing to vote for NSB.",
                                description="You can vote the bot in the three mentioned websites and get <:ncoin:857167494585909279>5000 per vote instantly in your NSB wallet.",
@@ -569,7 +579,7 @@ class Economy(commands.Cog):
                           icon_url=ctx.author.avatar_url)
         await ctx.reply(embed=vembed)
 
-    @commands.command()
+    @commands.hybrid_command(description="Check out the shop")
     async def shop(self, ctx):
         mainshop = await open_shop()
         shopembed1 = discord.Embed(title="NSB Shop 1!", color=0x00FF00)
@@ -603,8 +613,8 @@ class Economy(commands.Cog):
         paginator.add_reaction('⏩', "next")
         await paginator.run(embeds)
 
-    @commands.command()
-    async def buy(self, ctx, item, amount=1):
+    @commands.hybrid_command(description="Buy something from the shop")
+    async def buy(self, ctx, item, amount:Optional[int]=1):
         res = await buy_this(ctx.author, item, amount)
         if not res[0]:
             if res[1] == 1:
@@ -616,8 +626,8 @@ class Economy(commands.Cog):
         await ctx.send(f"Added `{amount}` `{item}` to your inventory <a:partygif:855108791532388422>.")
         await log_transaction(ctx.author, -res[2], f"Bought {amount} {item}(s)")
 
-    @commands.command(aliases=["inv"])
-    async def inventory(self, ctx, user: discord.Member = None):
+    @commands.hybrid_command(description="Check your/someone's inventory", aliases=["inv"])
+    async def inventory(self, ctx, user: Optional[discord.Member] = None):
         user = ctx.author if not user else user
         await open_account(user)
         inv = await get_inventory(user)
@@ -633,10 +643,8 @@ class Economy(commands.Cog):
         invembed = discord.Embed(title=f"{user.display_name}'s Inventory", description=msg, color=0x00FF00)
         await ctx.send(embed=invembed)
 
-    @commands.command()
-    async def use(self, ctx, item=None, amount=None):
-        if amount is None:
-            amount = 1
+    @commands.hybrid_command(description="Use a tool")
+    async def use(self, ctx, item=None, amount:Optional[int]=1):
         if item is None:
             await ctx.send("You need to mention the item you want to use.")
             return
@@ -746,7 +754,7 @@ class Economy(commands.Cog):
             with open(r'./bank/bank.json', 'w') as j:
                 json.dump(users, j, indent=4)
 
-    @commands.command()
+    @commands.hybrid_command(description="Go fishing")
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def fish(self, ctx):
         users = await get_account_data()
@@ -845,7 +853,7 @@ class Economy(commands.Cog):
         else:
             await ctx.send("You don't own a mobile phone to view your notifications.")
 
-    @commands.command()
+    @commands.hybrid_command(description="Go hunting")
     @commands.cooldown(1, 30, commands.BucketType.user)
     async def hunt(self, ctx):
         users = await get_account_data()
@@ -880,7 +888,7 @@ class Economy(commands.Cog):
         else:
             await ctx.send("You don't own a hunting gun to begin with!")
 
-    @commands.command()
+    @commands.hybrid_command(description="Gift objects to friends")
     async def gift(self, ctx, member: discord.Member = None, item=None, amount=1):
         users = await get_account_data()
         if member is None:
@@ -902,7 +910,7 @@ class Economy(commands.Cog):
             f"You just gifted `{amount}` `{item}` to {member.mention} <a:partygif:855108791532388422>. I admire your generosity.")
         await update_inventory(ctx.author, item, -amount)
 
-    @commands.command()
+    @commands.hybrid_command(description="Sell useless stuff")
     async def sell(self, ctx, item=None, amount=None):
         if amount is None:
             amount = 1
