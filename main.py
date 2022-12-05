@@ -36,7 +36,7 @@ class MyBot(commands.Bot):
         for file in os.listdir('./divinecogs'):
             if file.endswith(".py"):
                 await bot.load_extension(f"divinecogs.{file[:-3]}")
-        await self.tree.sync(guild=discord.Object(id=743741348578066442))
+        await self.tree.sync()
         
         
         #self.ipc=ipc.Server(self, secret_key=ipcsecret)
@@ -116,7 +116,12 @@ async def on_guild_remove(guild): #when the bot is removed from the guild
     prefixes.pop(str(guild.id)) #find the guild.id that bot was removed from
     with open('./prefixes/prefixes.json', 'w') as f: #deletes the guild.id as well as its prefix
         json.dump(prefixes, f, indent=4)
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"Prefix: nsb | {len(bot.guilds)} guilds and {len(bot.users)} members."))    
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"Prefix: nsb | {len(bot.guilds)} guilds and {len(bot.users)} members."))
+
+@bot.hybrid_command(description="Sync all slash commands")
+@commands.is_owner()
+async def syncall(ctx):
+    await self.tree.sync()
 
 @bot.command(pass_context=True, aliases=["setprefix"])
 @has_permissions(administrator=True) #ensure that only administrators can use this command
@@ -239,6 +244,7 @@ async def help(ctx: commands.Context, category=None):
 
         
 @bot.command(aliases=["l"])
+@commands.is_owner()
 async def load(ctx, extension):
     if ctx.message.author.id == dev_id:
         try:
@@ -260,8 +266,8 @@ async def load(ctx, extension):
                 pass
             print(e)
 
-
 @bot.command(aliases=["u"])
+@commands.is_owner()
 async def unload(ctx, extension):
     if ctx.message.author.id == dev_id:
         try:
@@ -285,6 +291,7 @@ async def unload(ctx, extension):
 
 
 @bot.command(aliases=["r"])
+@commands.is_owner()
 async def reload(ctx, extension):
     if ctx.message.author.id == dev_id:
         try:
@@ -309,6 +316,7 @@ async def reload(ctx, extension):
 
 
 @bot.command(aliases=["ra"])
+@commands.is_owner()
 async def reloadall(ctx):
     if ctx.message.author.id == dev_id:
         try:
