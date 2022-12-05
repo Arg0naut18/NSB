@@ -33,7 +33,7 @@ async def get_account_data():
     return users
 
 
-async def update_bank_data(user, amount=0, mode="wallet"):
+async def update_bank_data(user, amount:int=0, mode="wallet"):
     users = await get_account_data()
     users[str(user.id)][mode] += amount
     with open(r'./bank/bank.json', 'w') as j:
@@ -128,7 +128,7 @@ async def get_random_gift():
     return [gift_item["display_name"], gift_item["name"], gift_item["price"]]
 
 
-async def add_gift_to_inventory(user, amount=1):
+async def add_gift_to_inventory(user, amount:int=1):
     users = await get_account_data()
     gift_item = await get_random_gift()
     item_name = gift_item[1]
@@ -391,7 +391,7 @@ class Economy(commands.Cog):
             await ctx.send(embed=begemb)
 
     @commands.hybrid_command(description="Deposit all NCoins in wallet", aliases=['dep'])
-    async def deposit(self, ctx, amount=None):
+    async def deposit(self, ctx, amount:int=None):
         if amount is None:
             await ctx.send("You need to mention the amount you wanna deposit.")
             return
@@ -423,7 +423,7 @@ class Economy(commands.Cog):
             await ctx.send("Your bank is full. Use Bank note to get more bank storage.")
 
     @commands.hybrid_command(description="Withdraw NCoins to wallet from bank", aliases=['with'])
-    async def withdraw(self, ctx, amount=None):
+    async def withdraw(self, ctx, amount:int=None):
         if amount is None:
             await ctx.send("You need to mention the amount you wanna deposit.")
             return
@@ -444,7 +444,7 @@ class Economy(commands.Cog):
         await log_transaction(ctx.author, amount, f"Withdrew from bank.")
 
     @commands.hybrid_command(description="Give some NCoins to friends")
-    async def give(self, ctx, member: discord.Member = None, amount=None):
+    async def give(self, ctx, member: discord.Member = None, amount:int=None):
         if amount is None:
             await ctx.send("You need to mention the amount you wanna deposit.")
             return
@@ -889,7 +889,7 @@ class Economy(commands.Cog):
             await ctx.send("You don't own a hunting gun to begin with!")
 
     @commands.hybrid_command(description="Gift objects to friends")
-    async def gift(self, ctx, member: discord.Member = None, item=None, amount=1):
+    async def gift(self, ctx, member: discord.Member = None, item=None, amount:int=1):
         users = await get_account_data()
         if member is None:
             await ctx.send("You need to mention who you wanna gift lol.")
@@ -911,7 +911,7 @@ class Economy(commands.Cog):
         await update_inventory(ctx.author, item, -amount)
 
     @commands.hybrid_command(description="Sell useless stuff")
-    async def sell(self, ctx, item=None, amount=None):
+    async def sell(self, ctx, item=None, amount:int=None):
         if amount is None:
             amount = 1
         users = await get_account_data()
