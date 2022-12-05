@@ -30,7 +30,7 @@ class csvbank(commands.Cog):
         csvembed.set_image(url=f"attachment://{ctx.author.name}-bank.csv")
         await ctx.send("CSV", file=file)
 
-    @commands.command()
+    @commands.hybrid_command(description="Get the csv file of the entire bank")
     @commands.has_permissions(administrator=True)
     async def totalbank(self, ctx):
         bank_data = await get_bank_data()
@@ -63,7 +63,7 @@ class csvbank(commands.Cog):
         file=discord.File(r"./bank/bankdata.csv", filename="totalbank.csv")
         csvembed = discord.Embed(title="Bank CSV file", color=0x00FF00)
         csvembed.set_image(url="attachment://totalbank.csv")
-        await ctx.send("CSV", file=file)
+        await ctx.send("CSV", file=file, ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(csvbank(bot))

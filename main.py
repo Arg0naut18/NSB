@@ -121,7 +121,7 @@ async def on_guild_remove(guild): #when the bot is removed from the guild
 @bot.hybrid_command(description="Sync all slash commands")
 @commands.is_owner()
 async def syncall(ctx):
-    await self.tree.sync()
+    await commands.Bot.tree.sync()
 
 @bot.command(pass_context=True, aliases=["setprefix"])
 @has_permissions(administrator=True) #ensure that only administrators can use this command
@@ -243,9 +243,9 @@ async def help(ctx: commands.Context, category=None):
 
 
         
-@bot.command(aliases=["l"])
+@bot.hybrid_command(description="Loads a cog", aliases=["l"])
 @commands.is_owner()
-async def load(ctx, extension):
+async def load(ctx: commands.Context, extension: str):
     if ctx.message.author.id == dev_id:
         try:
             await bot.load_extension(f"divinecogs.{extension}")
@@ -266,9 +266,9 @@ async def load(ctx, extension):
                 pass
             print(e)
 
-@bot.command(aliases=["u"])
+@bot.hybrid_command(description="Unloads a cog", aliases=["u"])
 @commands.is_owner()
-async def unload(ctx, extension):
+async def unload(ctx: commands.Context, extension: str):
     if ctx.message.author.id == dev_id:
         try:
             await bot.unload_extension(f"divinecogs.{extension}")
@@ -290,9 +290,9 @@ async def unload(ctx, extension):
             print(e)
 
 
-@bot.command(aliases=["r"])
+@bot.hybrid_command(description="Reloads a cog", aliases=["r"])
 @commands.is_owner()
-async def reload(ctx, extension):
+async def reload(ctx: commands.Context, extension: str):
     if ctx.message.author.id == dev_id:
         try:
             await bot.unload_extension(f"divinecogs.{extension}")
@@ -315,9 +315,9 @@ async def reload(ctx, extension):
             print(e)
 
 
-@bot.command(aliases=["ra"])
+@bot.hybrid_command(description="Reloads all cogs", aliases=["ra"])
 @commands.is_owner()
-async def reloadall(ctx):
+async def reloadall(ctx: commands.Context):
     if ctx.message.author.id == dev_id:
         try:
             for file in os.listdir('./divinecogs'):
@@ -340,5 +340,6 @@ async def reloadall(ctx):
             except:
                 pass
             print(e)
+            
 #bot.ipc.start()
 bot.run(token)

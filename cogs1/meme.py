@@ -1,4 +1,5 @@
 import discord
+from typing import Optional
 from discord.ext import commands
 import random
 import praw
@@ -22,8 +23,9 @@ class meme(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['memes', 'm'])
-    async def meme(self, ctx):
+    @commands.hybrid_command(description = "Shows a meme", aliases=['memes', 'm'])
+    async def meme(self, ctx: commands.Context):
+        await ctx.defer(ephemeral=False)
         meme = ['memes', 'cursedcomments', 'animememes',
                 'dankmemes']
         main_meme = random.choice(meme)
@@ -40,8 +42,9 @@ class meme(commands.Cog):
             text=f'👍{submission.score}   💬{submission.num_comments}\nMeme by u/{submission.author}  from {memes_submissions.url}')
         await ctx.reply(embed=embed)
 
-    @commands.command(aliases=['awww'])
+    @commands.hybrid_command(description="Cuteness Overloaded", aliases=['awww'])
     async def aww(self, ctx):
+        await ctx.defer(ephemeral=False)
         meme = ['aww', 'AnimalsBeingBros', 'NatureIsFuckingLit']
         main_meme = meme[random.randint(0, len(meme)-1)]
         color_main = color[random.randint(0, len(color)-1)]
@@ -70,12 +73,13 @@ class meme(commands.Cog):
             #     await ctx.reply(embed=embed)
             #     break
 
-    @commands.command()
-    async def wanted(self, ctx, member: discord.Member = None):
+    @commands.hybrid_command(description="Make someone wanted")
+    async def wanted(self, ctx: commands.Context, member: Optional[discord.Member] = None):
+        await ctx.defer(ephemeral=False)
         member = ctx.author if not member else member
         wanted = Image.open(r"./meme_templates/wanted.jpg")
         # 216,278  186,251
-        asset = member.avatar_url_as(size=128)
+        asset = member.avatar.with_size(128)
         data = BytesIO(await asset.read())
         pfp = Image.open(data)
         pfp = pfp.resize((216, 278))
@@ -83,12 +87,13 @@ class meme(commands.Cog):
         wanted.save(r"./meme_templates/wantprof.jpg")
         await ctx.send(file=discord.File(r"./meme_templates/wantprof.jpg"))
 
-    @commands.command()
-    async def delete(self, ctx, member: discord.Member = None):
+    @commands.hybrid_command(description="Turn someone into garbage")
+    async def delete(self, ctx: commands.Context, member: Optional[discord.Member] = None):
+        await ctx.defer(ephemeral=False)
         member = ctx.author if not member else member
         garb = Image.open(r"./meme_templates/garbage.jpg").convert('RGB')
         # 216,278  186,251
-        asset = member.avatar_url_as(size=128)
+        asset = member.avatar.with_size(128)
         data = BytesIO(await asset.read())
         pfp = Image.open(data)
         pfp = pfp.resize((79, 78))
@@ -96,8 +101,9 @@ class meme(commands.Cog):
         garb.save(r"./meme_templates/garbagedit.jpg")
         await ctx.send(file=discord.File(r"./meme_templates/garbagedit.jpg"))    
         
-    @commands.command()
-    async def suntzu(self, ctx, *, msg):
+    @commands.hybrid_command(description="Quote SunTzu")
+    async def suntzu(self, ctx: commands.Context, *, msg: str):
+        await ctx.defer(ephemeral=False)
         img = Image.open(r"./meme_templates/suntzu.jpg")
         draw = ImageDraw.Draw(img)
         font = ImageFont.truetype("./MPLUSRounded1c-Regular.ttf", 42)
@@ -107,8 +113,9 @@ class meme(commands.Cog):
         img.save(r"./meme_templates/suntzuedit.jpg")
         await ctx.send(file=discord.File(r"./meme_templates/suntzuedit.jpg"))
 
-    @commands.command()
-    async def gandhi(self, ctx, *, msg):
+    @commands.hybrid_command(description="Quote Gandhi")
+    async def gandhi(self, ctx: commands.Context, *, msg: str):
+        await ctx.defer(ephemeral=False)
         img = Image.open(r"./meme_templates/gandhi.jpg")
         draw = ImageDraw.Draw(img)
         font = ImageFont.truetype("./MPLUSRounded1c-Regular.ttf", 15)
@@ -118,8 +125,9 @@ class meme(commands.Cog):
         img.save(r"./meme_templates/gandhiedit.jpg")
         await ctx.send(file=discord.File(r"./meme_templates/gandhiedit.jpg"))
 
-    @commands.command()
-    async def brain(self, ctx, *, msg):
+    @commands.hybrid_command(description="Brain wakes u up meme")
+    async def brain(self, ctx: commands.Context, *, msg:str):
+        await ctx.defer(ephemeral=False)
         img = Image.open(r"./meme_templates/brain.jpg")
         draw = ImageDraw.Draw(img)
         font = ImageFont.truetype("./MPLUSRounded1c-Regular.ttf", 20)
@@ -129,9 +137,9 @@ class meme(commands.Cog):
         img.save(r"./meme_templates/brainedit.jpg")
         await ctx.send(file=discord.File(r"./meme_templates/brainedit.jpg"))
 
-
-    @commands.command()
-    async def achievement(self, ctx, *, text):
+    @commands.hybrid_command(description="Create a fake minecraft achievement")
+    async def achievement(self, ctx: commands.Context, *, text: str):
+        await ctx.defer(ephemeral=False)
         for c in text:
             if c==" ":
                 text = text.replace(" ", "+")
