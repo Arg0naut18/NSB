@@ -356,9 +356,9 @@ class Economy(commands.Cog):
         emb.add_field(name=":bank: Bank balance", value=f"`{bank_money}/{maxbank}`", inline=False)
         if users[str(member.id)]["safe"] == 1:
             emb.set_footer(text=f"Invoked by: {ctx.author.name} | This user has a 🔒 on!",
-                           icon_url=ctx.author.avatar_url)
+                           icon_url=ctx.author.avatar.url)
         else:
-            emb.set_footer(text=f"Invoked by: {ctx.author.name}", icon_url=ctx.author.avatar_url)
+            emb.set_footer(text=f"Invoked by: {ctx.author.name}", icon_url=ctx.author.avatar.url)
         await ctx.send(embed=emb)
 
     @commands.hybrid_command(description="Beg for some NCoins")
@@ -523,7 +523,7 @@ class Economy(commands.Cog):
             lb.add_field(name=f"{member.display_name}".title(),
                          value=f'Wallet: {users[str(player_id)]["wallet"]} | Bank: {users[str(player_id)]["bank"]} | Total: {users[str(player_id)]["wallet"] + users[str(player_id)]["bank"]}',
                          inline=False)
-        lb.set_footer(text=f"Invoked by: {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
+        lb.set_footer(text=f"Invoked by: {ctx.author.display_name}", icon_url=ctx.author.avatar.url)
         await ctx.send(embed=lb)
 
     @commands.hybrid_command(description="Get a job for NCoins")
@@ -577,7 +577,7 @@ class Economy(commands.Cog):
         vembed.add_field(name="<:dbl:856926134549217330>",
                          value=f"[Discord Bot List](https://discordbotlist.com/bots/notsobasic/upvote)", inline=False)
         vembed.set_footer(text=f"Invoked by {ctx.author} | Rewards for Discord bot list is currently unavailable.",
-                          icon_url=ctx.author.avatar_url)
+                          icon_url=ctx.author.avatar.url)
         await ctx.reply(embed=vembed)
 
     @commands.hybrid_command(description="Check out the shop")
