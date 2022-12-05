@@ -1,7 +1,8 @@
 #importing necessary modules
 
 import discord
-from discord.ext import commands, tasks, ipc
+from discord import app_commands, utils
+from discord.ext import commands, tasks
 from discord.ext.commands import has_permissions
 import os
 import datetime
@@ -21,15 +22,28 @@ TOKEN = vari["TOKEN"]
 token = vari["nsbtoken"]
 ipcsecret = vari["ipcsecret"]
 dev_id = 436844058217021441
+guild_id = 743741348578066442
 
 class MyBot(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.ipc=ipc.Server(self, secret_key=ipcsecret)
-    async def on_ipc_ready(self):
-        print("IPC ready!")
-    async def on_ipc_error(self, endpoint, error):
-        print(endpoint, "raised", error)
+    
+    async def on_ready(self):
+        await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"Prefix: nsb | {len(bot.guilds)} guilds and {len(bot.users)} members."))
+        print("Logged in as: " + bot.user.name + "\n")
+        
+    async def setup_hook(self):
+        for file in os.listdir('./divinecogs'):
+            if file.endswith(".py"):
+                await bot.load_extension(f"divinecogs.{file[:-3]}")
+        await self.tree.sync(guild=discord.Object(id=743741348578066442))
+        
+        
+        #self.ipc=ipc.Server(self, secret_key=ipcsecret)
+    #async def on_ipc_ready(self):
+        #print("IPC ready!")
+    #async def on_ipc_error(self, endpoint, error):
+        #print(endpoint, "raised", error)
 
 def get_prefix(client, message):
     if message.guild is None: return commands.when_mentioned_or('nsb ')(client, message)
@@ -56,49 +70,33 @@ def get_prefix(client, message):
     except: # I added this when I started getting dm error messages
         pass
 
-
 intents = discord.Intents.all()
 intents.members = True
 bot = MyBot(command_prefix=(get_prefix), intents=intents, owner_id=436844058217021441,
                    case_insensitive=True, help_command=None, description="Made by Argonaut#6921 for NSB")
 
 #main thing starts here
-@bot.ipc.route()
-async def get_guild_count(data):
-    return len(bot.guilds)
+#@bot.ipc.route()
+#async def get_guild_count(data):
+#    return len(bot.guilds)
 
-@bot.ipc.route()
-async def get_guild_ids(data):
-    final = []
-    for guild in bot.guilds:
-        final.append(guild.id)
-    return final
+#@bot.ipc.route()
+#async def get_guild_ids(data):
+#    final = []
+#    for guild in bot.guilds:
+#        final.append(guild.id)
+#    return final
 
-@bot.ipc.route()
-async def get_guild(data):
-    guild = bot.get_guild(data.guild_id)
-    if guild is None: return None
-    guild_data = {
-        "name": guild.name,
-        "id": guild.id
-    }
-    return guild_data
-
-@bot.event
-async def on_ready():
-    # ch_pr.start()
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"{len(bot.guilds)} guilds and {len(bot.users)} members."))
-    print("Logged in as: " + bot.user.name + "\n")
-
-# @tasks.loop(minutes=1)
-# async def ch_pr():
-#     # await bot.wait_until_ready()
-#     # s = cycle(["NSB server and it's members.", "Prefix='div'", "{prefix[2]}help", "{prefix[2]}helpindm (for help in dm)"])
-# # bot.loop.create_task(status())
-# @bot.event
-# async def on_message(message):
-#     if message.content.startswith("Div"):
-#         message.content = message.content.replace("Div", "div")
+#@bot.ipc.route()
+#async def get_guild(data):
+#    guild = bot.get_guild(data.guild_id)
+#    if guild is None: return None
+#    guild_data = {
+#        "name": guild.name,
+#        "id": guild.id
+#    }
+#    return guild_data
+    
 
 @bot.event
 async def on_guild_join(guild): #when the bot joins the guild
@@ -109,6 +107,7 @@ async def on_guild_join(guild): #when the bot joins the guild
 
     with open('./prefixes/prefixes.json', 'w') as f: #write in the prefix.json "message.guild.id": "bl!"
         json.dump(prefixes, f, indent=4) #the indent is to make everything look a bit neater
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"Prefix: nsb | {len(bot.guilds)} guilds and {len(bot.users)} members."))    
 
 @bot.event
 async def on_guild_remove(guild): #when the bot is removed from the guild
@@ -117,6 +116,7 @@ async def on_guild_remove(guild): #when the bot is removed from the guild
     prefixes.pop(str(guild.id)) #find the guild.id that bot was removed from
     with open('./prefixes/prefixes.json', 'w') as f: #deletes the guild.id as well as its prefix
         json.dump(prefixes, f, indent=4)
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"Prefix: nsb | {len(bot.guilds)} guilds and {len(bot.users)} members."))    
 
 @bot.command(pass_context=True, aliases=["setprefix"])
 @has_permissions(administrator=True) #ensure that only administrators can use this command
@@ -132,8 +132,9 @@ async def changeprefix(ctx, *, prefix): #command: bl!changeprefix ...
     await ctx.send(f'Prefix changed to: {prefix}') #confirms the prefix it's been changed to
 #next step completely optional: changes bot nickname to also have prefix in the nickname
 
-@bot.command()
-async def help(ctx, category = None):
+#@bot.command()
+@bot.hybrid_command(name="helps", with_app_command=True, description="Help")
+async def help(ctx: commands.Context, category=None):
     prefix = get_prefix(bot, ctx.message)
     if category is None:
         emb = discord.Embed(
@@ -149,11 +150,11 @@ async def help(ctx, category = None):
         emb.add_field(name=":hugging: Emotes", value=f"`{prefix[2]}help emotes`", inline=True)
         emb.add_field(name=":man_zombie: Lifeafter", value=f"`{prefix[2]}help la`", inline=True)
         emb.add_field(name=":money_with_wings: Economy", value=f"`{prefix[2]}help economy`", inline=True)
-        emb.add_field(name="<:creeper:979757929769103431> Minecraft", value=f"`{prefix[2]}help minecraft`", inline=True)
-        emb.set_thumbnail(url=bot.user.avatar_url)
-        emb.set_footer(text=f"Invoked by {ctx.author.display_name}",icon_url=ctx.author.avatar_url)
+        emb.set_thumbnail(url=bot.user.avatar.url)
+        emb.set_footer(text=f"Invoked by {ctx.author.display_name}. Type {prefix[2]}vote to support the bot.",icon_url=ctx.author.avatar.url)
         emb.timestamp = datetime.datetime.now()
-        await ctx.send(embed=emb)
+        await ctx.send(embed=emb, ephemeral=True)
+        await ctx.send("Stuck? Need help? Join our community server!\nhttps://discord.gg/Q8Xtjs4SAt", ephemeral=True)
     
     elif category.lower() == "moderation":
         msg = f"All the moderation commands require your role to have **Administrator Permissions** or **Banning Permissions** in case of ban, kick and mute.\n\n·announce\n`{prefix[2]}announce #<channel-name> <message>`\n\n·profile\n`{prefix[2]}prof`\n\n·clear/purge (clears chats)\n`{prefix[2]}clear 50`\n\n·mute\n`{prefix[2]}mute <character mention>`\n\n·kick\n`{prefix[2]}kick <character mention>`\n\n·ban\n`{prefix[2]}ban <character mention>`\n\n·Channel Lock\n`{prefix[2]}chlock <channel-name (optional)>`\n\n·Channel Unlock\n`{prefix[2]}chunlock`\n\nTHANK YOU"
@@ -235,11 +236,13 @@ async def help(ctx, category = None):
         emb.timestamp = datetime.datetime.now()
         await ctx.send(embed=emb)
 
+
+        
 @bot.command(aliases=["l"])
 async def load(ctx, extension):
     if ctx.message.author.id == dev_id:
         try:
-            bot.load_extension(f"divinecogs.{extension}")
+            await bot.load_extension(f"divinecogs.{extension}")
             respo = await ctx.reply(f"{extension} loaded!")
             await asyncio.sleep(5)
             await respo.delete()
@@ -262,7 +265,7 @@ async def load(ctx, extension):
 async def unload(ctx, extension):
     if ctx.message.author.id == dev_id:
         try:
-            bot.unload_extension(f"divinecogs.{extension}")
+            await bot.unload_extension(f"divinecogs.{extension}")
             respo = await ctx.reply(f"{extension} unloaded!")
             await asyncio.sleep(5)
             await respo.delete()
@@ -285,8 +288,8 @@ async def unload(ctx, extension):
 async def reload(ctx, extension):
     if ctx.message.author.id == dev_id:
         try:
-            bot.unload_extension(f"divinecogs.{extension}")
-            bot.load_extension(f"divinecogs.{extension}")
+            await bot.unload_extension(f"divinecogs.{extension}")
+            await bot.load_extension(f"divinecogs.{extension}")
             respo = await ctx.reply(f"{extension} re-loaded!")
             await asyncio.sleep(5)
             await respo.delete()
@@ -311,8 +314,8 @@ async def reloadall(ctx):
         try:
             for file in os.listdir('./divinecogs'):
                 if file.endswith(".py"):
-                    bot.unload_extension(f"divinecogs.{file[:-3]}")
-                    bot.load_extension(f"divinecogs.{file[:-3]}")
+                    await bot.unload_extension(f"divinecogs.{file[:-3]}")
+                    await bot.load_extension(f"divinecogs.{file[:-3]}")
                     respo = await ctx.reply(f"All Divine cogs reloaded!")
                     await asyncio.sleep(5)
                     await respo.delete()
@@ -329,10 +332,5 @@ async def reloadall(ctx):
             except:
                 pass
             print(e)
-
-for file in os.listdir('./divinecogs'):
-    if file.endswith(".py"):
-        bot.load_extension(f"divinecogs.{file[:-3]}")
-
-bot.ipc.start()
+#bot.ipc.start()
 bot.run(token)
