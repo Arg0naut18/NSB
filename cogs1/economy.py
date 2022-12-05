@@ -508,6 +508,7 @@ class Economy(commands.Cog):
 
     @commands.hybrid_command(description="Check NCoin leaderboard in the guild", aliases=['ranks'])
     async def leaderboard(self, ctx):
+        await ctx.defer(ephemeral=False)
         users = await get_account_data()
         total_list = {}
         for user in users:
@@ -628,6 +629,7 @@ class Economy(commands.Cog):
 
     @commands.hybrid_command(description="Check your/someone's inventory", aliases=["inv"])
     async def inventory(self, ctx, user: Optional[discord.Member] = None):
+        await ctx.defer(ephemeral=False)
         user = ctx.author if not user else user
         await open_account(user)
         inv = await get_inventory(user)
