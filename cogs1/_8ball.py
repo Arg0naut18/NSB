@@ -2,14 +2,13 @@ import discord
 from discord.ext import commands
 import random
 
+class fun(commands.Cog):
 
-class Fun(commands.Cog):
+    def __init__(self, bot: commands.Bot):
+        self.bot: commands.Bot = bot
 
-    def __init__(self, bot):
-        self.bot = bot
-
-    @commands.command(aliases=['8ball'])
-    async def _8ball(self, ctx, *, question):
+    @commands.hybrid_command(name='8ball', with_app_command=True)
+    async def _8ball(self, ctx: commands.Context, *, question: str):
         responses = ['It is certain.',
                      'It is decidedly so.',
                      'Without a doubt.',
@@ -30,13 +29,12 @@ class Fun(commands.Cog):
                      'My sources say no.',
                      'Outlook not so good.',
                      'Very doubtful.']
-        await ctx.send(f'Question: {question}\nAnswer: {random.choice(responses)}')
+        await ctx.send(f'Question: {question}\nAnswer: {random.choice(responses)}', ephemeral=True)
 
-    @commands.command()
-    async def rolldice(self, ctx):
+    @commands.hybrid_command(name = "rolldice", with_app_command=True)
+    async def rolldice(self, ctx:commands.Context):
         options = ['1', '2', '3', '4', '5', '6']
-        await ctx.send(f'{random.choice(options)}')
+        await ctx.send(f'{random.choice(options)}', ephemeral=True)
 
-
-def setup(bot):
-    bot.add_cog(Fun(bot))
+async def setup(bot):
+    await bot.add_cog(fun(bot))

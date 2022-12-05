@@ -10,7 +10,7 @@ picchannels = [801811950119157790, 711217046272344094, 753632407332192366, 71109
                771968223797051413, 780830237512433675, 778548218110803998, 827201189439078442]
 ytchannel = [747320665073385493]
 common = [753914881727660062, 753632407332192366, 818192348793798667,
-          711086134956130370, 747320665073385493, 770503986364547093, 711089041482711101, 770503986364547093, 711090925417267211]
+          711086134956130370, 747320665073385493, 770503986364547093, 711089041482711101, 770503986364547093, 711090925417267211, 851024775169703936, 855814133898412052]
 notypezone = [711087692582223873]
 blocked_words = []
 level_check = [822527895296933918]
@@ -57,8 +57,8 @@ class moderation(commands.Cog):
                         users[str(member.id)]["multiplier"]=2
                         with open(r"./bank/bank.json", 'w') as bank:
                             json.dump(users, bank, indent=4)
+            
             if mssg.guild.id == 711079029624537098:
-        # 765647163463434298 || 801811950119157790
                 if channel.id in notypezone:
                     if not mssg.author.bot:
                         await mssg.delete()
@@ -97,7 +97,7 @@ class moderation(commands.Cog):
                             await asyncio.sleep(10)
                             await respo.delete()
                             await mssg.channel.purge(limit=1)
-                            
+
     @commands.command()
     @commands.has_permissions(administrator=True)
     async def announce(self, ctx, chan: TextChannel, *, mssg):
@@ -107,7 +107,20 @@ class moderation(commands.Cog):
             await chan.send(embed=embed)
         else:
             await ctx.send("Channel not found!")
-
+            
+    @commands.command()
+    @commands.has_permissions(administrator=True)
+    async def editannounce(self, ctx, msgID, *, newmsg):
+        for channel in ctx.guild.channels:
+            try:
+                msg = await channel.fetch_message(msgID)
+            except:
+                pass
+        embed = discord.Embed(
+                title="Announcement!", description=newmsg, color=random.randint(0x000000, 0xFFFFFF))
+        await msg.edit(embed=embed)
+        await ctx.send("Announcement edited!")
+    
     @commands.command()
     @commands.is_owner()
     async def leaveserver(self, ctx, guild : discord.Guild = None):
@@ -252,5 +265,5 @@ class moderation(commands.Cog):
         await msg.delete()
         await ctx.message.delete()
 
-def setup(bot):
-    bot.add_cog(moderation(bot))
+async def setup(bot):
+    await bot.add_cog(moderation(bot))

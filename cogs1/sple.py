@@ -8,7 +8,7 @@ import requests
 
 color = [15158332, 3066993, 10181046, 3447003, 1752220, 15844367]
 
-j_file = open("secrets.txt")
+j_file = open("divinesecrets.txt")
 vari = json.load(j_file)
 j_file.close()
 fillerApi = vari["fillerApi"]
@@ -29,8 +29,8 @@ class splEmotes(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['ping'])
-    async def latency(self, ctx):
+    @commands.hybrid_command(description="Shows the bot latency", with_app_command=True)
+    async def latency(self, ctx: commands.Context):
         time_1 = time.perf_counter()
         await ctx.trigger_typing()
         time_2 = time.perf_counter()
@@ -38,32 +38,30 @@ class splEmotes(commands.Cog):
         await ctx.send(f"ping : {ping}ms")
         await ctx.send(f"bot latency: {round(self.bot.latency*1000)}ms")
 
-    @commands.command()
-    async def convert(self, ctx, money, CurrFrom, CurrTo):
+    @commands.hybrid_command(description="Converts currency", with_app_command=True)
+    async def convert(self, ctx: commands.Context, money: int, CurrFrom: str, CurrTo: str):
         CurrFrom = CurrFrom.upper()
         CurrTo = CurrTo.upper()
         url = f"https://api.apilayer.com/fixer/convert?to={CurrTo}&from={CurrFrom}&amount={money}"
         c = Currency_convertor(url)
-        money = int(money)
-        await ctx.send(c.convert(CurrFrom, CurrTo, money))
+        await ctx.reply(c.convert(CurrFrom, CurrTo, money))
 
-    @commands.command(aliases=['usdinr', 'usdtoinr'])
-    async def convertToUSDFromINR(self, ctx, money):
+    @commands.hybrid_command(description="Converts INR to USD", with_app_command=True)
+    async def convertToUSDFromINR(self, ctx: commands.Context, money: int):
         CurrTo = "INR"
         CurrFrom = "USD"
         url = f"https://api.apilayer.com/fixer/convert?to={CurrTo}&from={CurrFrom}&amount={money}"
         c = Currency_convertor(url)
-        money = int(money)
-        await ctx.send(c.convert(CurrFrom, CurrTo, money))
+        await ctx.reply(c.convert(CurrFrom, CurrTo, money))
 
-    @commands.command(aliases=['inrusd', 'inrtousd'])
-    async def convertToINRFromUSD(self, ctx, money):
+    @commands.hybrid_command(description="Converts USD to INR", with_app_command=True)
+    async def convertToINRFromUSD(self, ctx: commands.Context, money: int):
         CurrTo = "USD"
         CurrFrom = "INR"
         url = f"https://api.apilayer.com/fixer/convert?to={CurrTo}&from={CurrFrom}&amount={money}"
         c = Currency_convertor(url)
         money = int(money)
-        await ctx.send(c.convert(CurrFrom, CurrTo, money))
+        await ctx.reply(c.convert(CurrFrom, CurrTo, money))
 
     @commands.command()
     @commands.is_owner()
@@ -86,5 +84,5 @@ class splEmotes(commands.Cog):
             await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"{mssg}"))    
         await ctx.send("Status updated!")
     
-def setup(bot):
-    bot.add_cog(splEmotes(bot))
+async def setup(bot):
+    await bot.add_cog(splEmotes(bot))

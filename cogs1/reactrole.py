@@ -129,7 +129,7 @@ class atom(commands.Cog):
                     await user.add_roles(role)
                 except Exception as e:
                     print("Error: "+str(e))
-                    return
+                    raise(e)
 
     @commands.Cog.listener()
     async def on_reaction_remove(self, reaction, user):
@@ -144,7 +144,7 @@ class atom(commands.Cog):
                 except Exception as e:
                     print("Error: "+str(e))
                     return
-
+	
     @reactrole.error
     async def somerandomemojierror(self, ctx, error):
         if isinstance(error, commands.CommandInvokeError):
@@ -152,6 +152,6 @@ class atom(commands.Cog):
             await asyncio.sleep(10)
             await respo.delete()
             await ctx.channel.purge(limit=1)
-
-def setup(bot):
-    bot.add_cog(atom(bot))
+        
+async def setup(bot):
+    await bot.add_cog(atom(bot))

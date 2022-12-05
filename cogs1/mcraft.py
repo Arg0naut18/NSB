@@ -52,6 +52,30 @@ class mcraft(commands.Cog):
             tameembed.add_field(name="Breeding", value="This entity cannot be bred.", inline=False)
         tameembed.add_field(name="Further Info", value=link, inline=False)    
         await ctx.send(embed=tameembed)
+    
+    @commands.command()
+    async def startserver(self, ctx, username, passd, server_number=0):
+        if passd.startswith("md5"):
+            passd = passd[4:]
+            aternos = Client(username, md5=passd)
+        else:
+            aternos = Client(username, password=passd)
+        servers = aternos.servers
+        main_server = servers[server_number]
+        main_server.start()
+        await ctx.send(f"Starting `{main_server.address}`! Keep an eye out on the server as it might ask for confirmation during startup sometimes.")
+        
+    @commands.command(aliases=['closeserver'])
+    async def stopserver(self, ctx, username, passd, server_number=0):
+        if passd.startswith("md5"):
+            passd = passd[4:]
+            aternos = Client(username, md5=passd)
+        else:
+            aternos = Client(username, password=passd)
+        servers = aternos.servers
+        main_server = servers[server_number]
+        main_server.stop()
+        await ctx.send(f"Stoping `{main_server.address}`")
         
     @commands.command(aliases=['minecraftwiki', 'mcraftwiki'])
     async def mcraft(self, ctx, *, query=None):
@@ -98,16 +122,16 @@ class mcraft(commands.Cog):
             tameembed.add_field(name="Breeding", value="This entity cannot be bred.", inline=False)
         tameembed.add_field(name="Further Info", value=link, inline=False)
         await ctx.send(embed=tameembed)
-
-    @commands.command()
-    async def startserver(self, ctx, username, passd, server_number=0):
-        aternos = Client(username, password=passd)
-        servers = aternos.servers
-        main_server = servers[server_number]
-        main_server.start()
-        await ctx.send(f"Starting {main_server.address}")
     
-
+    @startserver.error
+    async def serverNotFound(self, ctx, error):
+        if isinstance(error, commands.CommandInvokeError):
+            await ctx.send(f"I guess the server wasn't found. Please make sure you input the right username and password.\nError:\n`{error}`")
             
-def setup(bot):
-    bot.add_cog(mcraft(bot))
+    @stopserver.error
+    async def serverNotRunning(self, ctx, error):
+        if isinstance(error, commands.CommandInvokeError):
+            await ctx.send(f"I guess the server isn't ON at the moment.\nError:\n`{error}`")        
+    
+async def setup(bot):
+    await bot.add_cog(mcraft(bot))

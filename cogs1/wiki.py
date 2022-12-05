@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import random
 import wikipedia
+import asyncio
 
 color = [15158332, 3066993, 10181046, 3447003, 1752220, 15844367]
 
@@ -26,19 +27,23 @@ class wiki(commands.Cog):
 
         color_main = color[random.randint(0,5)]
         if member is None:
+            # await ctx.send(f"{ctx.author.mention}")
             embed = discord.Embed(title=res.title, description = result, color=color_main, url = res.url)
             # embed.set_thumbnail(page_obj.images)
             await ctx.reply(embed=embed)
         else:
-            await ctx.send(f"{member.mention}")
+            # await ctx.send(f"{member.mention}")
             embed = discord.Embed(title=query, description = result, color=color_main)
             # embed.set_thumbnail(page_obj.images)
             await ctx.reply(embed=embed)
-
+    
     @wiki.error
     async def wikinotfound(self, ctx, error):
         if isinstance(error, commands.CommandInvokeError):
-            await ctx.send("`Wiki not found!`")
-
-def setup(bot):
-    bot.add_cog(wiki(bot))
+            msg = await ctx.send("`Wiki not found!`")
+            print(error)
+            await asyncio.sleep(5)
+            await msg.delete()
+            
+async def setup(bot):
+    await bot.add_cog(wiki(bot))

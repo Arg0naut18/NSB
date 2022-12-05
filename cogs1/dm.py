@@ -41,41 +41,42 @@ class dm(commands.Cog):
                 except:
                     pass
 
-    @commands.command()
-    async def dm(self, ctx, member: discord.Member, *, mssg):
-        color_main = color[random.randint(0, len(color)-1)]
-        try:
-            emb = discord.Embed(title="Bot DM", color=color_main)
-            emb.add_field(name="Message:", value=mssg, inline=False)
-            emb.set_footer(
-                text=f"Message by {ctx.author}", icon_url=ctx.author.avatar_url)
-            await member.send(embed=emb)
-            await ctx.send("Message has been sent!")
-        except:
-            await ctx.send("Failed to send mssg!")
-        try:
-            await asyncio.sleep(2)
-            await ctx.channel.purge(limit=2)
-        except:
-            pass
+#    @commands.command()
+#    async def dm(self, ctx, member: discord.Member, *, mssg):
+#        color_main = color[random.randint(0, len(color)-1)]
+#        try:
+#            emb = discord.Embed(title="Bot DM", color=color_main)
+#            emb.add_field(name="Message:", value=mssg, inline=False)
+#            emb.set_footer(
+#                text=f"Message by {ctx.author}", icon_url=ctx.author.avatar_url)
+#            await member.send(embed=emb)
+#            await ctx.send("Message has been sent!")
+#        except:
+#            await ctx.send("Failed to send mssg!")
+#        try:
+#            await asyncio.sleep(2)
+#            await ctx.channel.purge(limit=2)
+#        except:
+#            pass
 
     @commands.command()
     @commands.is_owner()
-    async def reply(self, ctx, memberid: discord.Member, *, mssg):
+    async def reply(self, ctx, memberid, *, mssg):
         try:
             member = await self.bot.fetch_user(memberid)
             emb = discord.Embed(title=mssg, color=0x00FF00)
             # emb.add_field(name="Message:", value=mssg, inline=False)
+            emb.set_footer(text=f"Message from the owner of NotSoBasic.")
             await member.send(embed=emb)
             await ctx.send("Message has been sent!")
             await asyncio.sleep(2)
             dmchannel = await ctx.author.create_dm()
             async for message in dmchannel.history(limit=1):
-    		        if message.author == self.bot.user:
-        			    await message.delete()
+                if message.author == self.bot.user:
+                    await message.delete()
         except Exception as e:
             await ctx.send("Failed to send mssg!")
-            print(e)
+            raise(e)
 
-def setup(bot):
-    bot.add_cog(dm(bot))
+async def setup(bot):
+    await bot.add_cog(dm(bot))

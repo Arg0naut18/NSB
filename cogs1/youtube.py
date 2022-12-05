@@ -98,5 +98,5 @@ class youtube(commands.Cog):
                                     htm_content.read().decode())
         await ctx.send('http://www.youtube.com/watch?v=' + search_results[0])      
 
-def setup(bot):
-    bot.add_cog(youtube(bot))
+async def setup(bot):
+    await bot.add_cog(youtube(bot))

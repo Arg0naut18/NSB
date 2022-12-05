@@ -8,7 +8,6 @@ import re
 class cyri(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.is_live.start()
 
     @commands.command(aliases=['canyourunit', 'canirunit', 'ciri'])
     async def cyri(self, ctx, *, game_name):
@@ -19,6 +18,7 @@ class cyri(commands.Cog):
             await ctx.send("Please enter a game name!")
             return
         game_name = game_name.replace('gta', 'grand theft auto ')
+        actual_name = game_name.title()
         game_name = game_name.replace(" ", "-")
         req = requests.get(f"https://www.pcgamebenchmark.com/{game_name}-system-requirements").content.decode("utf-8")
         soup = BeautifulSoup(req, "html.parser")
@@ -26,11 +26,11 @@ class cyri(commands.Cog):
         titles = soup.find_all("h2", class_ = "requirement-title")
         # recC = contents[0].get_text()
         # minC = contents[1].get_text()
-        embed = discord.Embed(title=f"{game_name} System Requirements", color=0x00ff00)
+        embed = discord.Embed(title=f"{actual_name.title()} System Requirements", color=0x00ff00)
         for i in range(2):
-            embed.add_field(name=titles[i].get_text(), value="```"+contents[i].get_text()+"```", inline=False)
+            embed.add_field(name=titles[i].get_text().title(), value="```"+contents[i].get_text()+"```", inline=False)
         await ctx.send(embed=embed)
 
 
-def setup(bot):
-    bot.add_cog(cyri(bot))
+async def setup(bot):
+    await bot.add_cog(cyri(bot))

@@ -3,6 +3,10 @@ from discord.ext import commands
 import random
 import praw
 import json
+import urllib.request
+from PIL import Image, ImageFont, ImageDraw
+from io import BytesIO
+import textwrap
 
 color = [15158332, 3066993, 10181046, 3447003, 1752220, 15844367]
 j_file = open("secrets.txt")
@@ -14,24 +18,22 @@ user_agent1 = vari["user_agent"]
 reddit = praw.Reddit(client_id=client_id1, client_secret=client_secret1,
                      user_agent=user_agent1, check_for_async=False)
 
-
 async def get_account_data():
     with open(r'./bank/bank.json', 'r') as j:
         users = json.load(j)
     return users
 
-
-class Nsfw(commands.Cog):
+class nsfw(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(aliases=['hpic'])
     @commands.is_nsfw()
     async def hentaipic(self, ctx):
         users = await get_account_data()
         user = ctx.author
-        item = "hentaipic"
+        item = "hpic"
         amount = 1
         try:
             inv = users[str(user.id)]["bag"]
@@ -41,15 +43,15 @@ class Nsfw(commands.Cog):
         found = 0
         for index in range(len(inv)):
             if item == inv[index]["item"]:
-                if inv[index]["amount"] - amount == 0:
+                if inv[index]["amount"]-amount==0:
                     del inv[index]
                     found = 1
                     break
                 else:
-                    inv[index]["amount"] -= amount
+                    inv[index]["amount"]-=amount
                     found = 1
                     break
-        if found == 1 and item == "hentaipic":
+        if found==1:
             meme = ['Hentai', 'AnimeMILFS', 'Paizuri']
             main_meme = meme[random.randint(0, len(meme)-1)]
             color_main = color[random.randint(0, len(color)-1)]
@@ -67,8 +69,7 @@ class Nsfw(commands.Cog):
         else:
             await ctx.send("You need to have atleast 1 Hentai Pic in your inventory to use this command. You can buy it from the shop.")
         with open(r'./bank/bank.json',"w") as f:
-            json.dump(users, f)
+            json.dump(users, f)    
 
-
-def setup(bot):
-    bot.add_cog(Nsfw(bot))
+async def setup(bot):
+    await bot.add_cog(nsfw(bot))

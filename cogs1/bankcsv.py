@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 import json
 import csv
-import ast
 
 async def get_bank_data(user=None):
     with open(r"./bank/bank.json", 'r') as f:
@@ -66,5 +65,5 @@ class csvbank(commands.Cog):
         csvembed.set_image(url="attachment://totalbank.csv")
         await ctx.send("CSV", file=file)
 
-def setup(bot):
-    bot.add_cog(csvbank(bot))
+async def setup(bot):
+    await bot.add_cog(csvbank(bot))

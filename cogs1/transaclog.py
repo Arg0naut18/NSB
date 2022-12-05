@@ -27,5 +27,5 @@ class translog(commands.Cog):
         file=discord.File(r"./bank/transactions.csv", filename=f"{member.display_name}'s passbook.csv")
         await ctx.send(f"{member.display_name}'s Passbook", file=file)
 
-def setup(bot):
-    bot.add_cog(translog(bot))
+async def setup(bot):
+    await bot.add_cog(translog(bot))

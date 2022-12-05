@@ -45,11 +45,11 @@ class prof(commands.Cog):
         except:
             stats = "Can't say!"
         if stats == "online":
-            embed.add_field(name="Status", value=f":green_circle: {stats}", inline=True)
+            embed.add_field(name="Status", value=":green_circle:" + f" {stats}".title(), inline=True)
         if stats == "dnd":
-            embed.add_field(name="Status", value=f":red_circle: {stats}", inline=True)
+            embed.add_field(name="Status", value=":red_circle:"+f" {stats}".upper(), inline=True)
         if stats == "idle":
-            embed.add_field(name="Status", value=f":orange_circle: {stats}", inline=True)
+            embed.add_field(name="Status", value=":orange_circle:"+f" {stats}".title(), inline=True)
         if stats == "Can't say!":
             embed.add_field(name="Status", value=f"{stats}", inline=True)
         if(customstats is not None):
@@ -63,7 +63,7 @@ class prof(commands.Cog):
         embed.set_footer(text=f"id: {member.id}", icon_url=member.avatar_url)
         await ctx.reply(embed=embed)
 
-    @commands.command(aliases=['av'])
+    @commands.command(aliases=['av', 'pfp'])
     async def avatar(self, ctx, member: discord.Member = None):
         color_main = random.randint(0x000000, 0xFFFFFF)
         # await ctx.send(f"{ctx.author.mention} Thanks for your concern! Please join our discord server.\nhttps://discord.gg/MtWY9Vb")
@@ -145,5 +145,5 @@ class prof(commands.Cog):
             embed.set_footer(text=f"id: {member.id}", icon_url=member.avatar_url)
             await ctx.reply(embed=embed)
 
-def setup(bot):
-    bot.add_cog(prof(bot))
+async def setup(bot):
+    await bot.add_cog(prof(bot))

@@ -133,5 +133,5 @@ class Anime(commands.Cog):
         embed.add_field(name="\u200b", value=f"Data from [anilist.co]({url})", inline=False)
         await ctx.send(embed=embed)
 
-def setup(bot):
-    bot.add_cog(Anime(bot))
+async def setup(bot):
+    await bot.add_cog(Anime(bot))

@@ -138,7 +138,7 @@ class music(commands.Cog):
                 except:
                     pass
             await player.remove_from_queue(len(player.current_queue())-1)
-            await ctx.send(f"Added `{len(playlist['tracks']['items'])}` songs to the queue!")
+            await ctx.send(f"Added `{len(playlist['tracks']['items'])}` songs to the queue!")    
         if 'spotify.com/album' in url:
             urn, idextra = url.split('album/')
             id, extra = idextra.split('?')
@@ -151,7 +151,6 @@ class music(commands.Cog):
                 url = f"{name} official {artist}"
                 try:
                     await player.queue(url, search=True)
-                    asyncio.sleep(1)
                 except:
                     pass
             await player.remove_from_queue(len(player.current_queue())-1)
@@ -451,7 +450,7 @@ class music(commands.Cog):
     @play.error
     async def songcouldntbeplayed(self, ctx, error):
         if isinstance(error, commands.CommandInvokeError):
-            msg = await ctx.send(f"Check your arguments. Currently only youtube and spotify urls are supported. Sorry for the inconvenience.\nUse **resume** command instead of this to resume paused song.\nIf you think you didn't do any of these errors, disconnect the bot and use **r music** command to refresh the music commands.")
+            msg = await ctx.send(f"Check your arguments. Currently only youtube and spotify urls are supported. Sorry for the inconvenience.\nUse **resume** command instead of this to resume paused song.\nError:\n`{error}`")
             await asyncio.sleep(15)
             await msg.delete()
             raise(error)
@@ -470,5 +469,5 @@ class music(commands.Cog):
             await msg.delete()
             return
     
-def setup(bot):
-    bot.add_cog(music(bot))
+async def setup(bot):
+    await bot.add_cog(music(bot))

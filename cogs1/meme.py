@@ -37,7 +37,7 @@ class meme(commands.Cog):
             title=f"__{submission.title}__", color=color_main, url=slink)
         embed.set_image(url=submission.url)
         embed.set_footer(
-            text=f'👍 {submission.score} | meme by u/{submission.author}  from {memes_submissions.url}')
+            text=f'👍{submission.score}   💬{submission.num_comments}\nMeme by u/{submission.author}  from {memes_submissions.url}')
         await ctx.reply(embed=embed)
 
     @commands.command(aliases=['awww'])
@@ -130,5 +130,13 @@ class meme(commands.Cog):
         await ctx.send(file=discord.File(r"./meme_templates/brainedit.jpg"))
 
 
-def setup(bot):
-    bot.add_cog(meme(bot))
+    @commands.command()
+    async def achievement(self, ctx, *, text):
+        for c in text:
+            if c==" ":
+                text = text.replace(" ", "+")
+        url = f"https://minecraftskinstealer.com/achievement/11/Advancement+Made%21/{text}"
+        await ctx.send(url)
+        
+async def setup(bot):
+    await bot.add_cog(meme(bot))

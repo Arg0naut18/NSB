@@ -14,7 +14,7 @@ async def getdata(url):
         return req.text
 
 async def get_wolf_images():
-    with open('./wolfimages.json', 'r') as f:
+    with open('./animalimages/wolfimages.json', 'r') as f:
         wolf_list = json.load(f)
     return random.choice(wolf_list)
 
@@ -52,5 +52,5 @@ class animals(commands.Cog):
         foxembed.set_footer(text=f"Invoked by {ctx.author}", icon_url=ctx.author.avatar_url)
         await ctx.send(embed=foxembed)
     
-def setup(bot):
-    bot.add_cog(animals(bot))
+async def setup(bot):
+    await bot.add_cog(animals(bot))

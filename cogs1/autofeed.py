@@ -5,7 +5,6 @@ from datetime import datetime, timedelta
 from pytz import timezone
 import json
 
-
 async def open_server_autofeeds(user):
     with open(r'./autofeeds/autofeeds.json', 'r') as f:
         autofeeds = json.load(f)
@@ -13,12 +12,14 @@ async def open_server_autofeeds(user):
         return
     autofeeds[str(user.guild.id)] = []
 
-
 class autofeed(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.my_task.start()
 
+    def cog_unload(self):
+        self.my_task.cancel()
+    
     @tasks.loop(hours=24)
     async def my_task(self):
         channel = self.bot.get_channel(764169003051778058)
@@ -45,5 +46,5 @@ class autofeed(commands.Cog):
         with open(r'./autofeeds/autofeeds.json', 'w') as f:
             json.dump(autofeeds, f, indent=4)
 
-def setup(bot):
-    bot.add_cog(autofeed(bot))
+async def setup(bot):
+    await bot.add_cog(autofeed(bot))

@@ -6,10 +6,7 @@ import json
 import wikipedia
 from molmass import Formula
 
-# attributes = ['atomic', 'symbol', 'name', 'mass']
-
-
-class atom(commands.Cog):
+class Atom(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
      
@@ -20,7 +17,7 @@ class atom(commands.Cog):
                 elem = mendeleev.element(elem1.title())
             else:
                 elem = mendeleev.element(elem1)
-            res = wikipedia.page(title = elem.name.title(), auto_suggest=True)
+            res = wikipedia.page(title = elem.name.title(), auto_suggest=False)
             embed = discord.Embed(title=f'__{elem.name.title()}__', color=random.randint(0x000000, 0xFFFFFF))
             embed.add_field(name="Symbol", value=f'`{elem.symbol}`', inline=True)
             embed.add_field(name="Element", value=f'`{elem.name.title()}`', inline=True)
@@ -34,8 +31,8 @@ class atom(commands.Cog):
             embed.add_field(name="Wikipedia Link", value=f'{res.url}', inline = False)
             await ctx.send(embed=embed)
         except Exception as e:
-            print(e)
             await ctx.send("Error loading database! Please check the element.")
+            raise(e)
 
     @commands.command(aliases=['periodic', 'periodictable'])
     async def ptable(self, ctx):
@@ -48,5 +45,5 @@ class atom(commands.Cog):
         f = Formula(compound)
         await ctx.send(f"`{f.mass} g/mol`")
 
-def setup(bot):
-    bot.add_cog(atom(bot))
+async def setup(bot):
+    await bot.add_cog(Atom(bot))

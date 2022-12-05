@@ -8,7 +8,7 @@ class help(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.hybrid_command(name="helpindm", with_app_command=True)
     async def helpindm(self, ctx, category=None):
         if category is None:
             emb = discord.Embed(
@@ -29,8 +29,7 @@ class help(commands.Cog):
                           value="`nsb help emotes`", inline=True)
             emb.add_field(name=":man_zombie: Lifeafter",
                           value="`nsb help la`", inline=True)
-            emb.add_field(name=":love_letter: Direct Message",
-                          value="`nsb help dm`", inline=True)
+            emb.add_field(name=":money_with_wings: Economy", value=f"`nsb help economy`", inline=True)
             emb.set_thumbnail(url=self.bot.user.avatar_url)
             emb.set_footer(
                 text=f"Invoked by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
@@ -38,5 +37,5 @@ class help(commands.Cog):
             await ctx.message.add_reaction("☑️")
             await ctx.author.send(embed=emb)
 
-def setup(bot):
-    bot.add_cog(help(bot))
+async def setup(bot):
+    await bot.add_cog(help(bot))

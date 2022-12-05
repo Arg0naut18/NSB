@@ -48,11 +48,11 @@ class bday(commands.Cog):
         if day<10:
             daystr = '0'+str(day)
         else:
-            daystr = day
+            daystr = str(day)
         if month<10:
             monthstr = '0'+str(month)
         else:
-            monthstr = month
+            monthstr = str(month)
         todaydate = daystr+'-'+monthstr
         await self.bot.wait_until_ready()
         channel = self.bot.get_channel(855031679281397761)
@@ -74,5 +74,5 @@ class bday(commands.Cog):
                     embed.set_image(url=random.choice(urls))
                     await channel.send(embed=embed)
     
-def setup(bot):
-    bot.add_cog(bday(bot))
+async def setup(bot):
+    await bot.add_cog(bday(bot))

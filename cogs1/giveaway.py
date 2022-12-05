@@ -73,9 +73,8 @@ class giveaway(commands.Cog):
         await asyncio.sleep(20)
         await finaldraft.delete()
         ann = await channel.send("@everyone")
-        
         embed = discord.Embed(
-            title="Giveaway!", description=f"Reward is {answers[2]}", color=random.randint(0x000000, 0xFFFFFF))
+            title="Giveaway! :tada:", description=f"Reward is **{answers[2]}**", color=random.randint(0x000000, 0xFFFFFF))
         embed.add_field(name="Hosted by:", value=f"{ctx.author.mention}")
         embed.set_footer(
             text=f"Ends {answers[1]} from the time of embed posted.")
@@ -89,15 +88,15 @@ class giveaway(commands.Cog):
         winner = random.choice(users)
 
         embed = discord.Embed(
-            title="Giveaway!", description=f"Reward is {answers[2]}", color=random.randint(0x000000, 0xFFFFFF))
+            title="Giveaway! :tada:", description=f"Reward was **{answers[2]}**", color=random.randint(0x000000, 0xFFFFFF))
         embed.add_field(name="Winner", value=f"{winner.mention}", inline=False)
         embed.add_field(name="Hosted by:",
                         value=f"{ctx.author.mention}", inline=False)
         embed.set_footer(
             text=f"Ends {answers[1]} from the time of embed posted.")
         winnerembed = await giveawayembed.edit(embed=embed)
-        await channel.send(f"Congratulations {winner.mention}!\nYou won {answers[2]}.")
+        await channel.send(f"Congratulations {winner.mention} :tada::partying_face:!\nYou won {answers[2]}.")
         await ann.delete()
 
-def setup(bot):
-    bot.add_cog(giveaway(bot))
+async def setup(bot):
+    await bot.add_cog(giveaway(bot))

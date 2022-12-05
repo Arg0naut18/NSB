@@ -77,7 +77,7 @@ class poll(commands.Cog):
         pollEmb = discord.Embed(color=0x00FF00)
         pollEmb.set_author(name=category.title(), icon_url=ctx.author.avatar_url)
         number = 0
-        emojiid=["<:one:858420222841847828>", "<:two:858420222288723989>", "<:three:858420221915562046>", "<:four:858420222372610108>", "<:five:858420222527799306>", "<:six:858420222687576094>", "<:seven:858420222670536714>", "<:eight:858420222725062696>", "<:nine:858420222464622602>"]
+        emojiid=["<:purple1:975657279653306409>", "<:purple2:975657279674261605>", "<:purple3:975657279783317534>", "<:purple4:975657279904940113>", "<:purple5:975657280156598273>", "<:purple6:975657280013996143>", "<:purple7:975657280219541587>", "<:purple8:975657280240504832>", "<:purple9:975657280597024828>"]
         for entry in entry_list:
             pollEmb.add_field(name="** **", value=f"**{emojiid[number]}**\t\t<a:right_arrow:857929374255153194>\t\t**{entry}**", inline=False)
             number+=1
@@ -113,5 +113,5 @@ class poll(commands.Cog):
         await channel.send(embed=winnerembed)
 
 
-def setup(bot):
-    bot.add_cog(poll(bot))
+async def setup(bot):
+    await bot.add_cog(poll(bot))

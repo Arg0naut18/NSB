@@ -51,7 +51,7 @@ class emotes(commands.Cog):
                 'https://media.tenor.com/images/899d52015a05c0cdac511090d50f743a/tenor.gif',
                 'https://media1.tenor.com/images/a227b6044bd7dc0b21bb1c3fe4a536a5/tenor.gif?itemid=5648461',
                 'https://media1.tenor.com/images/948e076842485d38b69431fbcb5c14d2/tenor.gif?itemid=13008163']
-        embed = discord.Embed(title=(f'__***{ctx.author.name}***__ just spanked __***{member.name}***_'), color=random.randint(0x000000, 0xFFFFFF))
+        embed = discord.Embed(title=(f'__***{ctx.author.name}***__ just spanked __***{member.name}***__'), color=random.randint(0x000000, 0xFFFFFF))
         embed.set_image(url=random.choice(urls))
         await ctx.send(embed=embed)
 
@@ -175,5 +175,5 @@ class emotes(commands.Cog):
             embed.set_image(url=random.choice(urls))
             await ctx.send(embed=embed)
 
-def setup(bot):
-    bot.add_cog(emotes(bot))
+async def setup(bot):
+    await bot.add_cog(emotes(bot))

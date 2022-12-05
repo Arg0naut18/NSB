@@ -54,5 +54,5 @@ class CodeForces(commands.Cog):
         exampleEmbed=discord.Embed(title="Examples:", description=exampless, color=colorEmbed)
         await ctx.send(embed=exampleEmbed)
 
-def setup(bot):
-    bot.add_cog(CodeForces(bot))
+async def setup(bot):
+    await bot.add_cog(CodeForces(bot))

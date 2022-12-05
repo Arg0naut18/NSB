@@ -1,4 +1,5 @@
 import discord
+from discord import app_commands
 from discord.ext import commands
 import random
 # from pydactyl import PterodactylClient
@@ -7,29 +8,23 @@ import sys
 import psutil
 import os
 from pytz import timezone
-
-j_file = open("divinesecrets.txt")
-vari = json.load(j_file)
-j_file.close()
-serverapikey = vari["serverapikey"]
+#j_file = open("divinesecrets.txt")
+#vari = json.load(j_file)
+#j_file.close()
+#serverapikey = vari["serverapikey"]
 
 
 class pterostats(commands.Cog):
 
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
-
-    @commands.command(aliases=['pterostats', 'status', 'server'])
+        
+    @commands.hybrid_command(name="pstats", description='Shows the server status', with_app_commands=True)
     @commands.is_owner()
+    @app_commands.guilds(discord.Object(id=743741348578066442))
     async def pstats(self, ctx):
-        # client = PterodactylClient('https://panel.chaoticdestiny.host', serverapikey)
-        # my_servers = client.client.list_servers()
-        # srv_id = my_servers[0]['identifier']
-        # srv_utilization = client.client.get_server_utilization(srv_id)
         member_count = len(self.bot.users)
-        # member_count = len([m for m in self.bot.users if not m.bot])
         emb = discord.Embed(title="Panel Status", color=random.randint(0x000000, 0xFFFFFF))
-        # emb.add_field(name="Uptime", value="` `", inline=True)
         emb.add_field(name="Memory Usage", value=f"`{psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2} MB`", inline=True)
         emb.add_field(name="CPU Usage", value=f"`{psutil.cpu_percent(interval=0.5)}%`", inline=True)
         emb.add_field(name="Ping / Latency", value=f"`{round(self.bot.latency*1000)} ms`", inline=True)
@@ -39,7 +34,7 @@ class pterostats(commands.Cog):
         emb.add_field(name="Members", value=f"`{member_count}`", inline=True)
         emb.add_field(name="VCs connected", value=f"`{len(self.bot.voice_clients)}`", inline=True)
         await ctx.send(embed=emb)
-
+    
     @commands.command(aliases=['gstats', 'guild'])
     @commands.has_permissions(administrator=True)
     async def guildstats(self, ctx, guildid=None):
@@ -76,5 +71,24 @@ class pterostats(commands.Cog):
         emb.set_footer(text=f"Invoked by {ctx.author}", icon_url=ctx.author.avatar_url)
         await ctx.send(embed=emb)
 
-def setup(bot):
-    bot.add_cog(pterostats(bot))
+    @commands.command()
+    async def testcustom(self, ctx, emoji: discord.Emoji=None):
+        try:
+            await ctx.send(f"{emoji.id}")
+        except:
+            pass
+        
+    @commands.command()
+    async def testname(self, ctx, member_id):
+        try:
+            member = discord.utils.get(self.bot.textchannels, id=member_id)
+            await ctx.send(f"{member.name}")
+        except:
+            pass
+        
+    @commands.command()
+    async def testgroup(self, ctx, group: discord.GroupChannel):
+        await ctx.send(f"You are in {group.name}. This group has {len(group.recipients)}")
+        
+async def setup(bot):
+    await bot.add_cog(pterostats(bot))

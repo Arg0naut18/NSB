@@ -21,5 +21,5 @@ class command_log(commands.Cog):
         except:
             await channel.send(f"<a:tick:859371473772347403> Someone just invoked `{ctx.command}` which worked successfully.")
 
-def setup(bot):
-    bot.add_cog(command_log(bot))
+async def setup(bot):
+    await bot.add_cog(command_log(bot))

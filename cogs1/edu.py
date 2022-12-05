@@ -8,8 +8,6 @@ import numpy as np
 # from __future__ import division
 from sympy.solvers import solve
 
-prev = 0
-
 class edu(commands.Cog):
 
     def __init__(self, bot):
@@ -82,7 +80,7 @@ class edu(commands.Cog):
     async def calc(self, ctx, term1, op, term2=None):
         if term1 != "sqrt" and term1 != "log":
             term1 = int(term1)
-        if term2 is not None and term2 is not "e":
+        if term2 is not None and term2 != "e":
             term2 = int(term2)
         if term2 == None:
             base = math.e
@@ -111,5 +109,5 @@ class edu(commands.Cog):
             result = math.log(op, base)
             await ctx.send(f"`{result}`")
 
-def setup(bot):
-    bot.add_cog(edu(bot))
+async def setup(bot):
+    await bot.add_cog(edu(bot))

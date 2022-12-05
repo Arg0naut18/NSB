@@ -407,7 +407,7 @@ class resources(commands.Cog):
         embed.set_footer(text=f"Invoked by {ctx.author}", icon_url=ctx.author.avatar_url)
         await ctx.reply(embed=embed)
 
-    @commands.command(aliases=["wolf", "wfh"])
+    @commands.command(aliases=["wfh"])
     async def wolfhuntingfield(self, ctx):
         color_main = color[random.randint(0, len(color)-1)]
         embed = discord.Embed(title='__**Wolf-hunting Field**__', color=color_main)
@@ -525,5 +525,5 @@ class resources(commands.Cog):
         embed.set_footer(text=f"Invoked by {ctx.author}", icon_url=ctx.author.avatar_url)
         await ctx.reply(embed=embed)
 
-def setup(bot):
-    bot.add_cog(resources(bot))
+async def setup(bot):
+    await bot.add_cog(resources(bot))

@@ -561,7 +561,7 @@ class Economy(commands.Cog):
         vembed.add_field(name="<a:topggshrink:856942112670875718>",
                          value=f"[Top.gg](https://top.gg/bot/743741872039657492/vote)", inline=False)
         vembed.add_field(name="<a:bfdspin:856942081679687721>",
-                         value=f"[Bots For Discord](https://botsfordiscord.com/bot/743741872039657492/vote)",
+                         value=f"[Discords](https://discords.com/bots/bot/743741872039657492/vote)",
                          inline=False)
         vembed.add_field(name="<:dbl:856926134549217330>",
                          value=f"[Discord Bot List](https://discordbotlist.com/bots/notsobasic/upvote)", inline=False)
@@ -826,7 +826,7 @@ class Economy(commands.Cog):
         found = await is_in_inventory(ctx.author, "phone")
         if found:
             await start_notifs(member)
-            await update_notif(member, f"{ctx.author.name}-> {message}")
+            await update_notif(member, f"{ctx.author.name} says [{message}]")
         else:
             await ctx.send("You don't own a Mobile Phone.")
 
@@ -837,11 +837,11 @@ class Economy(commands.Cog):
             notif = await get_notifs()
             try:
                 msg = "".join(f'-> {n["notification"]}\n' for n in notif[str(ctx.author.id)])
-                notifembed = discord.Embed(title=f"{ctx.author.display_name}'s Notifications", description=msg, color=0x00ff00)
+                notifembed = discord.Embed(title=f"{ctx.author.display_name}'s Notifications", color=0x00ff00, description=msg)
                 await ctx.send(embed=notifembed)
             except Exception as e:
                 await ctx.send("You don't have any notifications.")
-                print(e)
+                raise(e)
         else:
             await ctx.send("You don't own a mobile phone to view your notifications.")
 
@@ -946,5 +946,5 @@ class Economy(commands.Cog):
             await ctx.send(f"You don't have {item} in your inventory.")
 
 
-def setup(bot):
-    bot.add_cog(Economy(bot))
+async def setup(bot):
+    await bot.add_cog(Economy(bot))

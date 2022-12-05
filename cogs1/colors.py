@@ -65,15 +65,6 @@ class Colors(commands.Cog):
             colorhex = colorhex.replace("#", "")
             col = discord.Colour(int(f"0x{colorhex}", 16))
             role = await ctx.guild.create_role(name=str(colorname), color=col)
-            i = 0
-            for role in ctx.guild.roles:
-                if "NotSoBasic" in role.name:
-                    i += 1
-                    break
-                i += 1
-            all_roles = await ctx.guild.fetch_roles()
-            num_roles = len(all_roles) - i - 1
-            await role.edit(position=num_roles)
             colorembed = discord.Embed(title=f"Success", description=f"Successfully added {colorname} to the roles.",
                                        color=col)
             await ctx.send(embed=colorembed)
@@ -188,5 +179,5 @@ class Colors(commands.Cog):
         await ctx.send(embed=colorembed, file=file)
 
 
-def setup(bot):
-    bot.add_cog(Colors(bot))
+async def setup(bot):
+    await bot.add_cog(Colors(bot))

@@ -28,8 +28,8 @@ class trans(commands.Cog):
                 return False
         try:
             await self.bot.wait_for("reaction_add", timeout=30, check=check1)
-        except TimeoutError:
-            return
+        except:
+            pass
         else:
             await ctx.send("Enter the language you think the sentence is in:")
             def check2(m):
@@ -51,7 +51,5 @@ class trans(commands.Cog):
                 embed.add_field(name="Source Lang.", value=LANGUAGES[translation.src].title(), inline=False)
                 t = await ctx.reply(embed=embed)
 
-
-
-def setup(bot):
-    bot.add_cog(trans(bot))
+async def setup(bot):
+    await bot.add_cog(trans(bot))
