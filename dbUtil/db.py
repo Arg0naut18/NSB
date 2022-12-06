@@ -1,0 +1,13 @@
+from motor.motor_asyncio import AsyncIOMotorClient
+import json
+
+j_file = open("divinesecrets.txt")
+vari = json.load(j_file)
+j_file.close()
+srv = vari["mongo"]
+
+cluster = AsyncIOMotorClient([srv])
+
+class db:
+    db = cluster['main']
+    economy = db['economy']

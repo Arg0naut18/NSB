@@ -11,6 +11,7 @@ import random
 import json
 # from discord.ext import tasks
 import asyncio
+from dbUtil.db import db
 # import urllib.request
 # from itertools import cycle
 
@@ -24,19 +25,42 @@ ipcsecret = vari["ipcsecret"]
 dev_id = 436844058217021441
 guild_id = 743741348578066442
 
+class button_view(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+
+    @discord.ui.button(label="verify", style=discord.ButtonStyle.green, custom_id="verify")
+    async def verify(self, interaction: discord.Interaction, button: discord.ui.Button):
+        if type(MyBot.verRole) is not discord.Role:
+            MyBot.verRole = interaction.guild.get_role()
+        if MyBot.verRole not in interaction.user.roles:
+            await interaction.user.add_roles(MyBot.verRole)
+            await interaction.response.send_message(f"You are now {MyBot.verRole.mention}!", ephemeral=True)
+        else:
+            await interaction.response.send_message(f"You already are {MyBot.verRole.mention}!", ephemeral=True)
+
 class MyBot(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.verRole = 764059798719037460
+        self.added = False
+        self.db = db
+        #self.synced = False
     
     async def on_ready(self):
         await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"Prefix: nsb | {len(bot.guilds)} guilds and {len(bot.users)} members."))
+        if not self.added:
+            self.add_view(button_view())
+            self.added = True
         print("Logged in as: " + bot.user.name + "\n")
         
     async def setup_hook(self):
         for file in os.listdir('./divinecogs'):
             if file.endswith(".py"):
                 await bot.load_extension(f"divinecogs.{file[:-3]}")
+        #if not self.synced:
         await self.tree.sync()
+            #self.synced = True
         
         
         #self.ipc=ipc.Server(self, secret_key=ipcsecret)
@@ -123,7 +147,7 @@ async def on_guild_remove(guild): #when the bot is removed from the guild
 async def syncall(ctx):
     await commands.Bot.tree.sync()
 
-@bot.command(pass_context=True, aliases=["setprefix"])
+@bot.hybrid_command(description="Change the prefix for this guild", pass_context=True, aliases=["setprefix"])
 @has_permissions(administrator=True) #ensure that only administrators can use this command
 async def changeprefix(ctx, *, prefix): #command: bl!changeprefix ...
     with open('./prefixes/prefixes.json', 'r') as f:
@@ -137,8 +161,13 @@ async def changeprefix(ctx, *, prefix): #command: bl!changeprefix ...
     await ctx.send(f'Prefix changed to: {prefix}') #confirms the prefix it's been changed to
 #next step completely optional: changes bot nickname to also have prefix in the nickname
 
-#@bot.command()
-@bot.hybrid_command(name="helps", with_app_command=True, description="Help")
+@bot.hybrid_command(name="verify", description="Gives you member role to be able to access the server.")
+@app_commands.guilds(discord.Object(743741348578066442))
+@commands.is_owner()
+async def verify(interaction: discord.Interaction):
+    await interaction.response.send_message(view=button_view())
+
+@bot.hybrid_command(name="help", with_app_command=True, description="Helps you use the bot")
 async def help(ctx: commands.Context, category=None):
     prefix = get_prefix(bot, ctx.message)
     if category is None:
