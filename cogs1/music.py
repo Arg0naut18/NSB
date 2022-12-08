@@ -83,7 +83,9 @@ class music(commands.Cog):
             await asyncio.sleep(5)
             await msg.delete()
             return
-        await ctx.message.add_reaction("👋")
+        try:
+            await ctx.message.add_reaction("👋")
+        except: pass
         await player.stop()
         await ctx.voice_client.disconnect()
         await clear_queue(ctx.author)
@@ -233,7 +235,10 @@ class music(commands.Cog):
             return
         player = m.get_player(guild_id=ctx.guild.id)
         song = await player.resume()
-        await ctx.message.add_reaction("👍")
+        try:
+            await ctx.message.add_reaction("👍")
+        except:
+            pass
 
     @commands.hybrid_command()
     async def stop(self, ctx):
@@ -244,7 +249,10 @@ class music(commands.Cog):
             return
         player = m.get_player(guild_id=ctx.guild.id)
         await player.stop()
-        await ctx.message.add_reaction("🛑")
+        try:
+            await ctx.message.add_reaction("🛑")
+        except:
+            pass
         await clear_queue(ctx.author)
 
     @commands.hybrid_command()
