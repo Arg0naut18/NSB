@@ -7,53 +7,60 @@ import random
 import re
 import asyncio
 import DiscordUtils
-# from main import MyBot
+from dbUtil.db import db
 
-# async def update_inventory(user, item, amount):
-#    users = await get_account_data()
-#    for i in range(len(users[str(user.id)]["bag"])):
-#        if item  ==  users[str(user.id)]["bag"][i]["item"]:
-#            if users[str(user.id)]["bag"][i]["amount"]+amount == 0:
-#                del users[str(user.id)]["bag"][i]
-#                break
-#            else:
-#                users[str(user.id)]["bag"][i]["amount"]+=amount
-#                break
-#    with open(r'./bank/bank.json','w') as f:
-#        json.dump(users, f, indent=4)
+dbe = db.economy
 
 class Bank:
     async def open_account(user):
-        with open(r'./bank/bank.json', 'r') as f:
-            users = json.load(f)
-        if str(user.id) in users:
-            return False
+        # with open(r'./bank/bank.json', 'r') as f:
+        #     users = json.load(f)
+        # if str(user.id) in users:
+        #     return False
+        # else:
+        #     users[str(user.id)] = {}
+        #     users[str(user.id)]["wallet"] = 0
+        #     users[str(user.id)]["bank"] = 0
+        #     users[str(user.id)]["maxbank"] = 15000
+        #     users[str(user.id)]["safe"] = 0
+        #     users[str(user.id)]["multiplier"] = 1
+        #     users[str(user.id)]["usedmulti"] = 0
+        # with open(r'./bank/bank.json', 'w') as f:
+        #     json.dump(users, f, indent=4)
+        # return True
+        check = await dbe.find_one({"_id": str(user.id)})
+        if check is None:
+            insert = {
+                "_id": str(user.id), "wallet": 0, "bank": 0, "maxbank": 15000, "safe": 0, "multiplier": 1, "usedmulti": 0 
+            }
+            await dbe.insert_one(insert)
+            return True
         else:
-            users[str(user.id)] = {}
-            users[str(user.id)]["wallet"] = 0
-            users[str(user.id)]["bank"] = 0
-            users[str(user.id)]["maxbank"] = 15000
-            users[str(user.id)]["safe"] = 0
-            users[str(user.id)]["multiplier"] = 1
-            users[str(user.id)]["usedmulti"] = 0
-        with open(r'./bank/bank.json', 'w') as f:
-            json.dump(users, f, indent=4)
-        return True
+            return False
+
+    async def get_account_data(user=None):
+        if user is None:
+            with open(r'./bank/bank.json', 'r') as j:
+                users = json.load(j)
+            return users
+        data = await dbe.find_one({"_id": str(user.id)})
+        return data
 
 
-    async def get_account_data():
-        with open(r'./bank/bank.json', 'r') as j:
-            users = json.load(j)
-        return users
-
-
-    async def update_bank_data(user, amount:int=0, mode="wallet"):
-        users = await Bank.get_account_data()
-        users[str(user.id)][mode] += amount
-        with open(r'./bank/bank.json', 'w') as j:
-            json.dump(users, j, indent=4)
-        bal = [users[str(user.id)]["wallet"], users[str(user.id)]["bank"]]
-        return bal
+    async def update_bank_data(m, user, amount:int=0, mode="wallet"):
+        if m==1:
+            users = await Bank.get_account_data(user)
+            filter = {"_id": str(user.id)}
+            newVal = {"$set": {mode: users[mode]+amount}}
+            dbe.update_one(filter, newVal)
+            bal = [users["wallet"], users["bank"]]
+            return bal
+        else:
+            users[str(user.id)][mode] += amount
+            with open(r'./bank/bank.json', 'w') as j:
+                json.dump(users, j, indent=4)
+            bal = [users[str(user.id)]["wallet"], users[str(user.id)]["bank"]]
+            return bal
 
 
     async def get_key_dict(val, dicti):
@@ -320,7 +327,7 @@ class Economy(commands.Cog):
     @commands.is_owner()
     async def syncEco(self, ctx: commands.Context):
         await ctx.bot.tree.sync()
-        msg = await ctx.reply("Done!")
+        msg = await ctx.reply("Done!", ephemeral=True)
         await asyncio.sleep(5)
         await msg.delete()
 
@@ -345,14 +352,14 @@ class Economy(commands.Cog):
     async def balance(self, ctx, member: Optional[discord.Member] = None):
         member = ctx.author if not member else member
         await Bank.open_account(member)
-        users = await Bank.get_account_data()
-        wallet_money = users[str(member.id)]["wallet"]
-        bank_money = users[str(member.id)]["bank"]
-        maxbank = users[str(member.id)]["maxbank"]
+        user = await Bank.get_account_data(member)
+        wallet_money = user["wallet"]
+        bank_money = user["bank"]
+        maxbank = user["maxbank"]
         emb = discord.Embed(title=f"{member.name}'s Balance", color=0x00FF00)
         emb.add_field(name=":money_with_wings: Wallet balance", value=f"`{wallet_money}`", inline=False)
         emb.add_field(name=":bank: Bank balance", value=f"`{bank_money}/{maxbank}`", inline=False)
-        if users[str(member.id)]["safe"] == 1:
+        if user["safe"] == 1:
             emb.set_footer(text=f"Invoked by: {ctx.author.name} | This user has a 🔒 on!",
                            icon_url=ctx.author.avatar.url)
         else:
@@ -368,19 +375,25 @@ class Economy(commands.Cog):
                      "Mr. Selfish said he doesn't trust you coz you're poor! Yea he's a nitwit. Don't worry. Try again! <:aqua_thumbsup:856058717119447040>",
                      "Mrs. Idon'tcare just considered you a ghost. Don't worry. Try again. <:aqua_thumbsup:856058717119447040>"]
         await Bank.open_account(ctx.author)
-        users = await Bank.get_account_data()
+        users = await Bank.get_account_data(ctx.author)
+        userss = await Bank.get_account_data()
         money = random.randrange(1, 151)
         chance = random.randrange(0, 5)
-        money *= users[str(ctx.author.id)]["multiplier"]
+        money = int(money*users["multiplier"])
         if money != 0 and chance == 0 or chance == 2 or chance == 4:
-            users[str(ctx.author.id)]["wallet"] += money
+            userss[str(ctx.author.id)]["wallet"] += money
             with open(r'./bank/bank.json', 'w') as f:
-                json.dump(users, f, indent=4)
+                json.dump(userss, f, indent=4)
+            # filter = {"_id": str(ctx.author.id)}
+            # newVal = {"$set": {"wallet": users["wallet"]+money}}
+            # dbe.update_one(filter, newVal)
+            await Bank.update_bank_data(1, ctx.author, money)
+            await Bank.update_bank_data(2, ctx.author, money)
             begemb = discord.Embed(title="Begging successful!",
                                    description=f"Someone just gave you <:ncoin:857167494585909279>`{money}`! Congrats <a:partygif:855108791532388422>!",
                                    color=0x00FF00)
-            if users[str(ctx.author.id)]["multiplier"] != 1:
-                begemb.set_footer(text=f'Multiplier {users[str(ctx.author.id)]["multiplier"]}x is enabled.')
+            if users["multiplier"] != 1:
+                begemb.set_footer(text=f'Multiplier {users["multiplier"]}x is enabled.')
             await ctx.send(embed=begemb)
             await Bank.log_transaction(ctx.author, money, "From begging.")
         else:
@@ -389,13 +402,13 @@ class Economy(commands.Cog):
             await ctx.send(embed=begemb)
 
     @commands.hybrid_command(description="Deposit all NCoins in wallet", aliases=['dep'])
-    async def deposit(self, ctx, amount:int=None):
+    async def deposit(self, ctx, amount=None):
         if amount is None:
             await ctx.send("You need to mention the amount you wanna deposit.")
             return
         await Bank.open_account(ctx.author)
         users = await Bank.get_account_data()
-        bal = await Bank.update_bank_data(ctx.author)
+        bal = await Bank.update_bank_data(1, ctx.author)
         maxbank = int(users[str(ctx.author.id)]["maxbank"])
         if amount == "all" or amount == "max":
             amount = bal[0]
@@ -407,26 +420,30 @@ class Economy(commands.Cog):
             await ctx.send("The amount can't be negative.")
             return
         if bal[1] + amount < maxbank:
-            await Bank.update_bank_data(ctx.author, int(amount), "bank")
-            await Bank.update_bank_data(ctx.author, -1 * int(amount))
+            await Bank.update_bank_data(1, ctx.author, int(amount), "bank")
+            await Bank.update_bank_data(1, ctx.author, -1 * int(amount))
+            await Bank.update_bank_data(2, ctx.author, int(amount), "bank")
+            await Bank.update_bank_data(2, ctx.author, -1 * int(amount))
             await ctx.send(f"You just deposited <:ncoin:857167494585909279>{amount}!")
             await Bank.log_transaction(ctx.author, amount, f"Deposited to bank.")
         elif (bal[1] + amount >= maxbank) and (bal[1] < maxbank):
             updated_amount = maxbank - bal[1]
-            await Bank.update_bank_data(ctx.author, updated_amount, "bank")
-            await Bank.update_bank_data(ctx.author, -1 * updated_amount)
+            await Bank.update_bank_data(1, ctx.author, updated_amount, "bank", 2)
+            await Bank.update_bank_data(1, ctx.author, -1 * updated_amount)
             await ctx.send(f"You just deposited <:ncoin:857167494585909279>{updated_amount}!")
+            await Bank.update_bank_data(2, ctx.author, updated_amount, "bank", 2)
+            await Bank.update_bank_data(2, ctx.author, -1 * updated_amount)
             await Bank.log_transaction(ctx.author, amount, f"Deposited to bank.")
         else:
             await ctx.send("Your bank is full. Use Bank note to get more bank storage.")
 
     @commands.hybrid_command(description="Withdraw NCoins to wallet from bank", aliases=['with'])
-    async def withdraw(self, ctx, amount:int=None):
+    async def withdraw(self, ctx, amount=None):
         if amount is None:
             await ctx.send("You need to mention the amount you wanna deposit.")
             return
         await Bank.open_account(ctx.author)
-        bal = await Bank.update_bank_data(ctx.author)
+        bal = await Bank.update_bank_data(2, ctx.author)
         if amount == "all" or amount == "max":
             amount = bal[1]
         amount = int(amount)
@@ -436,9 +453,11 @@ class Economy(commands.Cog):
         if int(amount) < 0:
             await ctx.send("The amount can't be negative.")
             return
-        await Bank.update_bank_data(ctx.author, int(amount))
-        await Bank.update_bank_data(ctx.author, -1 * int(amount), "bank")
+        await Bank.update_bank_data(1, ctx.author, int(amount))
+        await Bank.update_bank_data(1, ctx.author, -1 * int(amount), "bank")
         await ctx.send(f"You just withdrew <:ncoin:857167494585909279>{amount}!")
+        await Bank.update_bank_data(2, ctx.author, int(amount))
+        await Bank.update_bank_data(2, ctx.author, -1 * int(amount), "bank")
         await Bank.log_transaction(ctx.author, amount, f"Withdrew from bank.")
 
     @commands.hybrid_command(description="Give some NCoins to friends")
@@ -451,7 +470,7 @@ class Economy(commands.Cog):
             return
         await Bank.open_account(ctx.author)
         await Bank.open_account(member)
-        bal = await Bank.update_bank_data(ctx.author)
+        bal = await Bank.update_bank_data(1, ctx.author)
         if amount == "all" or amount == "max":
             amount = bal[0]
         amount = int(amount)
@@ -461,9 +480,11 @@ class Economy(commands.Cog):
         if int(amount) < 0:
             await ctx.send("The amount can't be negative.")
             return
-        await Bank.update_bank_data(member, int(amount))
-        await Bank.update_bank_data(ctx.author, -1 * int(amount))
+        await Bank.update_bank_data(1, member, int(amount))
+        await Bank.update_bank_data(1, ctx.author, -1 * int(amount))
         await ctx.send(f"You just gave <:ncoin:857167494585909279>{amount} to {member.mention}! What a generous lad.")
+        await Bank.update_bank_data(2, member, int(amount))
+        await Bank.update_bank_data(2, ctx.author, -1 * int(amount))
         await Bank.log_transaction(ctx.author, -amount, f"Gave to {member.display_name}.")
         await Bank.log_transaction(member, amount, f"Received from {ctx.author.display_name}")
 
@@ -476,7 +497,7 @@ class Economy(commands.Cog):
         await Bank.open_account(ctx.author)
         await Bank.open_account(member)
         users = await Bank.get_account_data()
-        bal = await Bank.update_bank_data(ctx.author)
+        bal = await Bank.update_bank_data(2, ctx.author)
         membal = await Bank.update_bank_data(member)
         if bal[0] < 50:
             await ctx.send("You need to have <:ncoin:857167494585909279>50 in your wallet to rob.")
@@ -488,7 +509,7 @@ class Economy(commands.Cog):
         if chance == 1 and users[str(member.id)]["safe"] != 1:
             amount = random.randrange(0, membal[0])
             await Bank.update_bank_data(member, -1 * int(amount))
-            await Bank.update_bank_data(ctx.author, int(amount))
+            await Bank.update_bank_data(2, ctx.author, int(amount))
             await ctx.send(f"You just robbed <:ncoin:857167494585909279>{amount} from {member.mention}! Poor lad.")
             await Bank.start_notifs(ctx.author)
             await Bank.start_notifs(member)
@@ -501,7 +522,7 @@ class Economy(commands.Cog):
             with open(r'./bank/bank.json', 'w') as f:
                 json.dump(users, f, indent=4)
         else:
-            await Bank.update_bank_data(ctx.author, -50)
+            await Bank.update_bank_data(2, ctx.author, -50)
             await ctx.send(f"Failed to rob {member.mention}. You lost <:ncoin:857167494585909279>50!")
 
     @commands.hybrid_command(description="Check NCoin leaderboard in the guild", aliases=['ranks'])
@@ -550,7 +571,7 @@ class Economy(commands.Cog):
             is_it_correct = True
         if is_it_correct is True:
             money = 1000 * users[str(ctx.author.id)]["multiplier"]
-            await Bank.update_bank_data(ctx.author, money)
+            await Bank.update_bank_data(2, ctx.author, money)
             msg = f"Great job {ctx.author.mention}! Your boss just gave you <:ncoin:857167494585909279>`{money}`! Congrats <a:partygif:855108791532388422>!"
             workemb = discord.Embed(title="Work successful!", description=f"{msg}", color=0x00FF00)
             if users[str(ctx.author.id)]["multiplier"] != 1:
@@ -780,7 +801,7 @@ class Economy(commands.Cog):
             bad = [1]
             money *= users[str(user.id)]["multiplier"]
             if money != 0 and chance in correct and tries[str(user.id)] <= 50:
-                await Bank.update_bank_data(ctx.author, money)
+                await Bank.update_bank_data(2, ctx.author, money)
                 msg = f"Found a fish ! You sold it for <:ncoin:857167494585909279>`{money}` <a:partygif:855108791532388422>."
                 fishemb = discord.Embed(title="Fishing successful!", description=f"{msg}", color=0x00ff00)
                 if users[str(ctx.author.id)]["multiplier"] != 1:
@@ -791,7 +812,7 @@ class Economy(commands.Cog):
                     json.dump(tries, f, indent=4)
                 return
             elif money != 0 and chance in spl and tries[str(user.id)] <= 50:
-                await Bank.update_bank_data(ctx.author, money)
+                await Bank.update_bank_data(2, ctx.author, money)
                 gift = await Bank.add_gift_to_inventory(user)
                 msg = f"Found a fish ! You sold it for <:ncoin:857167494585909279>`{money}`.\nDamn you are lucky you also found `{gift}`! <a:partygif:855108791532388422>."
                 fishemb = discord.Embed(title="Fishing successful!", description=f"{msg}", color=0x00ff00)
@@ -873,7 +894,7 @@ class Economy(commands.Cog):
             chance = random.randrange(0, 5)
             money *= users[str(user.id)]["multiplier"]
             if money != 0 and chance == 0 or chance == 2 or chance == 4:
-                await Bank.update_bank_data(ctx.author, money)
+                await Bank.update_bank_data(2, ctx.author, money)
                 msg = f"Found a skunk! You sold it for <:ncoin:857167494585909279>`{money}` <a:partygif:855108791532388422>."
                 huntemb = discord.Embed(title="Hunt successful!", description=f"{msg}", color=0x00ff00)
                 if users[str(ctx.author.id)]["multiplier"] != 1:
@@ -947,7 +968,7 @@ class Economy(commands.Cog):
             with open(r'./bank/bank.json', 'w') as f:
                 json.dump(users, f, indent=4)
             cost = int(price * amount / 2)
-            await Bank.update_bank_data(ctx.author, cost)
+            await Bank.update_bank_data(2, ctx.author, cost)
             await ctx.send(f"You just sold `{amount}` `{item}(s)` and received `{cost}`")
             await Bank.log_transaction(ctx.author, cost, f"Sold {amount} {item}(s)")
         else:
