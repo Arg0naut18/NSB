@@ -545,15 +545,13 @@ class Economy(commands.Cog):
                 }
             }
         ])
-        print(users)
-        i = 0
-        for user in users:
+        mainUsers = []
+        async for user in users:
             member = self.bot.get_user(int(user["_id"])) or await self.bot.fetch_user(int(user["_id"]))
-            if ctx.author.guild not in member.mutual_guilds:
-                users.pop(i)
-            i=i+1
+            if ctx.author.guild in member.mutual_guilds:
+                mainUsers.append(user)
         lb = discord.Embed(title=f"{ctx.author.guild.name}'s Leaderboard!", color=0x00FF00)
-        for user in users:
+        for user in mainUsers:
             player_id = user["_id"]
             member = await self.bot.fetch_user(int(player_id))
             mem = await Bank.get_account_data(member)
