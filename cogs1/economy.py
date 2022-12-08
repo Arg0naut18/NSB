@@ -67,9 +67,9 @@ class Bank:
 
 
     async def get_total_balance(user):
-        users = await Bank.get_account_data()
-        total = users[str(user.id)]["wallet"] + users[str(user.id)]["bank"]
-        user_stats = [users[str(user.id)]["wallet"], users[str(user.id)]["bank"], total]
+        users = await Bank.get_account_data(user)
+        total = users["wallet"] + users["bank"]
+        user_stats = [users["wallet"], users["bank"], total]
         return user_stats
 
 
@@ -117,9 +117,9 @@ class Bank:
 
 
     async def get_inventory(user):
-        users = await Bank.get_account_data()
+        users = await Bank.get_account_data(user)
         try:
-            inv = users[str(user.id)]["bag"]
+            inv = users["bag"]
         except:
             inv = []
         return inv
@@ -381,9 +381,6 @@ class Economy(commands.Cog):
             userss[str(ctx.author.id)]["wallet"] += money
             with open(r'./bank/bank.json', 'w') as f:
                 json.dump(userss, f, indent=4)
-            # filter = {"_id": str(ctx.author.id)}
-            # newVal = {"$set": {"wallet": users["wallet"]+money}}
-            # dbe.update_one(filter, newVal)
             await Bank.update_bank_data(1, ctx.author, money)
             await Bank.update_bank_data(2, ctx.author, money)
             begemb = discord.Embed(title="Begging successful!",
@@ -494,6 +491,7 @@ class Economy(commands.Cog):
         await Bank.open_account(ctx.author)
         await Bank.open_account(member)
         users = await Bank.get_account_data()
+        user = await Bank.get_account_data(ctx.author)
         bal = await Bank.update_bank_data(2, ctx.author)
         membal = await Bank.update_bank_data(member)
         if bal[0] < 50:
@@ -505,39 +503,62 @@ class Economy(commands.Cog):
         chance = random.randrange(0, 2)
         if chance == 1 and users[str(member.id)]["safe"] != 1:
             amount = random.randrange(0, membal[0])
-            await Bank.update_bank_data(member, -1 * int(amount))
-            await Bank.update_bank_data(2, ctx.author, int(amount))
+            await Bank.update_bank_data(1, member, -1 * int(amount))
+            await Bank.update_bank_data(1, ctx.author, int(amount))
             await ctx.send(f"You just robbed <:ncoin:857167494585909279>{amount} from {member.mention}! Poor lad.")
+            await Bank.update_bank_data(2, member, -1 * int(amount))
+            await Bank.update_bank_data(2, ctx.author, int(amount))
             await Bank.start_notifs(ctx.author)
             await Bank.start_notifs(member)
             await Bank.update_notif(ctx.author, f"Robbed {member.display_name} and received {amount}.")
             await Bank.update_notif(member, f"Got robbed by {ctx.author.display_name} and lost {amount}.")
-        elif users[str(member.id)]["safe"] == 1:
+        elif user["safe"] == 1:
             users[str(member.id)]["safe"] = 0
+            filter = {"_id": str(member.id)}
+            newVal = {"$set": {"safe": 0}}
+            dbe.update_one(filter, newVal)
             await ctx.send(
                 f"You tried to rob {member.display_name} but they had a padlock on. So the robbery failed. Better luck next time.")
             with open(r'./bank/bank.json', 'w') as f:
                 json.dump(users, f, indent=4)
         else:
+            await Bank.update_bank_data(1, ctx.author, -50)
             await Bank.update_bank_data(2, ctx.author, -50)
             await ctx.send(f"Failed to rob {member.mention}. You lost <:ncoin:857167494585909279>50!")
 
     @commands.hybrid_command(description="Check NCoin leaderboard in the guild", aliases=['ranks'])
     async def leaderboard(self, ctx):
         await ctx.defer(ephemeral=False)
-        users = await Bank.get_account_data()
-        total_list = {}
+        # users = await Bank.get_account_data()
+        # total_list = {}
+        # for user in users:
+        #     member = self.bot.get_user(int(user)) or await self.bot.fetch_user(int(user))
+        #     if ctx.author.guild in member.mutual_guilds:
+        #         total = await Bank.get_total_balance(member)
+        #         total_list[f"{member.id}"] = total[2]
+        # sorteddict = dict(sorted(total_list.items(), key=lambda item: item[1], reverse=True))
+        users = dbe.aggregate([
+            {
+                '$sort': {
+                    'bank': -1, 
+                    'wallet': -1
+                }
+            }
+        ])
+        print(users)
+        i = 0
         for user in users:
-            member = self.bot.get_user(int(user)) or await self.bot.fetch_user(int(user))
-            if ctx.author.guild in member.mutual_guilds:
-                total = await Bank.get_total_balance(member)
-                total_list[f"{member.id}"] = total[2]
-        sorteddict = dict(sorted(total_list.items(), key=lambda item: item[1], reverse=True))
+            member = self.bot.get_user(int(user["_id"])) or await self.bot.fetch_user(int(user["_id"]))
+            if ctx.author.guild not in member.mutual_guilds:
+                users.pop(i)
+            i=i+1
         lb = discord.Embed(title=f"{ctx.author.guild.name}'s Leaderboard!", color=0x00FF00)
-        for player_id in sorteddict.keys():
+        for user in users:
+            player_id = user["_id"]
             member = await self.bot.fetch_user(int(player_id))
+            mem = await Bank.get_account_data(member)
             lb.add_field(name=f"{member.display_name}".title(),
-                         value=f'Wallet: {users[str(player_id)]["wallet"]} | Bank: {users[str(player_id)]["bank"]} | Total: {users[str(player_id)]["wallet"] + users[str(player_id)]["bank"]}',
+                         value=f'Wallet: {mem["wallet"]} | Bank: {mem["bank"]} | Total: {mem["wallet"] + mem["bank"]}',
                          inline=False)
         lb.set_footer(text=f"Invoked by: {ctx.author.display_name}", icon_url=ctx.author.avatar.url)
         await ctx.send(embed=lb)
