@@ -1,4 +1,5 @@
 import discord
+from discord import app_commands
 from discord.ext import commands
 import DiscordUtils
 from youtube_title_parse import get_artist_title
@@ -67,7 +68,7 @@ class music(commands.Cog):
             await msg.delete()
         await ctx.guild.change_voice_state(channel=ctx.author.voice.channel, self_deaf=True)
 
-    @commands.command(aliases=['dc', 'disconnect'])
+    @commands.hybrid_command(description="Bot leaves the vc", aliases=['dc', 'disconnect'])
     async def leave(self, ctx):
         try:
             vc = ctx.author.voice.channel
@@ -87,8 +88,10 @@ class music(commands.Cog):
         await ctx.voice_client.disconnect()
         await clear_queue(ctx.author)
 
-    @commands.command(aliases=['p'])
-    async def play(self, ctx, *, url=None):
+    @commands.hybrid_command(description="Play songs", aliases=['p'])
+    @app_commands.rename(url="name-or-url")
+    async def play(self, ctx, *, url):
+        await ctx.defer()
         try:
             vc = ctx.author.voice.channel
         except:
@@ -210,7 +213,7 @@ class music(commands.Cog):
             emb.set_footer(text=f"Position: {len(player.current_queue())}")
             await ctx.send(embed=emb)
 
-    @commands.command()
+    @commands.hybrid_command()
     async def pause(self, ctx):
         try:
             vc = ctx.author.voice.channel
@@ -221,7 +224,7 @@ class music(commands.Cog):
         await player.pause()
         await ctx.message.add_reaction("⏸️")
 
-    @commands.command()
+    @commands.hybrid_command()
     async def resume(self, ctx):
         try:
             vc = ctx.author.voice.channel
@@ -232,7 +235,7 @@ class music(commands.Cog):
         song = await player.resume()
         await ctx.message.add_reaction("👍")
 
-    @commands.command()
+    @commands.hybrid_command()
     async def stop(self, ctx):
         try:
             vc = ctx.author.voice.channel
@@ -244,7 +247,7 @@ class music(commands.Cog):
         await ctx.message.add_reaction("🛑")
         await clear_queue(ctx.author)
 
-    @commands.command()
+    @commands.hybrid_command()
     async def loop(self, ctx, term=None):
         try:
             vc = ctx.author.voice.channel
@@ -277,8 +280,9 @@ class music(commands.Cog):
     #     total_queue = prev_queue + player.current_queue()[1:]
     #     await player.queue(prev_queue[str(ctx.author.guild.id)][-2])
 
-    @commands.command(aliases = ['q'])
+    @commands.hybrid_command(aliases = ['q'])
     async def queue(self, ctx):
+        await ctx.defer()
         player = m.get_player(guild_id=ctx.guild.id)
         duralist = []
         duras = [str(datetime.timedelta(seconds = song.duration)) for song in player.current_queue()]
@@ -342,7 +346,7 @@ class music(commands.Cog):
             pass
         await paginator.run(embeds)
 
-    @commands.command()
+    @commands.hybrid_command(description="Shows the song playing right now")
     async def np(self, ctx):
         player = m.get_player(guild_id=ctx.guild.id)
         song = player.now_playing()
@@ -354,7 +358,7 @@ class music(commands.Cog):
         emb = discord.Embed(title="Now Playing!", description=f"[{song.name}]({song.url})"+f" - ({dura})", color=0x00FF00)
         await ctx.send(embed=emb)
 
-    @commands.command(aliases = ['next'])
+    @commands.hybrid_command(aliases = ['next'])
     async def skip(self, ctx):
         try:
             vc = ctx.author.voice.channel
@@ -371,7 +375,7 @@ class music(commands.Cog):
         #else:
            # await ctx.send(f"Skipped `{data[0].name}`")
 
-    @commands.command()
+    @commands.hybrid_command()
     async def volume(self, ctx, vol):
         try:
             vc = ctx.author.voice.channel
@@ -382,7 +386,7 @@ class music(commands.Cog):
         song, volume = await player.change_volume(float(vol) / 100) # volume should be a float between 0 to 1
         await ctx.send(f"Changed volume for {song.name} to {volume*100}%")
 
-    @commands.command()
+    @commands.hybrid_command()
     async def remove(self, ctx, index):
         try:
             vc = ctx.author.voice.channel
@@ -397,7 +401,7 @@ class music(commands.Cog):
             song = await player.remove_from_queue(int(index)-1)
         await ctx.send(f"Removed `{song.name}` from queue")
     
-    @commands.command()
+    @commands.hybrid_command()
     async def lyrics(self,ctx, *, songname=None):
         api = "&apikey="+apikey
         lyrics_matcher = "matcher.lyrics.get"

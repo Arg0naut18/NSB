@@ -13,30 +13,27 @@ dbe = db.economy
 
 class Bank:
     async def open_account(user):
-        # with open(r'./bank/bank.json', 'r') as f:
-        #     users = json.load(f)
-        # if str(user.id) in users:
-        #     return False
-        # else:
-        #     users[str(user.id)] = {}
-        #     users[str(user.id)]["wallet"] = 0
-        #     users[str(user.id)]["bank"] = 0
-        #     users[str(user.id)]["maxbank"] = 15000
-        #     users[str(user.id)]["safe"] = 0
-        #     users[str(user.id)]["multiplier"] = 1
-        #     users[str(user.id)]["usedmulti"] = 0
-        # with open(r'./bank/bank.json', 'w') as f:
-        #     json.dump(users, f, indent=4)
-        # return True
         check = await dbe.find_one({"_id": str(user.id)})
         if check is None:
             insert = {
                 "_id": str(user.id), "wallet": 0, "bank": 0, "maxbank": 15000, "safe": 0, "multiplier": 1, "usedmulti": 0 
             }
             await dbe.insert_one(insert)
-            return True
-        else:
+        with open(r'./bank/bank.json', 'r') as f:
+            users = json.load(f)
+        if str(user.id) in users:
             return False
+        else:
+            users[str(user.id)] = {}
+            users[str(user.id)]["wallet"] = 0
+            users[str(user.id)]["bank"] = 0
+            users[str(user.id)]["maxbank"] = 15000
+            users[str(user.id)]["safe"] = 0
+            users[str(user.id)]["multiplier"] = 1
+            users[str(user.id)]["usedmulti"] = 0
+        with open(r'./bank/bank.json', 'w') as f:
+            json.dump(users, f, indent=4)
+        return True
 
     async def get_account_data(user=None):
         if user is None:

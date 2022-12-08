@@ -1,10 +1,13 @@
 import discord
 from discord.ext import commands
-from discord import TextChannel
+from discord import TextChannel, app_commands
 import random
 import asyncio
 import datetime
 import json
+from typing import Optional
+import DiscordUtils
+from dbUtil.db import db
 
 picchannels = [801811950119157790, 711217046272344094, 753632407332192366, 711095542486269964,
                771968223797051413, 780830237512433675, 778548218110803998, 827201189439078442]
@@ -14,8 +17,15 @@ common = [753914881727660062, 753632407332192366, 818192348793798667,
 notypezone = [711087692582223873]
 blocked_words = []
 level_check = [822527895296933918]
+dbe = db.economy
 
 async def open_account(user):
+    check = await dbe.find_one({"_id": str(user.id)})
+    if check is None:
+        insert = {
+            "_id": str(user.id), "wallet": 0, "bank": 0, "maxbank": 15000, "safe": 0, "multiplier": 1, "usedmulti": 0 
+        }
+        await dbe.insert_one(insert)
     with open(r'./bank/bank.json', 'r') as f:
         users = json.load(f)
     if str(user.id) in users:
@@ -27,14 +37,18 @@ async def open_account(user):
         users[str(user.id)]["maxbank"] = 15000
         users[str(user.id)]["safe"] = 0
         users[str(user.id)]["multiplier"] = 1
+        users[str(user.id)]["usedmulti"] = 0
     with open(r'./bank/bank.json', 'w') as f:
         json.dump(users, f, indent=4)
     return True
 
-async def get_account_data():
-    with open(r"./bank/bank.json", 'rb') as j:
-        bank = json.load(j)
-    return bank
+async def get_account_data(user=None):
+    if user is None:
+        with open(r'./bank/bank.json', 'r') as j:
+            users = json.load(j)
+        return users
+    data = await dbe.find_one({"_id": str(user.id)})
+    return data
 
 class moderation(commands.Cog):
 
@@ -98,9 +112,10 @@ class moderation(commands.Cog):
                             await respo.delete()
                             await mssg.channel.purge(limit=1)
 
-    @commands.command()
+    @commands.hybrid_command()
     @commands.has_permissions(administrator=True)
     async def announce(self, ctx, chan: TextChannel, *, mssg):
+        await ctx.defer()
         if chan:
             embed = discord.Embed(
                 title="Announcement!", description=mssg, color=random.randint(0x000000, 0xFFFFFF))
@@ -108,9 +123,11 @@ class moderation(commands.Cog):
         else:
             await ctx.send("Channel not found!")
             
-    @commands.command()
+    @commands.hybrid_command()
+    @app_commands.rename(msgID="msgid")
     @commands.has_permissions(administrator=True)
     async def editannounce(self, ctx, msgID, *, newmsg):
+        await ctx.defer()
         for channel in ctx.guild.channels:
             try:
                 msg = await channel.fetch_message(msgID)
@@ -121,21 +138,23 @@ class moderation(commands.Cog):
         await msg.edit(embed=embed)
         await ctx.send("Announcement edited!")
     
-    @commands.command()
+    @commands.hybrid_command()
     @commands.is_owner()
     async def leaveserver(self, ctx, guild : discord.Guild = None):
         guild = ctx.guild if guild is None else guild
         await guild.leave()
         await ctx.author.send(f"Successfully left {guild.name}!")
 
-    @commands.command(aliases=["purge", "prune"])
+    @commands.hybrid_command(aliases=["purge", "prune"])
     @commands.has_permissions(manage_channels=True)
-    async def clear(self, ctx, amount=10):
+    async def clear(self, ctx, amount:Optional[int]=10):
+        await ctx.defer()
         await ctx.channel.purge(limit=(amount + 1))
 
-    @commands.command()
+    @commands.hybrid_command()
     @commands.has_permissions(ban_members=True)
     async def ban(self, ctx, member: discord.Member, *, reason=None):
+        await ctx.defer()
         try:
             await member.ban(reason=reason)
             await ctx.channel.purge(limit=1)
@@ -148,9 +167,10 @@ class moderation(commands.Cog):
             await respo.delete()
 
     # The below code unbans player.
-    @commands.command()
+    @commands.hybrid_command()
     @commands.has_permissions(administrator=True)
     async def unban(self, ctx, *, member):
+        await ctx.defer()
         banned_users = await ctx.guild.bans()
         member_name, member_discriminator = member.split("#")
         for ban_entry in banned_users:
@@ -164,9 +184,10 @@ class moderation(commands.Cog):
                 return
 
     # The below code kicks player
-    @commands.command()
+    @commands.hybrid_command()
     @commands.has_permissions(ban_members=True)
     async def kick(self, ctx, member: discord.Member, *, reason=None):
+        await ctx.defer()
         try:
             await member.kick(reason=reason)
             await ctx.channel.purge(limit=1)
@@ -178,9 +199,10 @@ class moderation(commands.Cog):
             await asyncio.sleep(10)
             await respo.delete()
 
-    @commands.command(aliases=["tempmute"])
+    @commands.hybrid_command(aliases=["tempmute"])
     @commands.has_permissions(ban_members=True)
     async def mute(self, ctx, member: discord.Member, *, reason=None):
+        await ctx.defer()
         role = discord.utils.get(ctx.guild.roles, id = 711447121391255602)
         try:
             await member.add_roles(role)
@@ -198,9 +220,10 @@ class moderation(commands.Cog):
             await asyncio.sleep(10)
             await respo.delete()
 
-    @commands.command(aliases=["permamute", "pmute"])
+    @commands.hybrid_command(aliases=["permamute", "pmute"])
     @commands.has_permissions(ban_members=True)
     async def permmute(self, ctx, member: discord.Member, *, reason=None):
+        await ctx.defer()
         role = discord.utils.get(ctx.guild.roles, id = 711447121391255602)
         try:
             await member.add_roles(role)
@@ -213,9 +236,10 @@ class moderation(commands.Cog):
             await asyncio.sleep(10)
             await respo.delete()
 
-    @commands.command()
+    @commands.hybrid_command()
     @commands.has_permissions(ban_members=True)
     async def unmute(self, ctx, member: discord.Member, *, reason=None):
+        await ctx.defer()
         role = discord.utils.get(ctx.guild.roles, id = 711447121391255602)
         try:
             await member.remove_roles(role)
@@ -228,9 +252,10 @@ class moderation(commands.Cog):
             await asyncio.sleep(10)
             await respo.delete()
 
-    @commands.command()
+    @commands.hybrid_command(description="Lock a channel")
     @commands.has_permissions(administrator=True)
     async def chlock(self, ctx, channel: discord.TextChannel = None):
+        await ctx.defer()
         time = 100000
         timeInHrs = time/3600
         channel = channel or ctx.channel
@@ -253,9 +278,10 @@ class moderation(commands.Cog):
         await asyncio.sleep(10)
         await msg.delete()
 
-    @commands.command()
+    @commands.hybrid_command(description="Unlocks a locked channel")
     @commands.has_permissions(administrator=True)
     async def chunlock(self, ctx, channel: discord.TextChannel = None):
+        await ctx.defer()
         channel = channel or ctx.channel
         overwrite = channel.overwrites_for(ctx.guild.default_role)
         overwrite.send_messages = True
