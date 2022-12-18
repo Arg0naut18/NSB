@@ -13,6 +13,9 @@ dbe = db.economy
 dbShop = db.shopItems
 
 class Bank:
+    async def __init__(self) -> None:
+        self.shop = await Bank.open_shop()
+
     async def open_account(user):
         check = await dbe.find_one({"_id": str(user.id)})
         if check is None:
@@ -145,11 +148,15 @@ class Bank:
         # with open('./bank/shop.json', 'r') as f:
         #     mainshop = json.load(f)
         # return mainshop
-        return dbShop
-
+        elems = dbShop.find()
+        shop = []
+        while elems.hasNext():
+            shop.append(next(elems))
+        return shop
+        
 
     async def get_random_gift():
-        shop = await Bank.open_shop()
+        shop = Bank.shop
         gift_item = random.choice(shop)
         return [gift_item["display_name"], gift_item["name"], gift_item["price"]]
 
@@ -636,7 +643,7 @@ class Economy(commands.Cog):
 
     @commands.hybrid_command(description="Check out the shop")
     async def shop(self, ctx):
-        mainshop = await Bank.open_shop()
+        mainshop = Bank.shop
         shopembed1 = discord.Embed(title="NSB Shop 1!", color=0x00FF00)
         shopembed2 = discord.Embed(title="NSB Shop 2!", color=0x00FF00)
         i = 1
@@ -975,7 +982,7 @@ class Economy(commands.Cog):
             await ctx.send("You need to mention what you want to sell.")
             return
         inv = await Bank.get_inventory(ctx.author)
-        shop = await Bank.open_shop()
+        shop = Bank.shop
         price = 0
         for items in shop:
             if items["name"] == item:
