@@ -236,9 +236,9 @@ class Bank:
     
     async def update_inventory(user, item, amount):
         dbUser = await Bank.get_account_data(user)
-        item_in_inv = Bank.is_in_inventory(user, item)
+        item_in_inv = await Bank.is_in_inventory(user, item)
         filter = {"_id": str(user.id)}
-        if(item_in_inv[0]):
+        if item_in_inv[0]:
             newVal = {"$set": {f"bag[{item_in_inv[1]}].item": dbUser["bag"][item_in_inv[1]]["amount"]+amount}}
         else:
             newVal = {"$push": {"bag": {item: item, amount: amount}}}
@@ -813,9 +813,9 @@ class Economy(commands.Cog):
     @commands.hybrid_command(description="Go fishing")
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def fish(self, ctx):
+        users = await Bank.get_account_data()
         user = ctx.author
-        users = await Bank.get_account_data(user)
-        await Bank.get_tries(user)
+        await Bank.get_tries(ctx.author)
         with open(f"./bank/fishingtries.json") as t:
             tries = json.load(t)
         try:
