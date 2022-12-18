@@ -238,7 +238,7 @@ class Bank:
         dbUser = await Bank.get_account_data(user)
         item_in_inv = await Bank.is_in_inventory(user, item)
         filter = {"_id": str(user.id)}
-        if item_in_inv[0]:
+        if item_in_inv[0]==True:
             newVal = {"$set": {f"bag[{item_in_inv[1]}].item": dbUser["bag"][item_in_inv[1]]["amount"]+amount}}
         else:
             newVal = {"$push": {"bag": {item: item, amount: amount}}}
