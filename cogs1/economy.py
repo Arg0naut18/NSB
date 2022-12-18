@@ -813,9 +813,9 @@ class Economy(commands.Cog):
     @commands.hybrid_command(description="Go fishing")
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def fish(self, ctx):
-        users = await Bank.get_account_data()
         user = ctx.author
-        await Bank.get_tries(ctx.author)
+        users = await Bank.get_account_data(user)
+        await Bank.get_tries(user)
         with open(f"./bank/fishingtries.json") as t:
             tries = json.load(t)
         try:
