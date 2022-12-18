@@ -10,6 +10,7 @@ import DiscordUtils
 from dbUtil.db import db
 
 dbe = db.economy
+dbShop = db.shopItems
 
 class Bank:
     async def open_account(user):
@@ -125,20 +126,26 @@ class Bank:
             inv = []
         return inv
 
+    async def has_inventory(user):
+        query = dbe.find({"_id": str(user.id)}, {"bag": {"$exists": True}})
+        return len(query)!=0
 
     async def is_in_inventory(user, item):
         inventory = await Bank.get_inventory(user)
         found = False
+        idx = -1
         for index in range(len(inventory)):
             if item == inventory[index]["item"]:
                 found = True
-        return found
+                idx = index
+        return [found, idx]
 
 
     async def open_shop():
-        with open('./bank/shop.json', 'r') as f:
-            mainshop = json.load(f)
-        return mainshop
+        # with open('./bank/shop.json', 'r') as f:
+        #     mainshop = json.load(f)
+        # return mainshop
+        return dbShop
 
 
     async def get_random_gift():
@@ -154,6 +161,9 @@ class Bank:
         try:
             index = 0
             t = None
+
+            # Needs Update
+
             for thing in users[str(user.id)]["bag"]:
                 n = thing["item"]
                 if n == item_name:
@@ -225,6 +235,14 @@ class Bank:
         return [True, "Successful"]
     
     async def update_inventory(user, item, amount):
+        dbUser = await Bank.get_account_data(user)
+        item_in_inv = Bank.is_in_inventory(user, item)
+        filter = {"_id": str(user.id)}
+        if(item_in_inv[0]):
+            newVal = {"$set": {f"bag[{item_in_inv[1]}].item": dbUser["bag"][item_in_inv[1]]["amount"]+amount}}
+        else:
+            newVal = {"$push": {"bag": {item: item, amount: amount}}}
+        dbe.update_one(filter, newVal)
         users = await Bank.get_account_data()
         try:
             t = None
