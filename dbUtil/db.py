@@ -9,5 +9,6 @@ srv = vari["mongo"]
 cluster = AsyncIOMotorClient([srv])
 
 class db:
-    db = cluster['main']
-    economy = db['economy']
+    db = cluster['NSBUsers']
+    economy = db['Users']
+    shopItems = db['Shop']

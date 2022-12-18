@@ -53,6 +53,7 @@ class Bank:
             bal = [users["wallet"], users["bank"]]
             return bal
         else:
+            users = await Bank.get_account_data()
             users[str(user.id)][mode] += amount
             with open(r'./bank/bank.json', 'w') as j:
                 json.dump(users, j, indent=4)
@@ -401,9 +402,9 @@ class Economy(commands.Cog):
             await ctx.send("You need to mention the amount you wanna deposit.")
             return
         await Bank.open_account(ctx.author)
-        users = await Bank.get_account_data()
+        users = await Bank.get_account_data(ctx.author)
         bal = await Bank.update_bank_data(1, ctx.author)
-        maxbank = int(users[str(ctx.author.id)]["maxbank"])
+        maxbank = int(users["maxbank"])
         if amount == "all" or amount == "max":
             amount = bal[0]
         amount = int(amount)
@@ -416,9 +417,9 @@ class Economy(commands.Cog):
         if bal[1] + amount < maxbank:
             await Bank.update_bank_data(1, ctx.author, int(amount), "bank")
             await Bank.update_bank_data(1, ctx.author, -1 * int(amount))
+            await ctx.send(f"You just deposited <:ncoin:857167494585909279>{amount}!")
             await Bank.update_bank_data(2, ctx.author, int(amount), "bank")
             await Bank.update_bank_data(2, ctx.author, -1 * int(amount))
-            await ctx.send(f"You just deposited <:ncoin:857167494585909279>{amount}!")
             await Bank.log_transaction(ctx.author, amount, f"Deposited to bank.")
         elif (bal[1] + amount >= maxbank) and (bal[1] < maxbank):
             updated_amount = maxbank - bal[1]
