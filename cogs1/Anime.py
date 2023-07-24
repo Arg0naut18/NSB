@@ -1,13 +1,13 @@
 import discord
 from discord.ext import commands
 import random
-from .Main.__init__ import Anilist
+from .AnimeUtils.__init__ import Anilist
 anilist = Anilist()
 import re
 import requests
 from bs4 import BeautifulSoup
 
-CLEANR = re.compile('<.*?>') 
+CLEANR = re.compile('<.*?>')
 
 color = [15158332, 3066993, 10181046, 3447003, 1752220, 15844367]
 

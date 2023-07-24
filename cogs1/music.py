@@ -6,57 +6,56 @@ from youtube_title_parse import get_artist_title
 import asyncio
 import requests
 import json
-import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
 from pytube import Playlist
 import datetime
+from SpotifyUtil import SpotifyUtil
 
 m = DiscordUtils.Music()
 
 j_file = open("divinesecrets.txt")
 vari = json.load(j_file)
 j_file.close()
-cid = vari["spotipyid"]
-ctoken = vari["spotipytoken"]
+spotify_id = vari["spotipyid"]
+spotify_token = vari["spotipytoken"]
+spotify_redirect_uri = vari["spotipyredirecturi"]
 apikey = vari['musixmatchkey']
-client_cred = SpotifyClientCredentials(client_id=cid, client_secret=ctoken)
 queue_looping = False
 
-async def get_queue(user):
-    with open("./music/queue.json", 'r') as f:
-        past_queue = json.load(f)
-    return past_queue[str(user.guild.id)]
 
-async def make_queue(user):
-    with open("./music/queue.json", 'r') as f:
-        past_queue = json.load(f)
-    if user.guild.id in past_queue:
-        return False
-    past_queue[str(user.guild.id)] = []
-    with open("./music/queue.json", 'w') as f:
-        json.dump(past_queue, f, indent=4)
-    return True
+class Queue:
+    def __init__(self):
+        with open("./music/queue.json", 'r') as f:
+            self.past_queue = json.load(f)
 
-async def add_queue(user, name):
-    await make_queue(user)
-    with open("./music/queue.json", 'r') as f:
-        past_queue = json.load(f)
-    past_queue[str(user.guild.id)].append(name)
-    with open("./music/queue.json", 'w') as f:
-        json.dump(past_queue, f, indent=4)
+    async def get_queue(self, user):
+        return self.past_queue[str(user.guild.id)]
 
-async def clear_queue(user):
-    await make_queue(user)
-    with open("./music/queue.json", 'r') as f:
-        past_queue = json.load(f)
-    past_queue[str(user.guild.id)] = []
-    with open("./music/queue.json", 'w') as f:
-        json.dump(past_queue, f, indent=4)
+    async def make_queue(self, user):
+        if user.guild.id in self.past_queue:
+            return False
+        self.past_queue[str(user.guild.id)] = []
+        with open("./music/queue.json", 'w') as f:
+            json.dump(self.past_queue, f, indent=4)
+        return True
+
+    async def add_queue(self, user, name):
+        await self.make_queue(user)
+        self.past_queue[str(user.guild.id)].append(name)
+        with open("./music/queue.json", 'w') as f:
+            json.dump(self.past_queue, f, indent=4)
+
+    async def clear_queue(self, user):
+        await self.make_queue(user)
+        self.past_queue[str(user.guild.id)] = []
+        with open("./music/queue.json", 'w') as f:
+            json.dump(self.past_queue, f, indent=4)
+
 
 class music(commands.Cog):
-
     def __init__(self, bot):
         self.bot = bot
+        self.queue = Queue()
+        self.spotify = SpotifyUtil(spotify_client_id=spotify_id, spotify_client_secret=spotify_token, spotify_redirect_uri=spotify_redirect_uri)
 
     @commands.command()
     async def join(self, ctx):
@@ -88,7 +87,7 @@ class music(commands.Cog):
         except: pass
         await player.stop()
         await ctx.voice_client.disconnect()
-        await clear_queue(ctx.author)
+        await self.queue.clear_queue(ctx.author)
 
     @commands.hybrid_command(description="Play songs", aliases=['p'])
     @app_commands.rename(url="name-or-url")
@@ -107,15 +106,23 @@ class music(commands.Cog):
         player = m.get_player(guild_id=ctx.guild.id)
         if not player:
             player = m.create_player(ctx, ffmpeg_error_betterfix=True)
-        if 'spotify.com/track' in url:
-            urn, idextra = url.split('track/')
-            id, extra = idextra.split('?')
-            newurn = f'spotify:track:{id}'
-            sp = spotipy.Spotify(client_credentials_manager=client_cred)
-            song = sp.track(newurn)
-            name = song['name']
-            artist = song['album']['artists'][0]['name']
-            url = f"{name} official {artist}"
+        if 'spotify.com' in url:
+            type = url.split('spotify.com/')[1].split('/')[0]
+            if type=='track':
+                result = self.spotify.get_track_details(url)
+                name, artist, url = result['name'], result['artist'], f"{result['name']} official {result['artist']}"
+            else:
+                tracks = self.spotify.get_tracks(url, type=type, verbose=True)
+                for track in tracks.detailed_list:
+                    name = track['name']
+                    artist = track['artist']
+                    url = f"{name} official {artist}"
+                    try:
+                        await player.queue(url, search=True)
+                    except:
+                        pass
+                await player.remove_from_queue(len(player.current_queue())-1)
+                await ctx.send(f"Added `{tracks.total_size}` songs to the queue!")
         if 'youtube.com/playlist?' in url:
             play_list = Playlist(url)
             for video in play_list.videos:
@@ -128,38 +135,6 @@ class music(commands.Cog):
                     pass
             await player.remove_from_queue(len(player.current_queue())-1)   
             await ctx.send(f"Added `{len(play_list.videos)}` songs to the queue!")
-        if 'spotify.com/playlist' in url:
-            urn, idextra = url.split('playlist/')
-            id, extra = idextra.split('?')
-            newurn = f'spotify:playlist:{id}'
-            sp = spotipy.Spotify(client_credentials_manager=client_cred)
-            playlist = sp.playlist(newurn)
-            for i in range(len(playlist['tracks']['items'])):
-                name = playlist['tracks']['items'][i]['track']['name']
-                artist = playlist['tracks']['items'][i]['track']['artists'][0]['name']
-                url = f"{name} official {artist}"
-                try:
-                    await player.queue(url, search=True)
-                except:
-                    pass
-            await player.remove_from_queue(len(player.current_queue())-1)
-            await ctx.send(f"Added `{len(playlist['tracks']['items'])}` songs to the queue!")    
-        if 'spotify.com/album' in url:
-            urn, idextra = url.split('album/')
-            id, extra = idextra.split('?')
-            newurn = f'spotify:album:{id}'
-            sp = spotipy.Spotify(client_credentials_manager=client_cred)
-            album = sp.album(newurn)
-            for i in range(len(album['tracks']['items'])):
-                name = album['tracks']['items'][i]['name']
-                artist = album['artists'][0]['name']
-                url = f"{name} official {artist}"
-                try:
-                    await player.queue(url, search=True)
-                except:
-                    pass
-            await player.remove_from_queue(len(player.current_queue())-1)
-            await ctx.send(f"Added `{len(album['tracks']['items'])}` songs to the queue!")
         @player.on_play
         async def on_play(ctx, song):
             # emb = discord.Embed(title="Now Playing!", description=f"[{song.name}]({song.url})", color=0x00FF00)
@@ -169,7 +144,7 @@ class music(commands.Cog):
                 title = song.name
                 artist = song.channel
             sname = title + " " + artist
-            await add_queue(ctx.author, sname)
+            await self.queue.add_queue(ctx.author, sname)
             if song.duration % 60 >= 10:
                 dura = f"{song.duration//60}:{song.duration%60}"
             else:
@@ -253,7 +228,7 @@ class music(commands.Cog):
             await ctx.message.add_reaction("🛑")
         except:
             pass
-        await clear_queue(ctx.author)
+        await self.queue.clear_queue(ctx.author)
 
     @commands.hybrid_command()
     async def loop(self, ctx, term=None):
@@ -270,7 +245,7 @@ class music(commands.Cog):
             else:
                 await ctx.send(f"Disabled loop for `{song.name}`")
         elif term == "queue":
-            past_q = await get_queue(ctx.author)
+            past_q = await self.queue.get_queue(ctx.author)
             total_queue = list(set(past_q))[:-1] + [songs.name+" "+songs.channel for songs in player.current_queue()]
             for song in total_queue:
                 await player.queue(song, search=True)
@@ -379,9 +354,9 @@ class music(commands.Cog):
         song = player.now_playing()
         emb = discord.Embed(title="Now Playing!", description=f"[{song.name}]({song.url})", color=0x00FF00)
         await ctx.send(embed=emb)
-           # await ctx.send(f"Skipped from `{data[0].name}` to `{data[1].name}`")
+        # await ctx.send(f"Skipped from `{data[0].name}` to `{data[1].name}`")
         #else:
-           # await ctx.send(f"Skipped `{data[0].name}`")
+        # await ctx.send(f"Skipped `{data[0].name}`")
 
     @commands.hybrid_command()
     async def volume(self, ctx, vol):
