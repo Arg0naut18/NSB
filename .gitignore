@@ -2,3 +2,4 @@
 .cache
 *.xml
 .idea/NSB.iml
+cogs1/AnimeUtils/__pycache__/*
