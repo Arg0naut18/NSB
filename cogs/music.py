@@ -1,6 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+from .MusicUtils.MusicPlayer import Music
 import DiscordUtils
 from youtube_title_parse import get_artist_title
 import asyncio
@@ -10,9 +11,9 @@ from pytube import Playlist
 import datetime
 from SpotifyUtil import SpotifyUtil
 
-m = DiscordUtils.Music()
+m = Music()
 
-j_file = open("divinesecrets.txt")
+j_file = open("secrets.txt")
 vari = json.load(j_file)
 j_file.close()
 spotify_id = vari["spotipyid"]
@@ -55,7 +56,7 @@ class music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.queue = Queue()
-        self.spotify = SpotifyUtil(spotify_client_id=spotify_id, spotify_client_secret=spotify_token, spotify_redirect_uri=spotify_redirect_uri)
+        self.spotify = SpotifyUtil(spotify_client_id=spotify_id, spotify_client_secret=spotify_token, spotify_redirect_uri=spotify_redirect_uri, cache_path=r"spotipy_cache.txt")
 
     @commands.command()
     async def join(self, ctx):

@@ -8,7 +8,7 @@ import sys
 import psutil
 import os
 from pytz import timezone
-#j_file = open("divinesecrets.txt")
+#j_file = open("secrets.txt")
 #vari = json.load(j_file)
 #j_file.close()
 #serverapikey = vari["serverapikey"]

@@ -1,13 +1,12 @@
 import discord
 from discord.ext import commands
-from discord import app_commands
 from typing import Optional
 import json
 import random
 import re
 import asyncio
 import DiscordUtils
-from dbUtil.db import db
+from .dbUtils.db import db
 
 dbe = db.economy
 dbShop = db.shopItems

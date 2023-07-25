@@ -1,14 +1,12 @@
 import discord
 from discord.ext import commands
-import random
-import asyncio
 import time
 import json
 import requests
 
 color = [15158332, 3066993, 10181046, 3447003, 1752220, 15844367]
 
-j_file = open("divinesecrets.txt")
+j_file = open("secrets.txt")
 vari = json.load(j_file)
 j_file.close()
 fillerApi = vari["fillerApi"]

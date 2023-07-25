@@ -1,22 +1,15 @@
-#importing necessary modules
-
 import discord
-from discord import app_commands, utils
-from discord.ext import commands, tasks
+from discord import app_commands
+from discord.ext import commands
 from discord.ext.commands import has_permissions
 import os
 import datetime
 import random
-# import zulu
 import json
-# from discord.ext import tasks
 import asyncio
-from dbUtil.db import db
-# import urllib.request
-# from itertools import cycle
+from .cogs.dbUtils.db import db
 
-# setting the secrets
-j_file = open("divinesecrets.txt")
+j_file = open("secrets.txt")
 vari = json.load(j_file)
 j_file.close()
 TOKEN = vari["TOKEN"]
@@ -55,27 +48,16 @@ class MyBot(commands.Bot):
         print("Logged in as: " + bot.user.name + "\n")
         
     async def setup_hook(self):
-        for file in os.listdir('./divinecogs'):
+        for file in os.listdir('./cogs'):
             if file.endswith(".py"):
-                await bot.load_extension(f"divinecogs.{file[:-3]}")
-        #if not self.synced:
+                await bot.load_extension(f"cogs.{file[:-3]}")
         await self.tree.sync()
-            #self.synced = True
-        
-        
-        #self.ipc=ipc.Server(self, secret_key=ipcsecret)
-    #async def on_ipc_ready(self):
-        #print("IPC ready!")
-    #async def on_ipc_error(self, endpoint, error):
-        #print(endpoint, "raised", error)
 
 def get_prefix(client, message):
     if message.guild is None: return commands.when_mentioned_or('nsb ')(client, message)
     try:
         with open('./prefixes/prefixes.json', 'r') as f:
             prefixes = json.load(f)
-            #return commands.when_mentioned_or(prefixes[str(message.guild.id)])(client, message)
-            # return prefixes[str(message.guild.id)]
             prefixes_list = [prefixes[str(message.guild.id)], prefixes[str(message.guild.id)].lower(), prefixes[str(message.guild.id)].upper(), prefixes[str(message.guild.id)].title()]
             return commands.when_mentioned_or(*prefixes_list)(client, message)
         
@@ -90,55 +72,34 @@ def get_prefix(client, message):
         with open('./prefixes/prefixes.json', 'r') as t:
             prefixes = json.load(t)
             return prefixes[str(message.guild.id)]
-        
-    except: # I added this when I started getting dm error messages
+    # I added this when I started getting dm error messages
+    except:
         pass
 
 intents = discord.Intents.all()
 intents.members = True
 bot = MyBot(command_prefix=(get_prefix), intents=intents, owner_id=436844058217021441,
-                   case_insensitive=True, help_command=None, description="Made by Argonaut#6921 for NSB")
+            case_insensitive=True, help_command=None, description="Made by Argonaut#6921 for NSB")
 
-#main thing starts here
-#@bot.ipc.route()
-#async def get_guild_count(data):
-#    return len(bot.guilds)
-
-#@bot.ipc.route()
-#async def get_guild_ids(data):
-#    final = []
-#    for guild in bot.guilds:
-#        final.append(guild.id)
-#    return final
-
-#@bot.ipc.route()
-#async def get_guild(data):
-#    guild = bot.get_guild(data.guild_id)
-#    if guild is None: return None
-#    guild_data = {
-#        "name": guild.name,
-#        "id": guild.id
-#    }
-#    return guild_data
-    
 
 @bot.event
-async def on_guild_join(guild): #when the bot joins the guild
-    with open('./prefixes/prefixes.json', 'r') as f: #read the prefix.json file
-        prefixes = json.load(f) #load the json file
+async def on_guild_join(guild):
+    with open('./prefixes/prefixes.json', 'r') as f:
+        prefixes = json.load(f)
 
-    prefixes[str(guild.id)] = 'nsb '#default prefix
+    #default prefix
+    prefixes[str(guild.id)] = 'nsb '
 
-    with open('./prefixes/prefixes.json', 'w') as f: #write in the prefix.json "message.guild.id": "bl!"
-        json.dump(prefixes, f, indent=4) #the indent is to make everything look a bit neater
+    with open('./prefixes/prefixes.json', 'w') as f:
+        json.dump(prefixes, f, indent=4)
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"Prefix: nsb | {len(bot.guilds)} guilds and {len(bot.users)} members."))    
 
 @bot.event
-async def on_guild_remove(guild): #when the bot is removed from the guild
-    with open('./prefixes/prefixes.json', 'r') as f: #read the file
+async def on_guild_remove(guild):
+    with open('./prefixes/prefixes.json', 'r') as f:
         prefixes = json.load(f)
-    prefixes.pop(str(guild.id)) #find the guild.id that bot was removed from
-    with open('./prefixes/prefixes.json', 'w') as f: #deletes the guild.id as well as its prefix
+    prefixes.pop(str(guild.id))
+    with open('./prefixes/prefixes.json', 'w') as f:
         json.dump(prefixes, f, indent=4)
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"Prefix: nsb | {len(bot.guilds)} guilds and {len(bot.users)} members."))
 
@@ -148,18 +109,17 @@ async def syncall(ctx):
     await commands.Bot.tree.sync()
 
 @bot.hybrid_command(description="Change the prefix for this guild", pass_context=True, aliases=["setprefix"])
-@has_permissions(administrator=True) #ensure that only administrators can use this command
-async def changeprefix(ctx, *, prefix): #command: bl!changeprefix ...
+@has_permissions(administrator=True)
+async def changeprefix(ctx, *, prefix):
     with open('./prefixes/prefixes.json', 'r') as f:
         prefixes = json.load(f)
 
     prefixes[str(ctx.guild.id)] = prefix
 
-    with open('./prefixes/prefixes.json', 'w') as f: #writes the new prefix into the .json
+    with open('./prefixes/prefixes.json', 'w') as f:
         json.dump(prefixes, f, indent=4)
 
-    await ctx.send(f'Prefix changed to: {prefix}') #confirms the prefix it's been changed to
-#next step completely optional: changes bot nickname to also have prefix in the nickname
+    await ctx.send(f'Prefix changed to: {prefix}')
 
 @bot.hybrid_command(name="verify", description="Gives you member role to be able to access the server.")
 @app_commands.guilds(discord.Object(743741348578066442))
@@ -172,7 +132,6 @@ async def help(ctx: commands.Context, category=None):
     prefix = get_prefix(bot, ctx.message)
     if category is None:
         emb = discord.Embed(
-            # title="__**NSB COMMANDS:**__", color=random.randint(0x000000, 0xFFFFFF))
             title="__**NSB COMMANDS:**__", color=random.randint(0x000000, 0xFFFFFF))
         emb.add_field(name="Prefix", value=f"`{prefix[2]}`", inline=False)
         emb.add_field(name=":tools: Moderation", value=f"`{prefix[2]}help moderation`", inline=True)
@@ -277,7 +236,7 @@ async def help(ctx: commands.Context, category=None):
 async def load(ctx: commands.Context, extension: str):
     if ctx.message.author.id == dev_id:
         try:
-            await bot.load_extension(f"divinecogs.{extension}")
+            await bot.load_extension(f"cogs.{extension}")
             respo = await ctx.reply(f"{extension} loaded!")
             await asyncio.sleep(5)
             await respo.delete()
@@ -300,7 +259,7 @@ async def load(ctx: commands.Context, extension: str):
 async def unload(ctx: commands.Context, extension: str):
     if ctx.message.author.id == dev_id:
         try:
-            await bot.unload_extension(f"divinecogs.{extension}")
+            await bot.unload_extension(f"cogs.{extension}")
             respo = await ctx.reply(f"{extension} unloaded!")
             await asyncio.sleep(5)
             await respo.delete()
@@ -324,8 +283,8 @@ async def unload(ctx: commands.Context, extension: str):
 async def reload(ctx: commands.Context, extension: str):
     if ctx.message.author.id == dev_id:
         try:
-            await bot.unload_extension(f"divinecogs.{extension}")
-            await bot.load_extension(f"divinecogs.{extension}")
+            await bot.unload_extension(f"cogs.{extension}")
+            await bot.load_extension(f"cogs.{extension}")
             respo = await ctx.reply(f"{extension} re-loaded!")
             await asyncio.sleep(5)
             await respo.delete()
@@ -349,10 +308,10 @@ async def reload(ctx: commands.Context, extension: str):
 async def reloadall(ctx: commands.Context):
     if ctx.message.author.id == dev_id:
         try:
-            for file in os.listdir('./divinecogs'):
+            for file in os.listdir('./cogs'):
                 if file.endswith(".py"):
-                    await bot.unload_extension(f"divinecogs.{file[:-3]}")
-                    await bot.load_extension(f"divinecogs.{file[:-3]}")
+                    await bot.unload_extension(f"cogs.{file[:-3]}")
+                    await bot.load_extension(f"cogs.{file[:-3]}")
                     respo = await ctx.reply(f"All Divine cogs reloaded!")
                     await asyncio.sleep(5)
                     await respo.delete()
@@ -361,7 +320,7 @@ async def reloadall(ctx: commands.Context):
                     except:
                         pass
         except Exception as e:
-            respo = await ctx.reply(f"Error re-loading divinecogs.")
+            respo = await ctx.reply(f"Error re-loading cogs.")
             await asyncio.sleep(5)
             await respo.delete()
             try:
@@ -370,5 +329,4 @@ async def reloadall(ctx: commands.Context):
                 pass
             print(e)
             
-#bot.ipc.start()
 bot.run(token)
