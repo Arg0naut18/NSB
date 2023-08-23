@@ -64,14 +64,18 @@ class music(commands.Cog):
         except Exception as e:
             print(e)
 
+    async def send_and_delete_msg(self, ctx, mssg, time=5, is_embed=False):
+        if is_embed: msg = await ctx.send(embed=mssg)
+        else: msg = await ctx.send(mssg)
+        await asyncio.sleep(time)
+        await msg.delete()
+
     @commands.command()
     async def join(self, ctx):
         try:
             await ctx.author.voice.channel.connect()
         except:
-            msg=await ctx.send("You need to be connected to the vc!")
-            await asyncio.sleep(5)
-            await msg.delete()
+            await self.send_and_delete_msg(ctx, "You need to be connected to the vc!")
         await ctx.guild.change_voice_state(channel=ctx.author.voice.channel, self_deaf=True)
 
     @commands.hybrid_command(description="Bot leaves the vc", aliases=['dc', 'disconnect'])
@@ -80,14 +84,10 @@ class music(commands.Cog):
             vc = ctx.author.voice.channel
             player = m.get_player(guild_id=ctx.guild.id)
         except:
-            msg = await ctx.send("`You must be in the vc for this command to work!`")
-            await asyncio.sleep(5)
-            await msg.delete()
+            await self.send_and_delete_msg(ctx, "`You must be in the vc for this command to work!`")
             return
         if player is None:
-            msg = await ctx.send("`The bot must be in the vc for this command to work!`")
-            await asyncio.sleep(5)
-            await msg.delete()
+            await self.send_and_delete_msg(ctx, "`The bot must be in the vc for this command to work!`")
             return
         try:
             await ctx.message.add_reaction("👋")
@@ -164,9 +164,7 @@ class music(commands.Cog):
                 emb.add_field(name="Artist", value=f"`{artist}`", inline=False)
             except:
                 pass
-            npsong = await ctx.send(embed=emb)
-            await asyncio.sleep(song.duration)
-            await npsong.delete() 
+            await self.send_and_delete_msg(ctx, emb, time=song.duration, is_embed=True)
         if ctx.voice_client.is_paused() and url==None:
             try:
                 await player.resume()
@@ -437,16 +435,12 @@ class music(commands.Cog):
     @skip.error
     async def noSkipleft(self, ctx, error):
         if isinstance(error, commands.CommandInvokeError):
-            msg = await ctx.send(f"`Queue is empty! Add more songs.`")
-            await asyncio.sleep(5)
-            await msg.delete()
+            await self.send_and_delete_msg(ctx, f"`Queue is empty! Add more songs.`")
     
     @play.error
     async def songcouldntbeplayed(self, ctx, error):
         if isinstance(error, commands.CommandInvokeError):
-            msg = await ctx.send(f"Check your arguments. Currently only youtube and spotify urls are supported. Sorry for the inconvenience.\nUse **resume** command instead of this to resume paused song.\nError:\n`{error}`")
-            await asyncio.sleep(15)
-            await msg.delete()
+            await self.send_and_delete_msg(ctx, f"Check your arguments. Currently only youtube and spotify urls are supported. Sorry for the inconvenience.\nUse **resume** command instead of this to resume paused song.\nError:\n`{error}`")
             raise(error)
     
     @queue.error
@@ -457,10 +451,8 @@ class music(commands.Cog):
     @lyrics.error
     async def nolyricsfound(self, ctx, error):
         if isinstance(error, commands.CommandInvokeError):
-            msg = await ctx.send("`Lyrics not found!`")
             print(error)
-            await asyncio.sleep(7)
-            await msg.delete()
+            await self.send_and_delete_msg(ctx, "`Lyrics not found!`", time=7)
             return
     
 async def setup(bot):
