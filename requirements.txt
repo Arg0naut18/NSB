@@ -13,14 +13,13 @@ udpy
 pillow
 discord.py[voice]
 yt-dlp
-youtube-dl
-DiscordUtils
 youtube-title-parse
 molmass
 mendeleev
-SpotifyUtil
 pytube
 num2words
 grequests
 python-aternos
 js2py
+SpotifyUtil==0.0.0.7
+redis[hiredis]

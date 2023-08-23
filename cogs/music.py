@@ -20,6 +20,9 @@ spotify_id = vari["spotipyid"]
 spotify_token = vari["spotipytoken"]
 spotify_redirect_uri = vari["spotipyredirecturi"]
 apikey = vari['musixmatchkey']
+redis_host = vari['redis_host']
+redis_pass = vari['redis_pass']
+redis_port = vari['redis_port']
 queue_looping = False
 
 
@@ -56,7 +59,10 @@ class music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.queue = Queue()
-        self.spotify = SpotifyUtil(spotify_client_id=spotify_id, spotify_client_secret=spotify_token, spotify_redirect_uri=spotify_redirect_uri, cache_path=r"spotipy_cache.txt")
+        try:
+            self.spotify = SpotifyUtil(spotify_client_id=spotify_id, spotify_client_secret=spotify_token, spotify_redirect_uri=spotify_redirect_uri, redis_pass=redis_pass, host=redis_host, port=redis_port, use_redis=True)
+        except Exception as e:
+            print(e)
 
     @commands.command()
     async def join(self, ctx):
