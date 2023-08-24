@@ -9,7 +9,7 @@ import json
 import asyncio
 from .cogs.dbUtils.db import db
 
-j_file = open("secrets.txt")
+j_file = open("divinesecrets.txt")
 vari = json.load(j_file)
 j_file.close()
 TOKEN = vari["TOKEN"]

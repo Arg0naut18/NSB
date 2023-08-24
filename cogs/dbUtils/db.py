@@ -1,7 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 import json
 
-j_file = open("secrets.txt")
+j_file = open("divinesecrets.txt")
 vari = json.load(j_file)
 j_file.close()
 srv = vari["mongo"]

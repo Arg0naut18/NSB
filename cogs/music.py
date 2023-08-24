@@ -1,7 +1,6 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-from .MusicUtils.MusicPlayer import Music
 import DiscordUtils
 from youtube_title_parse import get_artist_title
 import asyncio
@@ -11,9 +10,8 @@ from pytube import Playlist
 import datetime
 from SpotifyUtil import SpotifyUtil
 
-m = Music()
 
-j_file = open("secrets.txt")
+j_file = open("divinesecrets.txt")
 vari = json.load(j_file)
 j_file.close()
 spotify_id = vari["spotipyid"]
@@ -23,11 +21,11 @@ apikey = vari['musixmatchkey']
 redis_host = vari['redis_host']
 redis_pass = vari['redis_pass']
 redis_port = vari['redis_port']
-queue_looping = False
 
 
 class Queue:
     def __init__(self):
+        self.queue_looping = False
         with open("./music/queue.json", 'r') as f:
             self.past_queue = json.load(f)
 
@@ -59,8 +57,9 @@ class music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.queueObj = Queue()
+        self.m = DiscordUtils.Music()
         try:
-            self.spotify = SpotifyUtil(spotify_client_id=spotify_id, spotify_client_secret=spotify_token, spotify_redirect_uri=spotify_redirect_uri, redis_pass=redis_pass, host=redis_host, port=redis_port, use_redis=True)
+            self.spotify = SpotifyUtil(spotify_client_id=spotify_id, spotify_client_secret=spotify_token, spotify_redirect_uri=spotify_redirect_uri, use_redis=True, redis_pass=redis_pass, host=redis_host, port=redis_port)
         except Exception as e:
             print(e)
 
@@ -82,7 +81,7 @@ class music(commands.Cog):
     async def leave(self, ctx):
         try:
             vc = ctx.author.voice.channel
-            player = m.get_player(guild_id=ctx.guild.id)
+            player = self.m.get_player(guild_id=ctx.guild.id)
         except:
             await self.send_and_delete_msg(ctx, "`You must be in the vc for this command to work!`")
             return
@@ -110,9 +109,9 @@ class music(commands.Cog):
             await ctx.guild.change_voice_state(channel=ctx.author.voice.channel, self_deaf=True)
         except:
             pass
-        player = m.get_player(guild_id=ctx.guild.id)
+        player = self.m.get_player(guild_id=ctx.guild.id)
         if not player:
-            player = m.create_player(ctx, ffmpeg_error_betterfix=True)
+            player = self.m.create_player(ctx, ffmpeg_error_betterfix=True)
         if 'spotify.com' in url:
             type = url.split('spotify.com/')[1].split('/')[0]
             if type=='track':
@@ -202,7 +201,7 @@ class music(commands.Cog):
         except:
             await ctx.send("`You need to be connected to the vc!`")
             return
-        player = m.get_player(guild_id=ctx.guild.id)
+        player = self.m.get_player(guild_id=ctx.guild.id)
         await player.pause()
         await ctx.message.add_reaction("⏸️")
 
@@ -213,7 +212,7 @@ class music(commands.Cog):
         except:
             await ctx.send("`You need to be connected to the vc!`")
             return
-        player = m.get_player(guild_id=ctx.guild.id)
+        player = self.m.get_player(guild_id=ctx.guild.id)
         song = await player.resume()
         try:
             await ctx.message.add_reaction("👍")
@@ -227,7 +226,7 @@ class music(commands.Cog):
         except:
             await ctx.send("`You need to be connected to the vc!`")
             return
-        player = m.get_player(guild_id=ctx.guild.id)
+        player = self.m.get_player(guild_id=ctx.guild.id)
         await player.stop()
         try:
             await ctx.message.add_reaction("🛑")
@@ -242,7 +241,7 @@ class music(commands.Cog):
         except:
             await ctx.send("`You need to be connected to the vc!`")
             return
-        player = m.get_player(guild_id=ctx.guild.id)
+        player = self.m.get_player(guild_id=ctx.guild.id)
         if term != "queue":
             song = await player.toggle_song_loop()
             if song.is_looping:
@@ -259,7 +258,7 @@ class music(commands.Cog):
     @commands.hybrid_command(aliases = ['q'])
     async def queue(self, ctx):
         await ctx.defer()
-        player = m.get_player(guild_id=ctx.guild.id)
+        player = self.m.get_player(guild_id=ctx.guild.id)
         duralist = []
         duras = [str(datetime.timedelta(seconds = song.duration)) for song in player.current_queue()]
         for durationosong in duras:
@@ -324,7 +323,7 @@ class music(commands.Cog):
 
     @commands.hybrid_command(description="Shows the song playing right now")
     async def np(self, ctx):
-        player = m.get_player(guild_id=ctx.guild.id)
+        player = self.m.get_player(guild_id=ctx.guild.id)
         song = player.now_playing()
         if song.duration % 60 >= 10:
             dura = f"{song.duration//60}:{song.duration%60}"
@@ -341,7 +340,7 @@ class music(commands.Cog):
         except:
             await ctx.send("`You need to be connected to the vc!`")
             return
-        player = m.get_player(guild_id=ctx.guild.id)
+        player = self.m.get_player(guild_id=ctx.guild.id)
         data = await player.skip(force=True)
         await ctx.message.add_reaction("⏩")
         song = player.now_playing()
@@ -358,7 +357,7 @@ class music(commands.Cog):
         except:
             await ctx.send("`You need to be connected to the vc!`")
             return
-        player = m.get_player(guild_id=ctx.guild.id)
+        player = self.m.get_player(guild_id=ctx.guild.id)
         song, volume = await player.change_volume(float(vol) / 100) # volume should be a float between 0 to 1
         await ctx.send(f"Changed volume for {song.name} to {volume*100}%")
 
@@ -369,7 +368,7 @@ class music(commands.Cog):
         except:
             await ctx.send("`You need to be connected to the vc!`")
             return
-        player = m.get_player(guild_id=ctx.guild.id)
+        player = self.m.get_player(guild_id=ctx.guild.id)
         if index=="last":
             ind = len(player.current_queue())
             song = await player.remove_from_queue(int(ind-1))
@@ -386,7 +385,7 @@ class music(commands.Cog):
         track_search_parameter = "&q_track="
         artist_search_parameter = "&q_artist="
         if songname is None:
-            player = m.get_player(guild_id=ctx.guild.id)
+            player = self.m.get_player(guild_id=ctx.guild.id)
             song = player.now_playing()
             artistname, titlename = get_artist_title(f"{song.name}")
         elif 'by' in songname:

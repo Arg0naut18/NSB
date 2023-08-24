@@ -6,7 +6,7 @@ import requests
 
 color = [15158332, 3066993, 10181046, 3447003, 1752220, 15844367]
 
-j_file = open("secrets.txt")
+j_file = open("divinesecrets.txt")
 vari = json.load(j_file)
 j_file.close()
 fillerApi = vari["fillerApi"]

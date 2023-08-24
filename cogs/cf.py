@@ -7,7 +7,7 @@ import urllib.request
 from bs4 import BeautifulSoup
 import re
 
-j_file = open("secrets.txt")
+j_file = open("divinesecrets.txt")
 vari = json.load(j_file)
 j_file.close()
 key = vari["cfkey"]

@@ -3,5 +3,5 @@
 *.xml
 .idea/NSB.iml
 cogs1/AnimeUtils/__pycache__/*
-secrets.txt
+divinesecrets.txt
 prefixes/prefixes.json

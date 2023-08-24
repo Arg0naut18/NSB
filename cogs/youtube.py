@@ -7,7 +7,7 @@ import json
 import urllib
 import re
 
-j_file = open("secrets.txt")
+j_file = open("divinesecrets.txt")
 vari = json.load(j_file)
 j_file.close()
 ytKey = vari["ytKey"]
