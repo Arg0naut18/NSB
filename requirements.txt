@@ -1,6 +1,8 @@
 pip
 motor
 pymongo[srv]
+httpcore==0.17.3
+httpx==0.24.1
 praw
 lxml
 python-codeforces
@@ -23,3 +25,4 @@ python-aternos
 js2py
 SpotifyUtil==0.0.0.7
 redis[hiredis]
+interruptingcow

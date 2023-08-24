@@ -58,10 +58,6 @@ class music(commands.Cog):
         self.bot = bot
         self.queueObj = Queue()
         self.m = DiscordUtils.Music()
-        try:
-            self.spotify = SpotifyUtil(spotify_client_id=spotify_id, spotify_client_secret=spotify_token, spotify_redirect_uri=spotify_redirect_uri, use_redis=True, redis_pass=redis_pass, host=redis_host, port=redis_port)
-        except Exception as e:
-            print(e)
 
     async def send_and_delete_msg(self, ctx, mssg, time=5, is_embed=False):
         if is_embed: msg = await ctx.send(embed=mssg)
@@ -72,16 +68,19 @@ class music(commands.Cog):
     @commands.command()
     async def join(self, ctx):
         try:
-            await ctx.author.voice.channel.connect()
+            vc = ctx.author.voice.channel
         except:
             await self.send_and_delete_msg(ctx, "You need to be connected to the vc!")
+        await vc.connect()
         await ctx.guild.change_voice_state(channel=ctx.author.voice.channel, self_deaf=True)
+        self.spotify = SpotifyUtil(spotify_client_id=spotify_id, spotify_client_secret=spotify_token, spotify_redirect_uri=spotify_redirect_uri, use_redis=True, redis_pass=redis_pass, host=redis_host, port=redis_port)
 
     @commands.hybrid_command(description="Bot leaves the vc", aliases=['dc', 'disconnect'])
     async def leave(self, ctx):
         try:
             vc = ctx.author.voice.channel
             player = self.m.get_player(guild_id=ctx.guild.id)
+            bot_in_vc = ctx.voice_client
         except:
             await self.send_and_delete_msg(ctx, "`You must be in the vc for this command to work!`")
             return
@@ -92,7 +91,7 @@ class music(commands.Cog):
             await ctx.message.add_reaction("👋")
         except: pass
         await player.stop()
-        await ctx.voice_client.disconnect()
+        await bot_in_vc.disconnect()
         await self.queueObj.clear_queue(ctx.author)
 
     @commands.hybrid_command(description="Play songs", aliases=['p'])
@@ -100,13 +99,7 @@ class music(commands.Cog):
     async def play(self, ctx, *, url):
         await ctx.defer()
         try:
-            vc = ctx.author.voice.channel
-        except:
-            await ctx.send("`You need to be connected to the vc!`")
-            return
-        try:
-            await vc.connect()
-            await ctx.guild.change_voice_state(channel=ctx.author.voice.channel, self_deaf=True)
+            await self.join(ctx)
         except:
             pass
         player = self.m.get_player(guild_id=ctx.guild.id)
