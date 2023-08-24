@@ -58,7 +58,7 @@ class Queue:
 class music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.queue = Queue()
+        self.queueObj = Queue()
         try:
             self.spotify = SpotifyUtil(spotify_client_id=spotify_id, spotify_client_secret=spotify_token, spotify_redirect_uri=spotify_redirect_uri, redis_pass=redis_pass, host=redis_host, port=redis_port, use_redis=True)
         except Exception as e:
@@ -94,7 +94,7 @@ class music(commands.Cog):
         except: pass
         await player.stop()
         await ctx.voice_client.disconnect()
-        await self.queue.clear_queue(ctx.author)
+        await self.queueObj.clear_queue(ctx.author)
 
     @commands.hybrid_command(description="Play songs", aliases=['p'])
     @app_commands.rename(url="name-or-url")
@@ -151,7 +151,7 @@ class music(commands.Cog):
                 title = song.name
                 artist = song.channel
             sname = title + " " + artist
-            await self.queue.add_queue(ctx.author, sname)
+            await self.queueObj.add_queue(ctx.author, sname)
             if song.duration % 60 >= 10:
                 dura = f"{song.duration//60}:{song.duration%60}"
             else:
@@ -233,7 +233,7 @@ class music(commands.Cog):
             await ctx.message.add_reaction("🛑")
         except:
             pass
-        await self.queue.clear_queue(ctx.author)
+        await self.queueObj.clear_queue(ctx.author)
 
     @commands.hybrid_command()
     async def loop(self, ctx, term=None):
@@ -250,23 +250,11 @@ class music(commands.Cog):
             else:
                 await ctx.send(f"Disabled loop for `{song.name}`")
         elif term == "queue":
-            past_q = await self.queue.get_queue(ctx.author)
+            past_q = await self.queueObj.get_queue(ctx.author)
             total_queue = list(set(past_q))[:-1] + [songs.name+" "+songs.channel for songs in player.current_queue()]
             for song in total_queue:
                 await player.queue(song, search=True)
             await ctx.send("Now the Queue is looping. It will loop only once.")
-        
-
-    # @commands.command(aliases=['prev'])
-    # async def previous(self, ctx):
-    #     with open('./music/queue.json', 'r') as f:
-    #         prev_queue = json.load(f)
-    #     if len(prev_queue[str(ctx.guild.id)]) == 0:
-    #         await ctx.send("There was no previous song!")
-    #         return
-    #     player = m.get_player(guild_id=ctx.guild.id)
-    #     total_queue = prev_queue + player.current_queue()[1:]
-    #     await player.queue(prev_queue[str(ctx.author.guild.id)][-2])
 
     @commands.hybrid_command(aliases = ['q'])
     async def queue(self, ctx):
