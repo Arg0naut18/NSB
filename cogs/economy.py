@@ -101,11 +101,7 @@ class Bank:
         if bal[0] < cost:
             return [False, 2]
         this_user = await dbe.find_one(filter)
-        if "bag" in this_user:
-            newVal = {"$push": {"bag": {item: item, amount: amount}}}
-            dbe.update_one(filter, newVal)
-        else:
-            Bank.update_inventory(user, item_name, amount)
+        Bank.update_inventory(user, item_name, amount)
         await Bank.update_bank_data(1, user, cost * -1)
         return [True, "Successful", cost]
     
@@ -130,9 +126,8 @@ class Bank:
         if bal[0] < cost:
             return [False, 2]
         try:
-            index = 0
             t = False
-            for thing in users[str(user.id)]["bag"]:
+            for index, thing in enumerate(users[str(user.id)]["bag"]):
                 n = thing["item"]
                 if n == item_name:
                     old_amt = thing["amount"]
@@ -140,7 +135,6 @@ class Bank:
                     users[str(user.id)]["bag"][index]["amount"] = new_amt
                     t = True
                     break
-                index += 1
             if not t:
                 obj = {"item": item_name, "amount": amount}
                 users[str(user.id)]["bag"].append(obj)
@@ -166,13 +160,14 @@ class Bank:
         return len(query)!=0
 
     async def is_in_inventory(user, item):
-        inventory = await Bank.get_inventory(user)
+        bag = await Bank.get_inventory(user)
         found = False
         idx = -1
-        for index in range(len(inventory)):
-            if item == inventory[index]["item"]:
+        for index, elem in enumerate(bag):
+            if item.lower() == elem["item"]:
                 found = True
                 idx = index
+                break
         return [found, idx]
 
 
@@ -197,12 +192,11 @@ class Bank:
         gift_item = await Bank.get_random_gift()
         item_name = gift_item[1]
         try:
-            index = 0
             t = None
 
             # Needs Update
 
-            for thing in users[str(user.id)]["bag"]:
+            for index, thing in enumerate(users[str(user.id)]["bag"]):
                 n = thing["item"]
                 if n == item_name:
                     old_amt = thing["amount"]
@@ -210,7 +204,6 @@ class Bank:
                     users[str(user.id)]["bag"][index]["amount"] = new_amt
                     t = 1
                     break
-                index += 1
             if t is None:
                 obj = {"item": item_name, "amount": amount}
                 users[str(user.id)]["bag"].append(obj)
@@ -240,9 +233,8 @@ class Bank:
             return [False, 2]
         users = await Bank.get_account_data()
         try:
-            index = 0
             t = None
-            for thing in users[str(user2.id)]["bag"]:
+            for index, thing in enumerate(users[str(user2.id)]["bag"]):
                 n = thing["item"]
                 if n == item_name:
                     old_amt = thing["amount"]
@@ -250,7 +242,6 @@ class Bank:
                     users[str(user2.id)]["bag"][index]["amount"] = new_amt
                     t = 1
                     break
-                index += 1
             if t is None:
                 obj = {"item": item_name, "amount": amount}
                 users[str(user2.id)]["bag"].append(obj)
@@ -273,39 +264,43 @@ class Bank:
         return [True, "Successful"]
     
     async def update_inventory(user, item, amount):
+        """
+        Takes user, item and amount. Gets user data and checks if item is in inv. Checking in inv returns True and index or False.
+        It then updates the bag. Pushes new element or updates the item amount.
+        """
         dbUser = await Bank.get_account_data(user)
         item_in_inv = await Bank.is_in_inventory(user, item)
         filter = {"_id": str(user.id)}
         if item_in_inv[0]==True:
-            newVal = {"$set": {f"bag[{item_in_inv[1]}].item": dbUser["bag"][item_in_inv[1]]["amount"]+amount}}
+            newVal = {"$set": {f"bag[{item_in_inv[1]}][item]": dbUser["bag"][item_in_inv[1]]["amount"]+amount}}
         else:
-            newVal = {"$push": {"bag": {item: item, amount: amount}}}
+            newVal = {"$push": {"bag": {"item": item, "amount": amount}}}
         dbe.update_one(filter, newVal)
-        users = await Bank.get_account_data()
-        try:
-            t = None
-            for thing in users[str(user.id)]["bag"]:
-                n = thing["item"]
-                if n == item:
-                    old_amt = thing["amount"]
-                    new_amt = old_amt + amount
-                    thing["amount"] = new_amt
-                    t = 1
-                    break
-            if t is None:
-                obj = {"item": item, "amount": amount}
-                users[str(user.id)]["bag"].append(obj)
-        except Exception as e:
-            print(e)
-            obj = {"item": item, "amount": amount}
-            users[str(user.id)]["bag"] = [obj]
-        for i in range(len(users[str(user.id)]["bag"])):
-            if item == users[str(user.id)]["bag"][i]["item"]:
-                if users[str(user.id)]["bag"][i]["amount"] == 0:
-                    del users[str(user.id)]["bag"][i]
-                    break
-        with open(r'./bank/bank.json', 'w') as f:
-            json.dump(users, f, indent=4)
+        # users = await Bank.get_account_data()
+        # try:
+        #     t = None
+        #     for thing in users[str(user.id)]["bag"]:
+        #         n = thing["item"]
+        #         if n == item:
+        #             old_amt = thing["amount"]
+        #             new_amt = old_amt + amount
+        #             thing["amount"] = new_amt
+        #             t = 1
+        #             break
+        #     if t is None:
+        #         obj = {"item": item, "amount": amount}
+        #         users[str(user.id)]["bag"].append(obj)
+        # except Exception as e:
+        #     print(e)
+        #     obj = {"item": item, "amount": amount}
+        #     users[str(user.id)]["bag"] = [obj]
+        # for i in range(len(users[str(user.id)]["bag"])):
+        #     if item == users[str(user.id)]["bag"][i]["item"]:
+        #         if users[str(user.id)]["bag"][i]["amount"] == 0:
+        #             del users[str(user.id)]["bag"][i]
+        #             break
+        # with open(r'./bank/bank.json', 'w') as f:
+        #     json.dump(users, f, indent=4)
 
 
     async def get_tries(user):
@@ -755,14 +750,14 @@ class Economy(commands.Cog):
                 await ctx.send("You already are using a multiplier buff.")
                 return
         single_items = ["padlock", "coinbomb", "oolong", "dartea"]
-        for index in range(len(inv)):
-            if item == inv[index]["item"]:
+        for index, elem in enumerate(inv):
+            if item == elem["item"]:
                 if amount == "max" or amount == "all":
-                    amount = inv[index]["amount"]
+                    amount = elem["amount"]
                 amount = int(amount)
                 if item in single_items:
                     amount = 1
-                if inv[index]["amount"] - amount == 0:
+                if elem["amount"] - amount == 0:
                     del users[str(user.id)]["bag"][index]
                     found = 1
                     break
@@ -862,8 +857,8 @@ class Economy(commands.Cog):
             await ctx.send("You don't own anything to use.")
             return
         found = 0
-        for index in range(len(inv)):
-            if "fishingrod" == inv[index]["item"]:
+        for elem in inv:
+            if "fishingrod" == elem["item"]:
                 found = 1
                 break
         if found == 1:
@@ -958,8 +953,8 @@ class Economy(commands.Cog):
             await ctx.send("You don't own anything to use.")
             return
         found = 0
-        for index in range(len(inv)):
-            if "huntinggun" == inv[index]["item"]:
+        for elem in inv:
+            if "huntinggun" == elem["item"]:
                 found = 1
                 break
         if found == 1:
@@ -1018,12 +1013,11 @@ class Economy(commands.Cog):
         for items in shop:
             if items["name"] == item:
                 price = items["price"]
-        index = 0
         found = 0
-        for index in range(len(inv)):
-            if item == inv[index]["item"]:
+        for index, elem in enumerate(inv):
+            if item == elem["item"]:
                 if amount == "max" or amount == "all":
-                    amount = inv[index]["amount"]
+                    amount = elem["amount"]
                 amount = int(amount)
                 if users[str(ctx.author.id)]["bag"][index]["amount"] - amount < 0:
                     await ctx.send("You don't have that many to sell.")
@@ -1036,7 +1030,6 @@ class Economy(commands.Cog):
                     found = 1
                     users[str(ctx.author.id)]["bag"][index]["amount"] -= amount
                     break
-            index += 1
         if found == 1:
             with open(r'./bank/bank.json', 'w') as f:
                 json.dump(users, f, indent=4)
