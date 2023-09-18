@@ -10,6 +10,8 @@ from dbUtil.db import db
 
 dbe = db.economy
 dbShop = db.shopItems
+dbTransactions = db.transactions
+dbNotifications = db.notifs
 
 
 class UserMongo:
@@ -44,9 +46,6 @@ class Bank:
 
     async def get_account_data(user=None):
         if user is None:
-            # with open(r'./bank/bank.json', 'r') as j:
-            #     users = json.load(j)
-            # return users
             users = await dbe.find()
             users_list = await users.to_list(length=1000)
             users_set = dict()
@@ -58,7 +57,6 @@ class Bank:
         else:
             data = await dbe.find_one({"_id": str(user.id)})
         return data
-
 
     async def update_bank_data(m, user, amount:int=0, mode="wallet"):
         if m==1:
@@ -76,12 +74,10 @@ class Bank:
             bal = [users[str(user.id)]["wallet"], users[str(user.id)]["bank"]]
             return bal
 
-
     async def get_key_dict(val, dicti):
         for key, value in dicti.items():
             if val == value:
                 return key
-
 
     async def get_total_balance(user):
         users = await Bank.get_account_data(user)
@@ -89,8 +85,8 @@ class Bank:
         user_stats = [users["wallet"], users["bank"], total]
         return user_stats
 
-
-    async def buy_this_mongo(user, item_name, amount):
+    async def buy_this(user, item_name, amount):
+        await Bank.open_account(user)
         filter = {"_id": str(user.id)}
         item_name = item_name.lower()
         item = await dbShop.find_one({"name": str(item_name)})
@@ -100,52 +96,9 @@ class Bank:
         bal = await Bank.update_bank_data(1, user)
         if bal[0] < cost:
             return [False, 2]
-        this_user = await dbe.find_one(filter)
-        Bank.update_inventory(user, item_name, amount)
+        await Bank.update_inventory(user, item_name, amount)
         await Bank.update_bank_data(1, user, cost * -1)
         return [True, "Successful", cost]
-    
-
-    async def buy_this(user, item_name, amount):
-        item_name = item_name.lower()
-        with open('./bank/shop.json', 'r') as f:
-            mainshop = json.load(f)
-        name_ = None
-        price = 0
-        for item in mainshop:
-            name = item["name"].lower()
-            if name == item_name:
-                name_ = name
-                price = item["price"]
-                break
-        if name_ is None:
-            return [False, 1]
-        cost = price * amount
-        users = await Bank.get_account_data()
-        bal = await Bank.update_bank_data(1, user)
-        if bal[0] < cost:
-            return [False, 2]
-        try:
-            t = False
-            for index, thing in enumerate(users[str(user.id)]["bag"]):
-                n = thing["item"]
-                if n == item_name:
-                    old_amt = thing["amount"]
-                    new_amt = old_amt + amount
-                    users[str(user.id)]["bag"][index]["amount"] = new_amt
-                    t = True
-                    break
-            if not t:
-                obj = {"item": item_name, "amount": amount}
-                users[str(user.id)]["bag"].append(obj)
-        except:
-            obj = {"item": item_name, "amount": amount}
-            users[str(user.id)]["bag"] = [obj]
-        with open('./bank/bank.json', 'w') as f:
-            json.dump(users, f, indent=4)
-        await Bank.update_bank_data(1, user, cost * -1)
-        return [True, "Successful", cost]
-
 
     async def get_inventory(user):
         users = await Bank.get_account_data(user)
@@ -170,52 +123,25 @@ class Bank:
                 break
         return [found, idx]
 
-
     async def open_shop():
         elems = dbShop.find()
-        # shop = []
-        # while elems.hasNext():
-        #     shop.append(next(elems))
-        # return shop
         shop = await elems.to_list(length=1000)
         return shop
-        
 
     async def get_random_gift():
         shop = await Bank.open_shop()
         gift_item = random.choice(shop)
         return [gift_item["display_name"], gift_item["name"], gift_item["price"]]
 
-
     async def add_gift_to_inventory(user, amount:int=1):
-        users = await Bank.get_account_data()
         gift_item = await Bank.get_random_gift()
         item_name = gift_item[1]
-        try:
-            t = None
-
-            # Needs Update
-
-            for index, thing in enumerate(users[str(user.id)]["bag"]):
-                n = thing["item"]
-                if n == item_name:
-                    old_amt = thing["amount"]
-                    new_amt = old_amt + amount
-                    users[str(user.id)]["bag"][index]["amount"] = new_amt
-                    t = 1
-                    break
-            if t is None:
-                obj = {"item": item_name, "amount": amount}
-                users[str(user.id)]["bag"].append(obj)
-        except:
-            obj = {"item": item_name, "amount": amount}
-            users[str(user.id)]["bag"] = [obj]
-        with open('./bank/bank.json', 'w') as f:
-            json.dump(users, f, indent=4)
+        await Bank.update_inventory(user, item_name, amount)
         return gift_item[0]
 
-
     async def gift_this(user1, user2, item_name, amount):
+        await Bank.open_account(user1)
+        await Bank.open_account(user2)
         item_name = item_name.lower()
         amount = int(amount)
         inv = await Bank.get_inventory(user1)
@@ -231,36 +157,8 @@ class Bank:
             return [False, 1]
         if user1 == user2:
             return [False, 2]
-        users = await Bank.get_account_data()
-        try:
-            t = None
-            for index, thing in enumerate(users[str(user2.id)]["bag"]):
-                n = thing["item"]
-                if n == item_name:
-                    old_amt = thing["amount"]
-                    new_amt = old_amt + amount
-                    users[str(user2.id)]["bag"][index]["amount"] = new_amt
-                    t = 1
-                    break
-            if t is None:
-                obj = {"item": item_name, "amount": amount}
-                users[str(user2.id)]["bag"].append(obj)
-        except:
-            obj = {"item": item_name, "amount": amount}
-            users[str(user2.id)]["bag"] = [obj]
-        for thing in inv:
-            n = thing["item"]
-            if n == item_name:
-                old_amt = thing["amount"]
-                new_amt = old_amt - amount
-                if new_amt == 0:
-                    del thing
-                    break
-                else:
-                    thing["amount"] = new_amt
-                    break
-        with open(r'./bank/bank.json', 'w') as f:
-            json.dump(users, f, indent=4)
+        await Bank.update_inventory(user1, item_name, -1*amount)
+        await Bank.update_inventory(user2, item_name, amount)
         return [True, "Successful"]
     
     async def update_inventory(user, item, amount):
@@ -272,36 +170,13 @@ class Bank:
         item_in_inv = await Bank.is_in_inventory(user, item)
         filter = {"_id": str(user.id)}
         if item_in_inv[0]==True:
-            newVal = {"$set": {f"bag[{item_in_inv[1]}][item]": dbUser["bag"][item_in_inv[1]]["amount"]+amount}}
+            final_amount = dbUser["bag"][item_in_inv[1]]["amount"]+amount
+            if final_amount>0: newVal = {"$set": {f"bag[{item_in_inv[1]}][item]": final_amount}}
+            elif final_amount<=0:
+                newVal = {"$pull": {"bag": {"item": item.lower()}}}
         else:
             newVal = {"$push": {"bag": {"item": item, "amount": amount}}}
         dbe.update_one(filter, newVal)
-        # users = await Bank.get_account_data()
-        # try:
-        #     t = None
-        #     for thing in users[str(user.id)]["bag"]:
-        #         n = thing["item"]
-        #         if n == item:
-        #             old_amt = thing["amount"]
-        #             new_amt = old_amt + amount
-        #             thing["amount"] = new_amt
-        #             t = 1
-        #             break
-        #     if t is None:
-        #         obj = {"item": item, "amount": amount}
-        #         users[str(user.id)]["bag"].append(obj)
-        # except Exception as e:
-        #     print(e)
-        #     obj = {"item": item, "amount": amount}
-        #     users[str(user.id)]["bag"] = [obj]
-        # for i in range(len(users[str(user.id)]["bag"])):
-        #     if item == users[str(user.id)]["bag"][i]["item"]:
-        #         if users[str(user.id)]["bag"][i]["amount"] == 0:
-        #             del users[str(user.id)]["bag"][i]
-        #             break
-        # with open(r'./bank/bank.json', 'w') as f:
-        #     json.dump(users, f, indent=4)
-
 
     async def get_tries(user):
         with open(r'./bank/fishingtries.json', 'r') as f:
@@ -314,59 +189,20 @@ class Bank:
             json.dump(users, f, indent=4)
         return True
 
-
-    async def start_log_transaction(user):
-        with open(r'./bank/transactions.json', 'r') as f:
-            users = json.load(f)
-        if str(user.id) in users:
-            return False
-        else:
-            users[str(user.id)] = []
-        with open(r'./bank/transactions.json', 'w') as f:
-            json.dump(users, f, indent=4)
-        return True
-
-
-    async def start_notifs(user):
-        with open(r'./bank/notifs.json', 'r') as f:
-            phone_data = json.load(f)
-        if user in phone_data:
-            return
-        else:
-            phone_data[str(user.id)] = []
-        with open(r'./bank/notifs.json', 'w') as f:
-            json.dump(phone_data, f, indent=4)
-        return True
-
-
     async def get_notifs():
-        with open(r'./bank/notifs.json', 'r') as f:
-            notifs = json.load(f)
+        notifs = await dbNotifications.find({})
         return notifs
 
-
     async def update_notif(user, notification):
-        await Bank.start_notifs(user)
-        phone_data = await Bank.get_notifs()
-        phone_data[str(user.id)].append({"notification": notification})
-        with open(r'./bank/notifs.json', 'w') as f:
-            json.dump(phone_data, f, indent=4)
+        filter = {"_id": str(user.id)}
+        dbNotifications.updateOne(filter, {"$push": {"notification": notification}}, {"upsert": True})
 
 
-    async def get_transactions():
-        with open(r'./bank/transactions.json', 'r') as f:
-            transactions = json.load(f)
-        return transactions
+    async def log_transaction(user, amount, description):
+        user = await Bank.get_account_data(user)
+        filter = {"_id": str(user.id)}
+        dbTransactions.updateOne(filter, {"$push": {"transactions": {"amount": amount, "description": description, "total": user["bank"] + user["wallet"]}}}, {"upsert": True})
 
-
-    async def log_transaction(user, amount, string):
-        users = await Bank.get_account_data()
-        await Bank.start_log_transaction(user)
-        trans = await Bank.get_transactions()
-        trans[str(user.id)].append(
-            {"amount": amount, "description": string, "total": users[str(user.id)]["bank"] + users[str(user.id)]["wallet"]})
-        with open(r'./bank/transactions.json', 'w') as f:
-            json.dump(trans, f, indent=4)
 
 class Economy(commands.Cog):
     def __init__(self, bot:commands.Bot):
@@ -581,14 +417,6 @@ class Economy(commands.Cog):
     @commands.hybrid_command(description="Check NCoin leaderboard in the guild", aliases=['ranks'])
     async def leaderboard(self, ctx):
         await ctx.defer(ephemeral=False)
-        # users = await Bank.get_account_data()
-        # total_list = {}
-        # for user in users:
-        #     member = self.bot.get_user(int(user)) or await self.bot.fetch_user(int(user))
-        #     if ctx.author.guild in member.mutual_guilds:
-        #         total = await Bank.get_total_balance(member)
-        #         total_list[f"{member.id}"] = total[2]
-        # sorteddict = dict(sorted(total_list.items(), key=lambda item: item[1], reverse=True))
         users = dbe.aggregate([
             {
                 '$sort': {
@@ -703,7 +531,7 @@ class Economy(commands.Cog):
 
     @commands.hybrid_command(description="Buy something from the shop")
     async def buy(self, ctx, item, amount:Optional[int]=1):
-        res = await Bank.buy_this_mongo(ctx.author, item, amount)
+        res = await Bank.buy_this(ctx.author, item, amount)
         if not res[0]:
             if res[1] == 1:
                 await ctx.send("This item isn't available on the shop yet! Please type the item ID properly.")
@@ -994,7 +822,6 @@ class Economy(commands.Cog):
             if res[1] == 2:
                 await ctx.send(f"Bruh did u really think u can gift yourself stuff? LMAO")
                 return
-        # await update_inventory(member, item, amount)
         await ctx.send(
             f"You just gifted `{amount}` `{item}` to {member.mention} <a:partygif:855108791532388422>. I admire your generosity.")
         await Bank.update_inventory(ctx.author, item, -amount)

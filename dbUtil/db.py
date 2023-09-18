@@ -12,3 +12,5 @@ class db:
     db = cluster['NSBUsers']
     economy = db['Users']
     shopItems = db['Shop']
+    transactions = db['Transactions']
+    notifs = db['Notifications']
