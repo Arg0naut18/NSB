@@ -81,8 +81,8 @@ class welcome(commands.Cog):
             # pfp = mask_circle_transparent(pfp, 1)
     #        layout.paste(pfp, (servers[str(member.guild.id)]["coordinates"]["pfp"][0], servers[str(member.guild.id)]["coordinates"]["pfp"][1]), pfp)
     #        draw = ImageDraw.Draw(layout)
-    #        font1 = ImageFont.truetype("./MPLUSRounded1c-Medium.ttf", servers[str(member.guild.id)]["sizes"]["font1"])
-    #        font2 = ImageFont.truetype("./MPLUSRounded1c-Bold.ttf", servers[str(member.guild.id)]["sizes"]["font2"])
+    #        font1 = ImageFont.truetype("./fonts/MPLUSRounded1c-Medium.ttf", servers[str(member.guild.id)]["sizes"]["font1"])
+    #        font2 = ImageFont.truetype("./fonts/MPLUSRounded1c-Bold.ttf", servers[str(member.guild.id)]["sizes"]["font2"])
     #        font3 = ImageFont.truetype("./BullettoKilla.ttf", servers[str(member.guild.id)]["sizes"]["font3"])
     #        imgdesc = f"{member}"
             # w, h = draw.textsize(imgdesc)

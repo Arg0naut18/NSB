@@ -106,7 +106,7 @@ class meme(commands.Cog):
         await ctx.defer(ephemeral=False)
         img = Image.open(r"./meme_templates/suntzu.jpg")
         draw = ImageDraw.Draw(img)
-        font = ImageFont.truetype("./MPLUSRounded1c-Regular.ttf", 42)
+        font = ImageFont.truetype("./fonts/MPLUSRounded1c-Regular.ttf", 42)
         # 669,359 446,142
         msg = "\n".join(textwrap.wrap(msg, width=34))
         draw.text((510, 211), msg, (255, 255, 255), font)
@@ -118,7 +118,7 @@ class meme(commands.Cog):
         await ctx.defer(ephemeral=False)
         img = Image.open(r"./meme_templates/gandhi.jpg")
         draw = ImageDraw.Draw(img)
-        font = ImageFont.truetype("./MPLUSRounded1c-Regular.ttf", 15)
+        font = ImageFont.truetype("./fonts/MPLUSRounded1c-Regular.ttf", 15)
         # 669,359 446,142
         msg = "\n".join(textwrap.wrap(msg, width=18))
         draw.text((144, 29), msg, (255, 255, 255), font)
@@ -130,7 +130,7 @@ class meme(commands.Cog):
         await ctx.defer(ephemeral=False)
         img = Image.open(r"./meme_templates/brain.jpg")
         draw = ImageDraw.Draw(img)
-        font = ImageFont.truetype("./MPLUSRounded1c-Regular.ttf", 20)
+        font = ImageFont.truetype("./fonts/MPLUSRounded1c-Regular.ttf", 20)
         # 669,359 446,142
         msg = "\n".join(textwrap.wrap(msg, width=25))
         draw.text((10, 276), msg, (0, 0, 0), font)

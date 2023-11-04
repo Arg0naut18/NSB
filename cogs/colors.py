@@ -121,7 +121,7 @@ class Colors(commands.Cog):
         layout = Image.open(r"./colors/transbgm.png")
         layout.resize((300, 300))
         draw = ImageDraw.Draw(layout)
-        font = ImageFont.truetype("./MPLUSRounded1c-Bold.ttf", 100)
+        font = ImageFont.truetype("./fonts/MPLUSRounded1c-Bold.ttf", 100)
         xoffset, yoffset = 10, 10
         i = 1
         try:

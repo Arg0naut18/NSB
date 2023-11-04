@@ -6,6 +6,6 @@ COPY . /
 
 RUN sudo apt-get update && \
     sudo apt-get install foo bar baz foo-dev foo-dbg && \
-    pip install -r /requirements.txt --upgrade
+    pip install -Ur requirements.txt
 
 CMD ["python", "main.py"]
