@@ -7,21 +7,17 @@ import json
 from PIL import Image, ImageFont, ImageDraw
 from io import BytesIO
 import textwrap
+from configs import CLIENT_ID, CLIENT_SECRET, USER_AGENT
 
 color = [15158332, 3066993, 10181046, 3447003, 1752220, 15844367]
-j_file = open("divinesecrets.txt")
-vari = json.load(j_file)
-j_file.close()
-client_id1 = vari["client_id"]
-client_secret1 = vari["client_secret"]
-user_agent1 = vari["user_agent"]
-reddit = praw.Reddit(client_id=client_id1, client_secret=client_secret1,
-                     user_agent=user_agent1, check_for_async=False)
+reddit = praw.Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET,
+                     user_agent=USER_AGENT, check_for_async=False)
 
 class meme(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        self.font = "./fonts/MPLUSRounded1c-Regular.ttf"
 
     @commands.hybrid_command(description = "Shows a meme", aliases=['memes', 'm'])
     async def meme(self, ctx: commands.Context):
@@ -32,7 +28,7 @@ class meme(commands.Cog):
         color_main = random.choice(color)
         memes_submissions = reddit.subreddit(main_meme).top()
         post_to_pick = random.randint(1, 100)
-        for i in range(0, post_to_pick):
+        for _ in range(0, post_to_pick):
             submission = next(x for x in memes_submissions if not x.stickied)
         slink = f'{submission.shortlink}'
         embed = discord.Embed(
@@ -47,31 +43,16 @@ class meme(commands.Cog):
         await ctx.defer(ephemeral=False)
         meme = ['aww', 'AnimalsBeingBros', 'NatureIsFuckingLit']
         main_meme = meme[random.randint(0, len(meme)-1)]
-        color_main = color[random.randint(0, len(color)-1)]
         memes_submissions = reddit.subreddit(main_meme).new()
         post_to_pick = random.randint(1, 100)
-        for i in range(0, post_to_pick):
+        for _ in range(0, post_to_pick):
             submission = next(x for x in memes_submissions if not x.stickied)
             slink = f'{submission.shortlink}'
-            headerText = f"{submission.title}  [{slink}]"
-            mainPart = submission.url
-            footerText = f'Post by u/{submission.author}  from {memes_submissions.url}'
-            await ctx.send(headerText+'\n'+mainPart+'\n'+footerText)
+            header_text = f"{submission.title}  [{slink}]"
+            main_part = submission.url
+            footer_text = f'Post by u/{submission.author}  from {memes_submissions.url}'
+            await ctx.send(header_text+'\n'+main_part+'\n'+footer_text)
             break
-            # if isVideo(submission.url):
-            #     print("video!")
-            #     slink = f'{submission.shortlink}'
-            #     await ctx.reply(slink)
-            #     await ctx.send(submission.url)
-            #     break
-            # else:
-            #     embed = discord.Embed(
-            #         title=f"__{submission.title}__, color=color_main, url=slink)
-            #     embed.set_image(url=submission.url)
-            #     embed.set_footer(
-            #         text=f'Post by u/{submission.author}  from {memes_submissions.url}')
-            #     await ctx.reply(embed=embed)
-            #     break
 
     @commands.hybrid_command(description="Make someone wanted")
     async def wanted(self, ctx: commands.Context, member: Optional[discord.Member] = None):
@@ -106,7 +87,7 @@ class meme(commands.Cog):
         await ctx.defer(ephemeral=False)
         img = Image.open(r"./meme_templates/suntzu.jpg")
         draw = ImageDraw.Draw(img)
-        font = ImageFont.truetype("./fonts/MPLUSRounded1c-Regular.ttf", 42)
+        font = ImageFont.truetype(self.font, 42)
         # 669,359 446,142
         msg = "\n".join(textwrap.wrap(msg, width=34))
         draw.text((510, 211), msg, (255, 255, 255), font)
@@ -118,7 +99,7 @@ class meme(commands.Cog):
         await ctx.defer(ephemeral=False)
         img = Image.open(r"./meme_templates/gandhi.jpg")
         draw = ImageDraw.Draw(img)
-        font = ImageFont.truetype("./fonts/MPLUSRounded1c-Regular.ttf", 15)
+        font = ImageFont.truetype(self.font, 15)
         # 669,359 446,142
         msg = "\n".join(textwrap.wrap(msg, width=18))
         draw.text((144, 29), msg, (255, 255, 255), font)
@@ -130,7 +111,7 @@ class meme(commands.Cog):
         await ctx.defer(ephemeral=False)
         img = Image.open(r"./meme_templates/brain.jpg")
         draw = ImageDraw.Draw(img)
-        font = ImageFont.truetype("./fonts/MPLUSRounded1c-Regular.ttf", 20)
+        font = ImageFont.truetype(self.font, 20)
         # 669,359 446,142
         msg = "\n".join(textwrap.wrap(msg, width=25))
         draw.text((10, 276), msg, (0, 0, 0), font)

@@ -5,3 +5,6 @@
 cogs1/AnimeUtils/__pycache__/*
 divinesecrets.txt
 prefixes/prefixes.json
+secrets.json
+docker_builder.sh
+docker_generator.py

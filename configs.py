@@ -1,0 +1,23 @@
+import os
+
+
+NSB_TOKEN = os.getenv("nsbtoken")
+TOKEN = os.getenv("TOKEN")
+ALT_TOKEN = os.getenv("token")
+YT_KEY = os.getenv("ytKey")
+CLIENT_ID = os.getenv("client_id")
+CLIENT_SECRET = os.getenv("client_secret")
+USER_AGENT = os.getenv("user_agent")
+TENOR_KEY = os.getenv("tenorkey")
+SPOTIPY_ID = os.getenv("spotipyid")
+SPOTIPY_TOKEN = os.getenv("spotipytoken")
+MUSIXMATCH_KEY = os.getenv("musixmatchkey")
+OWNER_ID = os.getenv("dev_id")
+CODEFORCES_KEY = os.getenv("cfkey")
+CODEFORCES_SECRET = os.getenv("cfsecret")
+FILLER_API = os.getenv("fillerApi")
+MONGO = os.getenv("mongo")
+SPOTPY_REDIRECT_URI = os.getenv("spotipyredirecturi")
+REDIS_HOST = os.getenv("redis_host")
+REDIS_PASS = os.getenv("redis_pass")
+REDIS_PORT = os.getenv("redis_port")

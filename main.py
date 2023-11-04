@@ -11,16 +11,12 @@ import random
 import json
 import asyncio
 from dbUtil.db import db
+from configs import NSB_TOKEN, OWNER_ID
 
-# setting the secrets
-j_file = open("divinesecrets.txt")
-vari = json.load(j_file)
-j_file.close()
-TOKEN = vari["TOKEN"]
-token = vari["nsbtoken"]
-ipcsecret = vari["ipcsecret"]
-dev_id = 436844058217021441
+
 guild_id = 743741348578066442
+prefix_path = './prefixes/prefixes.json'
+
 
 class button_view(discord.ui.View):
     def __init__(self):
@@ -36,13 +32,13 @@ class button_view(discord.ui.View):
         else:
             await interaction.response.send_message(f"You already are {MyBot.verRole.mention}!", ephemeral=True)
 
+
 class MyBot(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.verRole = 764059798719037460
         self.added = False
         self.db = db
-        #self.synced = False
     
     async def on_ready(self):
         await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"Prefix: nsb | {len(bot.guilds)} guilds and {len(bot.users)} members."))
@@ -58,38 +54,30 @@ class MyBot(commands.Bot):
                     print(f"Loading divinecogs.{file[:-3]}...")
                     await bot.load_extension(f"divinecogs.{file[:-3]}")
                     print(f"divinecogs.{file[:-3]} loaded!")
-        #if not self.synced:
         await self.tree.sync()
-            #self.synced = True
-        
-        
-        #self.ipc=ipc.Server(self, secret_key=ipcsecret)
-    #async def on_ipc_ready(self):
-        #print("IPC ready!")
-    #async def on_ipc_error(self, endpoint, error):
-        #print(endpoint, "raised", error)
+
 
 def get_prefix(client, message):
     if message.guild is None: return commands.when_mentioned_or('nsb ')(client, message)
     try:
-        with open('./prefixes/prefixes.json', 'r') as f:
+        with open(prefix_path, 'r') as f:
             prefixes = json.load(f)
             prefixes_list = [prefixes[str(message.guild.id)], prefixes[str(message.guild.id)].lower(), prefixes[str(message.guild.id)].upper(), prefixes[str(message.guild.id)].title()]
             return commands.when_mentioned_or(*prefixes_list)(client, message)
         
     except KeyError: # if the guild's prefix cannot be found in 'prefixes.json'
-        with open('./prefixes/prefixes.json', 'r') as k:
+        with open(prefix_path, 'r') as k:
             prefixes = json.load(k)
         prefixes[str(message.guild.id)] = 'nsb '
 
-        with open('./prefixes/prefixes.json', 'w') as j:
+        with open(prefix_path, 'w') as j:
             json.dump(prefixes, j, indent = 4)
 
-        with open('./prefixes/prefixes.json', 'r') as t:
+        with open(prefix_path, 'r') as t:
             prefixes = json.load(t)
             return prefixes[str(message.guild.id)]
         
-    except: # I added this when I started getting dm error messages
+    except Exception: # I added this when I started getting dm error messages
         pass
 
 intents = discord.Intents.all()
@@ -101,21 +89,21 @@ bot = MyBot(command_prefix=(get_prefix), intents=intents, owner_id=4368440582170
 
 @bot.event
 async def on_guild_join(guild): #when the bot joins the guild
-    with open('./prefixes/prefixes.json', 'r') as f: #read the prefix.json file
+    with open(prefix_path, 'r') as f: #read the prefix.json file
         prefixes = json.load(f) #load the json file
 
     prefixes[str(guild.id)] = 'nsb '#default prefix
 
-    with open('./prefixes/prefixes.json', 'w') as f: #write in the prefix.json "message.guild.id": "bl!"
+    with open(prefix_path, 'w') as f: #write in the prefix.json "message.guild.id": "bl!"
         json.dump(prefixes, f, indent=4) #the indent is to make everything look a bit neater
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"Prefix: nsb | {len(bot.guilds)} guilds and {len(bot.users)} members."))    
 
 @bot.event
 async def on_guild_remove(guild): #when the bot is removed from the guild
-    with open('./prefixes/prefixes.json', 'r') as f: #read the file
+    with open(prefix_path, 'r') as f: #read the file
         prefixes = json.load(f)
     prefixes.pop(str(guild.id)) #find the guild.id that bot was removed from
-    with open('./prefixes/prefixes.json', 'w') as f: #deletes the guild.id as well as its prefix
+    with open(prefix_path, 'w') as f: #deletes the guild.id as well as its prefix
         json.dump(prefixes, f, indent=4)
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=f"Prefix: nsb | {len(bot.guilds)} guilds and {len(bot.users)} members."))
 
@@ -127,12 +115,12 @@ async def syncall(ctx):
 @bot.hybrid_command(description="Change the prefix for this guild", pass_context=True, aliases=["setprefix"])
 @has_permissions(administrator=True) #ensure that only administrators can use this command
 async def changeprefix(ctx, *, prefix): #command: bl!changeprefix ...
-    with open('./prefixes/prefixes.json', 'r') as f:
+    with open(prefix_path, 'r') as f:
         prefixes = json.load(f)
 
     prefixes[str(ctx.guild.id)] = prefix
 
-    with open('./prefixes/prefixes.json', 'w') as f: #writes the new prefix into the .json
+    with open(prefix_path, 'w') as f: #writes the new prefix into the .json
         json.dump(prefixes, f, indent=4)
 
     await ctx.send(f'Prefix changed to: {prefix}') #confirms the prefix it's been changed to
@@ -252,7 +240,7 @@ async def help(ctx: commands.Context, category=None):
 @bot.hybrid_command(description="Loads a cog", aliases=["l"])
 @commands.is_owner()
 async def load(ctx: commands.Context, extension: str):
-    if ctx.message.author.id == dev_id:
+    if ctx.message.author.id == OWNER_ID:
         try:
             await bot.load_extension(f"divinecogs.{extension}")
             respo = await ctx.reply(f"{extension} loaded!")
@@ -261,7 +249,7 @@ async def load(ctx: commands.Context, extension: str):
             await respo.delete()
             try:
                 await ctx.message.delete()
-            except:
+            except Exception:
                 pass
         except Exception as e:
             respo = await ctx.reply(f"Error loading {extension}")
@@ -269,14 +257,14 @@ async def load(ctx: commands.Context, extension: str):
             await respo.delete()
             try:
                 await ctx.message.delete()
-            except:
+            except Exception:
                 pass
             print(e)
 
 @bot.hybrid_command(description="Unloads a cog", aliases=["u"])
 @commands.is_owner()
 async def unload(ctx: commands.Context, extension: str):
-    if ctx.message.author.id == dev_id:
+    if ctx.message.author.id == OWNER_ID:
         try:
             await bot.unload_extension(f"divinecogs.{extension}")
             respo = await ctx.send(f"{extension} unloaded!", ephemeral=True)
@@ -284,7 +272,7 @@ async def unload(ctx: commands.Context, extension: str):
             await respo.delete()
             try:
                 await ctx.message.delete()
-            except:
+            except Exception:
                 pass
         except Exception as e:
             respo = await ctx.send(f"Error unloading {extension}", ephemeral=True)
@@ -292,7 +280,7 @@ async def unload(ctx: commands.Context, extension: str):
             await respo.delete()
             try:
                 await ctx.message.delete()
-            except:
+            except Exception:
                 pass
             print(e)
 
@@ -300,7 +288,7 @@ async def unload(ctx: commands.Context, extension: str):
 @bot.hybrid_command(description="Reloads a cog", aliases=["r"])
 @commands.is_owner()
 async def reload(ctx: commands.Context, extension: str):
-    if ctx.message.author.id == dev_id:
+    if ctx.message.author.id == OWNER_ID:
         try:
             await bot.unload_extension(f"divinecogs.{extension}")
             await bot.load_extension(f"divinecogs.{extension}")
@@ -309,7 +297,7 @@ async def reload(ctx: commands.Context, extension: str):
             await respo.delete()
             try:
                 await ctx.message.delete()
-            except:
+            except Exception:
                 pass
         except Exception as e:
             respo = await ctx.send(f"Error re-loading {extension}", ephemeral=True)
@@ -317,7 +305,7 @@ async def reload(ctx: commands.Context, extension: str):
             await respo.delete()
             try:
                 await ctx.message.delete()
-            except:
+            except Exception:
                 pass
             print(e)
 
@@ -325,27 +313,27 @@ async def reload(ctx: commands.Context, extension: str):
 @bot.hybrid_command(description="Reloads all cogs", aliases=["ra"])
 @commands.is_owner()
 async def reloadall(ctx: commands.Context):
-    if ctx.message.author.id == dev_id:
+    if ctx.message.author.id == OWNER_ID:
         try:
             for file in os.listdir('./divinecogs'):
                 if file.endswith(".py"):
                     await bot.unload_extension(f"divinecogs.{file[:-3]}")
                     await bot.load_extension(f"divinecogs.{file[:-3]}")
-                    respo = await ctx.reply(f"All Divine cogs reloaded!")
+                    respo = await ctx.reply("All Divine cogs reloaded!")
                     await asyncio.sleep(5)
                     await respo.delete()
                     try:
                         await ctx.message.delete()
-                    except:
+                    except Exception:
                         pass
         except Exception as e:
-            respo = await ctx.reply(f"Error re-loading divinecogs.")
+            respo = await ctx.reply("Error re-loading divinecogs.")
             await asyncio.sleep(5)
             await respo.delete()
             try:
                 await ctx.message.delete()
-            except:
+            except Exception:
                 pass
             print(e)
             
-bot.run(token)
+bot.run(NSB_TOKEN)

@@ -6,15 +6,11 @@ import random
 import urllib.request
 from bs4 import BeautifulSoup
 import re
+from configs import CODEFORCES_KEY, CODEFORCES_SECRET
 
-j_file = open("divinesecrets.txt")
-vari = json.load(j_file)
-j_file.close()
-key = vari["cfkey"]
-secret = vari["cfsecret"]
 
 async def get_problem():
-    contests = codeforces.api.call('contest.list', key=key, secret=secret)
+    contests = codeforces.api.call('contest.list', key=CODEFORCES_KEY, secret=CODEFORCES_SECRET)
     contest = random.choice(contests)
     contest_id = contest['id']
     index_list = ['A', 'B', 'C', 'D', 'E']
@@ -41,18 +37,18 @@ class CodeForces(commands.Cog):
     @commands.command(aliases=['cf', 'codeforces'])
     async def cfproblem(self, ctx):
         attr = await get_problem()
-        colorEmbed = random.randint(0x000000, 0xFFFFFF)
-        problemEmbed = discord.Embed(title=attr[1][0], color=colorEmbed, url=attr[0])
-        problemEmbed.add_field(name="Statement", value=attr[5]+"...", inline=False)
-        problemEmbed.add_field(name="Input Specification",value=attr[3][5:], inline=False)
-        problemEmbed.add_field(name="Output Specification",value=attr[4][6:], inline=False)
-        await ctx.send(embed=problemEmbed)
+        color_embed = random.randint(0x000000, 0xFFFFFF)
+        problem_embed = discord.Embed(title=attr[1][0], color=color_embed, url=attr[0])
+        problem_embed.add_field(name="Statement", value=attr[5]+"...", inline=False)
+        problem_embed.add_field(name="Input Specification",value=attr[3][5:], inline=False)
+        problem_embed.add_field(name="Output Specification",value=attr[4][6:], inline=False)
+        await ctx.send(embed=problem_embed)
         ex = []
         for i in range(len(attr[2])):
             ex.append(f"```Input:\n{attr[2][i][0]}\nOutput:\n{attr[2][i][1]}```")
         exampless = "\n".join(ex)
-        exampleEmbed=discord.Embed(title="Examples:", description=exampless, color=colorEmbed)
-        await ctx.send(embed=exampleEmbed)
+        example_embed=discord.Embed(title="Examples:", description=exampless, color=color_embed)
+        await ctx.send(embed=example_embed)
 
 async def setup(bot):
     await bot.add_cog(CodeForces(bot))

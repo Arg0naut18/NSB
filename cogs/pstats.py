@@ -2,16 +2,11 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 import random
-# from pydactyl import PterodactylClient
 import json
 import sys
 import psutil
 import os
 from pytz import timezone
-#j_file = open("divinesecrets.txt")
-#vari = json.load(j_file)
-#j_file.close()
-#serverapikey = vari["serverapikey"]
 
 
 class pterostats(commands.Cog):
@@ -75,7 +70,7 @@ class pterostats(commands.Cog):
     async def testcustom(self, ctx, emoji: discord.Emoji=None):
         try:
             await ctx.send(f"{emoji.id}")
-        except:
+        except Exception:
             pass
         
     @commands.command()
@@ -83,7 +78,7 @@ class pterostats(commands.Cog):
         try:
             member = discord.utils.get(self.bot.textchannels, id=member_id)
             await ctx.send(f"{member.name}")
-        except:
+        except Exception:
             pass
         
     @commands.command()

@@ -4,35 +4,14 @@ import random
 from PIL import Image, ImageFont, ImageDraw, ImageOps, ImageFilter, ImageChops
 from io import BytesIO
 import json
+from configs import OWNER_ID
+from economy import Bank
 
 
 async def get_servers():
     with open(r'./welcome/welcome.json') as f:
         servers = json.load(f)
     return servers
-
-
-async def open_account(user):
-    with open(r'./bank/bank.json', 'r') as f:
-        users = json.load(f)
-    if str(user.id) in users:
-        return False
-    else:
-        users[str(user.id)] = {}
-        users[str(user.id)]["wallet"] = 0
-        users[str(user.id)]["bank"] = 0
-        users[str(user.id)]["maxbank"] = 15000
-        users[str(user.id)]["safe"] = 0
-        users[str(user.id)]["multiplier"] = 1
-    with open(r'./bank/bank.json', 'w') as f:
-        json.dump(users, f, indent=4)
-    return True
-
-
-async def get_account_data():
-    with open(r"./bank/bank.json", 'rb') as j:
-        bank = json.load(j)
-    return bank
 
 
 class welcome(commands.Cog):
@@ -102,7 +81,7 @@ class welcome(commands.Cog):
     #        if role is not None:
     #            role_ = discord.utils.get(member.guild.roles, id=int(role))
     #            await member.add_roles(role_)
-        
+    #  
     #@commands.Cog.listener()
     #async def on_member_remove(self, member):
     #    if member.guild.id == 711079029624537098:
@@ -121,10 +100,7 @@ class welcome(commands.Cog):
     
     @commands.command()
     async def intro(self, ctx):
-        dev_name = "Argonaut#6921"
-        dev_id = 436844058217021441
-        # camp_name = "Ɖɨʋɨռɛ"
-        dev = await self.bot.fetch_user(dev_id)
+        dev = await self.bot.fetch_user(OWNER_ID)
         msg = f"Thanks for you're concern. I am a \
 bot developed by {dev} to help you out or entertain you in your daily busy lives."
         embed = discord.Embed(
@@ -138,7 +114,7 @@ bot developed by {dev} to help you out or entertain you in your daily busy lives
     @commands.command()
     @commands.is_owner()
     async def update_multiplier(self, ctx):
-        users = await get_account_data()
+        users = await Bank.get_account_data()
         for user in ctx.guild.members:
             if str(user.id) in users:
                 users[str(user.id)]["multiplier"]=2

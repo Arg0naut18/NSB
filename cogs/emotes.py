@@ -3,25 +3,21 @@ from discord.ext import commands
 import random
 import json
 import urllib.request
+from configs import TENOR_KEY
 
-j_file = open("divinesecrets.txt")
-vari = json.load(j_file)
-j_file.close()
-tkey = vari["tenorkey"]
 
 class emotes(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        # self.member = member
 
     @commands.command()
     async def gif(self, ctx, *, query):
-        url = f"https://g.tenor.com/v1/search?q={query}&key={tkey}&limit=8&media_filter=basic"
+        url = f"https://g.tenor.com/v1/search?q={query}&key={TENOR_KEY}&limit=8&media_filter=basic"
         data = urllib.request.urlopen(url)
-        Json = json.load(data)
-        index = random.randrange(len(Json['results']))
-        await ctx.reply(Json['results'][index]['url'])
+        json_data = json.load(data)
+        index = random.randrange(len(json_data['results']))
+        await ctx.reply(json_data['results'][index]['url'])
 
     @commands.command()
     async def hug(self, ctx, member: discord.Member = None):

@@ -26,3 +26,4 @@ js2py
 SpotifyUtil==0.0.0.7
 redis[hiredis]
 interruptingcow
+DiscordUtils

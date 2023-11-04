@@ -9,24 +9,19 @@ import json
 from pytube import Playlist
 import datetime
 from SpotifyUtil import SpotifyUtil
+from configs import SPOTIPY_ID, SPOTIPY_TOKEN, SPOTPY_REDIRECT_URI, MUSIXMATCH_KEY, REDIS_HOST, REDIS_PASS, REDIS_PORT
 
 
-j_file = open("divinesecrets.txt")
-vari = json.load(j_file)
-j_file.close()
-spotify_id = vari["spotipyid"]
-spotify_token = vari["spotipytoken"]
-spotify_redirect_uri = vari["spotipyredirecturi"]
-apikey = vari['musixmatchkey']
-redis_host = vari['redis_host']
-redis_pass = vari['redis_pass']
-redis_port = vari['redis_port']
+NOT_CONNECTED_IN_VC = "`You need to be connected to the vc!`"
+NOW_PLAYING = "Now Playing!"
 
 
 class Queue:
     def __init__(self):
         self.queue_looping = False
-        with open("./music/queue.json", 'r') as f:
+        self.queue_path = "./music/queue.json"
+        
+        with open(self.queue_path, 'r') as f:
             self.past_queue = json.load(f)
 
     async def get_queue(self, user):
@@ -36,24 +31,25 @@ class Queue:
         if user.guild.id in self.past_queue:
             return False
         self.past_queue[str(user.guild.id)] = []
-        with open("./music/queue.json", 'w') as f:
+        with open(self.queue_path, 'w') as f:
             json.dump(self.past_queue, f, indent=4)
         return True
 
     async def add_queue(self, user, name):
         await self.make_queue(user)
         self.past_queue[str(user.guild.id)].append(name)
-        with open("./music/queue.json", 'w') as f:
+        with open(self.queue_path, 'w') as f:
             json.dump(self.past_queue, f, indent=4)
 
     async def clear_queue(self, user):
         await self.make_queue(user)
         self.past_queue[str(user.guild.id)] = []
-        with open("./music/queue.json", 'w') as f:
+        with open(self.queue_path, 'w') as f:
             json.dump(self.past_queue, f, indent=4)
 
 
 class music(commands.Cog):
+
     def __init__(self, bot):
         self.bot = bot
         self.queueObj = Queue()
@@ -69,19 +65,19 @@ class music(commands.Cog):
     async def join(self, ctx):
         try:
             vc = ctx.author.voice.channel
-        except:
+        except Exception:
             await self.send_and_delete_msg(ctx, "You need to be connected to the vc!")
         await vc.connect()
         await ctx.guild.change_voice_state(channel=ctx.author.voice.channel, self_deaf=True)
-        self.spotify = SpotifyUtil(spotify_client_id=spotify_id, spotify_client_secret=spotify_token, spotify_redirect_uri=spotify_redirect_uri, use_redis=True, redis_pass=redis_pass, host=redis_host, port=redis_port)
+        self.spotify = SpotifyUtil(spotify_client_id=SPOTIPY_ID, spotify_client_secret=SPOTIPY_TOKEN, spotify_redirect_uri=SPOTPY_REDIRECT_URI, use_redis=True, redis_pass=REDIS_PASS, host=REDIS_HOST, port=REDIS_PORT)
 
     @commands.hybrid_command(description="Bot leaves the vc", aliases=['dc', 'disconnect'])
     async def leave(self, ctx):
         try:
-            vc = ctx.author.voice.channel
+            ctx.author.voice.channel
             player = self.m.get_player(guild_id=ctx.guild.id)
             bot_in_vc = ctx.voice_client
-        except:
+        except Exception:
             await self.send_and_delete_msg(ctx, "`You must be in the vc for this command to work!`")
             return
         if player is None:
@@ -89,7 +85,7 @@ class music(commands.Cog):
             return
         try:
             await ctx.message.add_reaction("👋")
-        except: pass
+        except Exception: pass
         await player.stop()
         await bot_in_vc.disconnect()
         await self.queueObj.clear_queue(ctx.author)
@@ -100,25 +96,25 @@ class music(commands.Cog):
         await ctx.defer()
         try:
             await self.join(ctx)
-        except:
+        except Exception:
             pass
         player = self.m.get_player(guild_id=ctx.guild.id)
         if not player:
             player = self.m.create_player(ctx, ffmpeg_error_betterfix=True)
         if 'spotify.com' in url:
-            type = url.split('spotify.com/')[1].split('/')[0]
-            if type=='track':
+            type_of_url = url.split('spotify.com/')[1].split('/')[0]
+            if type_of_url=='track':
                 result = self.spotify.get_track_details(url)
                 name, artist, url = result['name'], result['artist'], f"{result['name']} official {result['artist']}"
             else:
-                tracks = self.spotify.get_tracks(url, type=type, verbose=True)
+                tracks = self.spotify.get_tracks(url, type=type_of_url, verbose=True)
                 for track in tracks.detailed_list:
                     name = track['name']
                     artist = track['artist']
                     url = f"{name} official {artist}"
                     try:
                         await player.queue(url, search=True)
-                    except:
+                    except Exception:
                         pass
                 await player.remove_from_queue(len(player.current_queue())-1)
                 await ctx.send(f"Added `{tracks.total_size}` songs to the queue!")
@@ -130,16 +126,15 @@ class music(commands.Cog):
                 newtitle = f"{name} {artist}"
                 try:
                     await player.queue(newtitle, search=True)
-                except:
+                except Exception:
                     pass
             await player.remove_from_queue(len(player.current_queue())-1)   
             await ctx.send(f"Added `{len(play_list.videos)}` songs to the queue!")
         @player.on_play
         async def on_play(ctx, song):
-            # emb = discord.Embed(title="Now Playing!", description=f"[{song.name}]({song.url})", color=0x00FF00)
             try:
                 artist, title = get_artist_title(f"{song.name}")
-            except:
+            except Exception:
                 title = song.name
                 artist = song.channel
             sname = title + " " + artist
@@ -149,19 +144,19 @@ class music(commands.Cog):
             else:
                 secs = '0' + str(song.duration%60)
                 dura = f"{song.duration//60}:{secs}"
-            emb = discord.Embed(title="Now Playing!",color=0x00FF00)
+            emb = discord.Embed(title=NOW_PLAYING,color=0x00FF00)
             emb.add_field(name="Title", value=f"[{title}]({song.url})", inline=True)
             emb.add_field(name="Duration", value=f"`{dura}`", inline=True)
             try:
                 emb.add_field(name="Artist", value=f"`{artist}`", inline=False)
-            except:
+            except Exception:
                 pass
             await self.send_and_delete_msg(ctx, emb, time=song.duration, is_embed=True)
         if ctx.voice_client.is_paused() and url==None:
             try:
                 await player.resume()
                 await ctx.message.add_reaction("👍")
-            except:
+            except Exception:
                 pass
         if not ctx.voice_client.is_playing() and not ctx.voice_client.is_paused():
             await player.queue(url, search=True)
@@ -170,7 +165,7 @@ class music(commands.Cog):
             song = await player.queue(url, search=True)
             try:
                 artist, title = get_artist_title(f"{song.name}")
-            except:
+            except Exception:
                 title = song.name
             if song.duration % 60 >= 10:
                 dura = f"{song.duration//60}:{song.duration%60}"
@@ -182,7 +177,7 @@ class music(commands.Cog):
             emb.add_field(name="Duration", value=f"`{dura}`", inline=True)
             try:
                 emb.add_field(name="Artist", value=f"`{artist}`", inline=False)
-            except:
+            except Exception:
                 pass
             emb.set_footer(text=f"Position: {len(player.current_queue())}")
             await ctx.send(embed=emb)
@@ -190,9 +185,9 @@ class music(commands.Cog):
     @commands.hybrid_command()
     async def pause(self, ctx):
         try:
-            vc = ctx.author.voice.channel
-        except:
-            await ctx.send("`You need to be connected to the vc!`")
+            ctx.author.voice.channel
+        except Exception:
+            await ctx.send(NOT_CONNECTED_IN_VC)
             return
         player = self.m.get_player(guild_id=ctx.guild.id)
         await player.pause()
@@ -201,38 +196,38 @@ class music(commands.Cog):
     @commands.hybrid_command()
     async def resume(self, ctx):
         try:
-            vc = ctx.author.voice.channel
-        except:
-            await ctx.send("`You need to be connected to the vc!`")
+            ctx.author.voice.channel
+        except Exception:
+            await ctx.send(NOT_CONNECTED_IN_VC)
             return
         player = self.m.get_player(guild_id=ctx.guild.id)
-        song = await player.resume()
+        await player.resume()
         try:
             await ctx.message.add_reaction("👍")
-        except:
+        except Exception:
             pass
 
     @commands.hybrid_command()
     async def stop(self, ctx):
         try:
-            vc = ctx.author.voice.channel
-        except:
-            await ctx.send("`You need to be connected to the vc!`")
+            ctx.author.voice.channel
+        except Exception:
+            await ctx.send(NOT_CONNECTED_IN_VC)
             return
         player = self.m.get_player(guild_id=ctx.guild.id)
         await player.stop()
         try:
             await ctx.message.add_reaction("🛑")
-        except:
+        except Exception:
             pass
         await self.queueObj.clear_queue(ctx.author)
 
     @commands.hybrid_command()
     async def loop(self, ctx, term=None):
         try:
-            vc = ctx.author.voice.channel
-        except:
-            await ctx.send("`You need to be connected to the vc!`")
+            ctx.author.voice.channel
+        except Exception:
+            await ctx.send(NOT_CONNECTED_IN_VC)
             return
         player = self.m.get_player(guild_id=ctx.guild.id)
         if term != "queue":
@@ -268,7 +263,7 @@ class music(commands.Cog):
         msg1=''
         try:
             msg1 = ''.join([f"```yaml\n{player.current_queue().index(song) + 1}) {song.name} -> ({duralist[player.current_queue().index(song)]})```" for song in total_queue_list[:15]])
-        except:
+        except Exception:
             pass
         if msg1 == '':
             emptymessg = discord.Embed(title="Queue", description="Queue is empty! Add some songs.", color=0x00FF00)
@@ -310,8 +305,6 @@ class music(commands.Cog):
             paginator.add_reaction('⏪', "back")
             paginator.add_reaction('⏩', "next")
             paginator.add_reaction('⏭️', "last")
-        else:
-            pass
         await paginator.run(embeds)
 
     @commands.hybrid_command(description="Shows the song playing right now")
@@ -323,32 +316,29 @@ class music(commands.Cog):
         else:
             secs = '0' + str(song.duration%60)
             dura = f"{song.duration//60}:{secs}"
-        emb = discord.Embed(title="Now Playing!", description=f"[{song.name}]({song.url})"+f" - ({dura})", color=0x00FF00)
+        emb = discord.Embed(title=NOW_PLAYING, description=f"[{song.name}]({song.url})"+f" - ({dura})", color=0x00FF00)
         await ctx.send(embed=emb)
 
     @commands.hybrid_command(aliases = ['next'])
     async def skip(self, ctx):
         try:
-            vc = ctx.author.voice.channel
-        except:
-            await ctx.send("`You need to be connected to the vc!`")
+            ctx.author.voice.channel
+        except Exception:
+            await ctx.send(NOT_CONNECTED_IN_VC)
             return
         player = self.m.get_player(guild_id=ctx.guild.id)
-        data = await player.skip(force=True)
+        await player.skip(force=True)
         await ctx.message.add_reaction("⏩")
         song = player.now_playing()
-        emb = discord.Embed(title="Now Playing!", description=f"[{song.name}]({song.url})", color=0x00FF00)
+        emb = discord.Embed(title=NOW_PLAYING, description=f"[{song.name}]({song.url})", color=0x00FF00)
         await ctx.send(embed=emb)
-        # await ctx.send(f"Skipped from `{data[0].name}` to `{data[1].name}`")
-        #else:
-        # await ctx.send(f"Skipped `{data[0].name}`")
 
     @commands.hybrid_command()
     async def volume(self, ctx, vol):
         try:
-            vc = ctx.author.voice.channel
-        except:
-            await ctx.send("`You need to be connected to the vc!`")
+            ctx.author.voice.channel
+        except Exception:
+            await ctx.send(NOT_CONNECTED_IN_VC)
             return
         player = self.m.get_player(guild_id=ctx.guild.id)
         song, volume = await player.change_volume(float(vol) / 100) # volume should be a float between 0 to 1
@@ -357,9 +347,9 @@ class music(commands.Cog):
     @commands.hybrid_command()
     async def remove(self, ctx, index):
         try:
-            vc = ctx.author.voice.channel
-        except:
-            await ctx.send("`You need to be connected to the vc!`")
+            ctx.author.voice.channel
+        except Exception:
+            await ctx.send(NOT_CONNECTED_IN_VC)
             return
         player = self.m.get_player(guild_id=ctx.guild.id)
         if index=="last":
@@ -371,7 +361,7 @@ class music(commands.Cog):
     
     @commands.hybrid_command()
     async def lyrics(self,ctx, *, songname=None):
-        api = "&apikey="+apikey
+        api = "&apikey=" + MUSIXMATCH_KEY
         lyrics_matcher = "matcher.lyrics.get"
         base_url = "https://api.musixmatch.com/ws/1.1/"
         format_url = "?format=json&callback=callback"
@@ -399,7 +389,7 @@ class music(commands.Cog):
             data = request.json()
             data = data['message']['body']
             lyrics = data['lyrics']['lyrics_body']
-        except:
+        except Exception:
             api_call = base_url + lyrics_matcher + format_url + track_search_parameter + title + api
             request = requests.get(api_call)
             data = request.json()
@@ -409,13 +399,13 @@ class music(commands.Cog):
             lyric = lyrics
             lyr = discord.Embed(title=f"{title}".title(), description=lyric, color=0x00FF00)
             await ctx.send(embed=lyr)
-        except:
-            await ctx.send(f'`Lyrics not found.`')
+        except Exception:
+            await ctx.send('`Lyrics not found.`')
     
     @skip.error
     async def noSkipleft(self, ctx, error):
         if isinstance(error, commands.CommandInvokeError):
-            await self.send_and_delete_msg(ctx, f"`Queue is empty! Add more songs.`")
+            await self.send_and_delete_msg(ctx, "`Queue is empty! Add more songs.`")
     
     @play.error
     async def songcouldntbeplayed(self, ctx, error):
@@ -433,7 +423,6 @@ class music(commands.Cog):
         if isinstance(error, commands.CommandInvokeError):
             print(error)
             await self.send_and_delete_msg(ctx, "`Lyrics not found!`", time=7)
-            return
     
 async def setup(bot):
     await bot.add_cog(music(bot))

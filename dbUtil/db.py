@@ -1,16 +1,12 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 import json
+from configs import MONGO
 
-j_file = open("divinesecrets.txt")
-vari = json.load(j_file)
-j_file.close()
-srv = vari["mongo"]
-
-cluster = AsyncIOMotorClient([srv])
+cluster = AsyncIOMotorClient([MONGO])
 
 class db:
-    db = cluster['NSBUsers']
-    economy = db['Users']
-    shopItems = db['Shop']
-    transactions = db['Transactions']
-    notifs = db['Notifications']
+    database = cluster['NSBUsers']
+    economy = database['Users']
+    shop_items = database['Shop']
+    transactions = database['Transactions']
+    notifs = database['Notifications']

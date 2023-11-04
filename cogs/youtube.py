@@ -6,13 +6,12 @@ from pyyoutube import Api
 import json
 import urllib
 import re
+from config import YT_KEY
 
-j_file = open("divinesecrets.txt")
-vari = json.load(j_file)
-j_file.close()
-ytKey = vari["ytKey"]
-api = Api(api_key = ytKey)
+api = Api(api_key = YT_KEY)
 color = [15158332, 3066993, 10181046, 3447003, 1752220, 15844367]
+CHANNEL_NOT_FOUND = "Channel not found!"
+
 
 class youtube(commands.Cog):
 
@@ -20,26 +19,26 @@ class youtube(commands.Cog):
         self.bot = bot
 
     @commands.command(aliases=['ytsubs'])
-    async def subs(self, ctx, *, channelName = None):
+    async def subs(self, ctx, *, channel_name = None):
         color_main = color[random.randint(0,5)]
-        if channelName is None:
+        if channel_name is None:
             await ctx.send("Please enter the name or channel id of the channel u want to see the subscribers of.")
         else:
             try:
-                channel_by_name = api.get_channel_info(channel_name=channelName)
-                channel_by_id = api.get_channel_info(channel_id=channelName)
+                channel_by_name = api.get_channel_info(channel_name=channel_name)
+                channel_by_id = api.get_channel_info(channel_id=channel_name)
                 try:
                     data = channel_by_name.items[0].to_dict()
                 except Exception:
                     data = channel_by_id.items[0].to_dict()
                 subs = data["statistics"]["subscriberCount"]
                 thum = data["snippet"]["thumbnails"]["default"]["url"]
-                embed = discord.Embed(title=f'{channelName}', description = f'The current subscribers of {channelName} are `{subs}`', color=color_main)
+                embed = discord.Embed(title=f'{channel_name}', description = f'The current subscribers of {channel_name} are `{subs}`', color=color_main)
                 embed.set_thumbnail(url = thum)
                 await ctx.send(embed=embed)
             except Exception as e:
                 print(e)
-                await ctx.send("Channel not found!")
+                await ctx.send(CHANNEL_NOT_FOUND)
 
     @commands.command(aliases = ['ytc'])
     async def subscomp(self, ctx, channel1, channel2 = None):
@@ -57,7 +56,7 @@ class youtube(commands.Cog):
                 await ctx.send(embed=embed)
             except Exception as e:
                 print(e)
-                await ctx.send("Channel not found!")
+                await ctx.send(CHANNEL_NOT_FOUND)
         else:
             try:
                 channel_by_name1 = api.get_channel_info(channel_name=channel1)
@@ -86,7 +85,7 @@ class youtube(commands.Cog):
                     await ctx.send(embed=embed)
             except Exception as e:
                 print(e)
-                await ctx.send("Channel not found!")
+                await ctx.send(CHANNEL_NOT_FOUND)
                 
     @commands.command(aliases = ['yts'])
     async def ytsearch(self, ctx, *, search):

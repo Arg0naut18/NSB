@@ -7,16 +7,11 @@ import urllib.request
 from PIL import Image, ImageFont, ImageDraw
 from io import BytesIO
 import textwrap
+from configs import CLIENT_ID, CLIENT_SECRET, USER_AGENT
 
 color = [15158332, 3066993, 10181046, 3447003, 1752220, 15844367]
-j_file = open("divinesecrets.txt")
-vari = json.load(j_file)
-j_file.close()
-client_id1 = vari["client_id"]
-client_secret1 = vari["client_secret"]
-user_agent1 = vari["user_agent"]
-reddit = praw.Reddit(client_id=client_id1, client_secret=client_secret1,
-                     user_agent=user_agent1, check_for_async=False)
+reddit = praw.Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET,
+                     user_agent=USER_AGENT, check_for_async=False)
 
 async def get_account_data():
     with open(r'./bank/bank.json', 'r') as j:

@@ -9,7 +9,7 @@ import DiscordUtils
 from dbUtil.db import db
 
 dbe = db.economy
-dbShop = db.shopItems
+dbShop = db.shop_items
 dbTransactions = db.transactions
 dbNotifications = db.notifs
 
