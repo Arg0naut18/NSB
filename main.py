@@ -1,5 +1,3 @@
-#importing necessary modules
-
 import discord
 from discord import app_commands, utils
 from discord.ext import commands, tasks
@@ -48,12 +46,12 @@ class MyBot(commands.Bot):
         print("Logged in as: " + bot.user.name + "\n")
         
     async def setup_hook(self):
-        for file in os.listdir('./divinecogs'):
+        for file in os.listdir('./cogs'):
             if file.endswith(".py"):
                 with timeout(300, exception=RuntimeError):
-                    print(f"Loading divinecogs.{file[:-3]}...")
-                    await bot.load_extension(f"divinecogs.{file[:-3]}")
-                    print(f"divinecogs.{file[:-3]} loaded!")
+                    print(f"Loading cogs.{file[:-3]}...")
+                    await bot.load_extension(f"cogs.{file[:-3]}")
+                    print(f"cogs.{file[:-3]} loaded!")
         await self.tree.sync()
 
 
@@ -242,7 +240,7 @@ async def help(ctx: commands.Context, category=None):
 async def load(ctx: commands.Context, extension: str):
     if ctx.message.author.id == OWNER_ID:
         try:
-            await bot.load_extension(f"divinecogs.{extension}")
+            await bot.load_extension(f"cogs.{extension}")
             respo = await ctx.reply(f"{extension} loaded!")
             print(f"{extension} loaded!")
             await asyncio.sleep(5)
@@ -266,7 +264,7 @@ async def load(ctx: commands.Context, extension: str):
 async def unload(ctx: commands.Context, extension: str):
     if ctx.message.author.id == OWNER_ID:
         try:
-            await bot.unload_extension(f"divinecogs.{extension}")
+            await bot.unload_extension(f"cogs.{extension}")
             respo = await ctx.send(f"{extension} unloaded!", ephemeral=True)
             await asyncio.sleep(5)
             await respo.delete()
@@ -290,8 +288,8 @@ async def unload(ctx: commands.Context, extension: str):
 async def reload(ctx: commands.Context, extension: str):
     if ctx.message.author.id == OWNER_ID:
         try:
-            await bot.unload_extension(f"divinecogs.{extension}")
-            await bot.load_extension(f"divinecogs.{extension}")
+            await bot.unload_extension(f"cogs.{extension}")
+            await bot.load_extension(f"cogs.{extension}")
             respo = await ctx.send(f"{extension} re-loaded!", ephemeral=True)
             await asyncio.sleep(5)
             await respo.delete()
@@ -315,10 +313,10 @@ async def reload(ctx: commands.Context, extension: str):
 async def reloadall(ctx: commands.Context):
     if ctx.message.author.id == OWNER_ID:
         try:
-            for file in os.listdir('./divinecogs'):
+            for file in os.listdir('./cogs'):
                 if file.endswith(".py"):
-                    await bot.unload_extension(f"divinecogs.{file[:-3]}")
-                    await bot.load_extension(f"divinecogs.{file[:-3]}")
+                    await bot.unload_extension(f"cogs.{file[:-3]}")
+                    await bot.load_extension(f"cogs.{file[:-3]}")
                     respo = await ctx.reply("All Divine cogs reloaded!")
                     await asyncio.sleep(5)
                     await respo.delete()
@@ -327,7 +325,7 @@ async def reloadall(ctx: commands.Context):
                     except Exception:
                         pass
         except Exception as e:
-            respo = await ctx.reply("Error re-loading divinecogs.")
+            respo = await ctx.reply("Error re-loading cogs.")
             await asyncio.sleep(5)
             await respo.delete()
             try:

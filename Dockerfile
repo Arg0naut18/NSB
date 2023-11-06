@@ -72,6 +72,5 @@ ENV redis_port=$redis_port
 
 RUN apt-get update && \
     apt clean && \
-    pip install -Ur requirements.txt
-
-CMD ["python", "main.py"]
+    pip install -Ur requirements.txt && \
+    python main.py

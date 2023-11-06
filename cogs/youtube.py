@@ -6,7 +6,7 @@ from pyyoutube import Api
 import json
 import urllib
 import re
-from config import YT_KEY
+from configs import YT_KEY
 
 api = Api(api_key = YT_KEY)
 color = [15158332, 3066993, 10181046, 3447003, 1752220, 15844367]
