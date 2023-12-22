@@ -3,15 +3,14 @@ from typing import Optional
 from discord.ext import commands
 import random
 import praw
-import json
+import os
 from PIL import Image, ImageFont, ImageDraw
 from io import BytesIO
 import textwrap
-from configs import CLIENT_ID, CLIENT_SECRET, USER_AGENT
 
 color = [15158332, 3066993, 10181046, 3447003, 1752220, 15844367]
-reddit = praw.Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET,
-                     user_agent=USER_AGENT, check_for_async=False)
+reddit = praw.Reddit(client_id=os.getenv("REDDIT_CLIENT_ID"), client_secret=os.getenv("REDDIT_CLIENT_SECRET"),
+                     user_agent=os.getenv("REDDIT_USER_AGENT"), check_for_async=False)
 
 class meme(commands.Cog):
 

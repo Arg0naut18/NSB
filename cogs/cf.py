@@ -1,16 +1,15 @@
 import discord
 from discord.ext import commands
-import json
+import os
 import codeforces
 import random
 import urllib.request
 from bs4 import BeautifulSoup
 import re
-from configs import CODEFORCES_KEY, CODEFORCES_SECRET
 
 
 async def get_problem():
-    contests = codeforces.api.call('contest.list', key=CODEFORCES_KEY, secret=CODEFORCES_SECRET)
+    contests = codeforces.api.call('contest.list', key=os.getenv("CODEFORCES_KEY"), secret=os.getenv("CODEFORCES_SECRET"))
     contest = random.choice(contests)
     contest_id = contest['id']
     index_list = ['A', 'B', 'C', 'D', 'E']

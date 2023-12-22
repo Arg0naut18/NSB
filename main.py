@@ -8,10 +8,10 @@ from interruptingcow import timeout
 import random
 import json
 import asyncio
-from dbUtil.db import db
-from configs import NSB_TOKEN, OWNER_ID
+from utils.db import dbUtil
+from dotenv import load_dotenv
 
-
+load_dotenv()
 guild_id = 743741348578066442
 prefix_path = './prefixes/prefixes.json'
 
@@ -334,4 +334,4 @@ async def reloadall(ctx: commands.Context):
                 pass
             print(e)
             
-bot.run(NSB_TOKEN)
+bot.run(SCICORD_TOKEN)

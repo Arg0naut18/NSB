@@ -3,7 +3,7 @@ from discord.ext import commands
 import random
 import json
 import urllib.request
-from configs import TENOR_KEY
+import os
 
 
 class emotes(commands.Cog):
@@ -13,7 +13,7 @@ class emotes(commands.Cog):
 
     @commands.command()
     async def gif(self, ctx, *, query):
-        url = f"https://g.tenor.com/v1/search?q={query}&key={TENOR_KEY}&limit=8&media_filter=basic"
+        url = f"https://g.tenor.com/v1/search?q={query}&key={os.getenv('TENOR_KEY')}&limit=8&media_filter=basic"
         data = urllib.request.urlopen(url)
         json_data = json.load(data)
         index = random.randrange(len(json_data['results']))

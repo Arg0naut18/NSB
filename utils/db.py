@@ -1,8 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorClient
-import json
-from configs import MONGO
+import os
 
-cluster = AsyncIOMotorClient([MONGO])
+cluster = AsyncIOMotorClient(os.getenv("MONGO"))
 
 class db:
     database = cluster['NSBUsers']

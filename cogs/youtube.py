@@ -6,9 +6,8 @@ from pyyoutube import Api
 import json
 import urllib
 import re
-from configs import YT_KEY
 
-api = Api(api_key = YT_KEY)
+api = Api(api_key = os.getenv("YT_KEY"))
 color = [15158332, 3066993, 10181046, 3447003, 1752220, 15844367]
 CHANNEL_NOT_FOUND = "Channel not found!"
 
@@ -89,7 +88,6 @@ class youtube(commands.Cog):
                 
     @commands.command(aliases = ['yts'])
     async def ytsearch(self, ctx, *, search):
-
         query_string = urllib.parse.urlencode({'search_query': search})
         htm_content = urllib.request.urlopen(
             'http://www.youtube.com/results?' + query_string)

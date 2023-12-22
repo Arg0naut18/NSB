@@ -7,7 +7,7 @@ import datetime
 import json
 from typing import Optional
 import DiscordUtils
-from dbUtil.db import db
+from utils.db import db
 
 picchannels = [801811950119157790, 711217046272344094, 753632407332192366, 711095542486269964,
                771968223797051413, 780830237512433675, 778548218110803998, 827201189439078442]

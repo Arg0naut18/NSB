@@ -2,6 +2,7 @@ import os
 
 
 NSB_TOKEN = os.getenv("nsbtoken")
+SCICORD_TOKEN = os.getenv("scicord_token")
 TOKEN = os.getenv("TOKEN")
 ALT_TOKEN = os.getenv("token")
 YT_KEY = os.getenv("ytKey")

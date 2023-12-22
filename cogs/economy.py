@@ -6,7 +6,7 @@ import random
 import re
 import asyncio
 import DiscordUtils
-from dbUtil.db import db
+from utils.db import db
 
 dbe = db.economy
 dbShop = db.shop_items
