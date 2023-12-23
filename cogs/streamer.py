@@ -52,7 +52,7 @@ class Streamer(commands.Cog):
             base_url+=f"{season}/"
             if episode:
                 base_url+=str(episode)
-        await ctx.reply(f"Try:\n{base_url}\nIf the above link does not work, try:\n{base_url[:15]+'xyz'+base_url[17:]}\n\nIf above link does not work... well all the best finding it.")
+        await ctx.reply(f"Try:\n{base_url}\nIf the above link does not work, try:\n{base_url[:15]+'xyz'+base_url[17:]}\n\nIf the above link does not work as well... well all the best finding it.")
 
     
 async def setup(bot):
