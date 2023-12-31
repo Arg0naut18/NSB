@@ -1,4 +1,6 @@
 from discord.ext import commands
+from discord.ui import Button, View
+from discord import ButtonStyle
 from typing import Optional
 from dotenv import load_dotenv
 import tmdbsimple as tmdb
@@ -30,6 +32,9 @@ class Streamer(commands.Cog):
             searcher.movie(query=name)
         else:
             searcher.tv(query=name)
+        results = searcher.results
+        if len(results)==0 or not results:
+            return await send_error_message(ctx, "Show not found! Please look it up in IMDB or TMDB and provide the ID from the URL as a parameter.")
         return searcher.results[0]['id']
 
     @commands.hybrid_command(name="get-movie-or-tv", with_app_command=True, description="Get a movie or TV show embed", aliases=['movie', 'tv'])
@@ -52,7 +57,14 @@ class Streamer(commands.Cog):
             base_url+=f"{season}/"
             if episode:
                 base_url+=str(episode)
-        await ctx.reply(f"Try:\n{base_url}\nIf the above link does not work, try:\n{base_url[:15]+'xyz'+base_url[17:]}\n\nIf the above link does not work as well... well all the best finding it.")
+        final_url1 = base_url
+        final_url2 = base_url[:15]+'xyz'+base_url[17:]
+        button1 = Button(label="Watch Here", style=ButtonStyle.primary, row=0, url=final_url1)
+        button2 = Button(label="If above didn't work, Try This", style=ButtonStyle.secondary, row=1, url=final_url2)
+        view = View()
+        view.add_item(button1)
+        view.add_item(button2)
+        await ctx.reply("Here you go. If both don't work... well all the best finding it.", view=view)
 
     
 async def setup(bot):
